@@ -69,6 +69,9 @@
       if (currentPath == "/info") {
         $("#info").addClass("is-active")
       }
+      if (currentPath == "/select") {
+        $("#select").addClass("is-active")
+      }
 
       // handle auto-close flash notifications
       setTimeout(function() { $("#notification").fadeOut()}, 3000);
@@ -176,6 +179,10 @@
       <a id="browse" class="navbar-item" href="{{ url_for('browse') }}">
         <i class="icon icon-folder-open-empty" title="{{getString1(98)}}"></i>
         <span>{{getString1(98)}}</span>
+      </a>
+      <a id="select" class="navbar-item" href="{{ url_for('select') }}">
+        <i class="icon icon-search-2" title="{{getString1(210)}}"></i>
+        <span>{{getString1(210)}}</span>
       </a>
       <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
         <span aria-hidden="true"></span>

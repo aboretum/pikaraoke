@@ -443,6 +443,56 @@ def browse():
 		admin = is_admin()
 	)
 
+@app.route("/select", methods = ["GET"])
+def select():
+    page = request.args.get(get_page_parameter(), type = int, default = 1)
+    letter = request.args.get('letter')
+    search_query = request.args.get('q')
+
+    available_songs = K.available_songs
+    if letter:
+        if (letter == "numeric"):
+            available_songs = [k for k,v in K.songname_trans.items() if not v[0].islower()]
+        else:
+            available_songs = [k for k,v in K.songname_trans.items() if v.startswith(letter)]
+    
+    matching_songs = []
+    if search_query:
+        search_terms = search_query.split()
+        for song in available_songs:
+            if all(term.lower() in song.lower() for term in search_terms):
+                matching_songs.append(song)
+        available_songs = matching_songs
+
+    getString2 = lambda ii: getString1(request.client_lang, ii)
+
+    if "sort" in request.args and request.args["sort"] == "date":
+        songs = sorted(available_songs, key = lambda x: os.path.getctime(x))
+        songs.reverse()
+        sort_order = "Date"
+        sort_order_text = getString2(99)
+    else:
+        songs = available_songs
+        sort_order = "Alphabetical"
+        sort_order_text = getString2(100)
+
+    results_per_page = 500
+    pagination = Pagination(css_framework = 'bulma', page = page, total = len(songs), search = False, search_msg = getString2(103),
+                            record_name = getString2(101), display_msg = getString2(102), per_page = results_per_page)
+    start_index = (page - 1) * (results_per_page - 1)
+    return render_template(
+        "select.html",
+        getString1 = getString2,
+        pagination = pagination,
+        sort_order = sort_order,
+        sort_order_text = sort_order_text,
+        site_title = site_name,
+        letter = letter,
+        title = getString2(98),
+        songs = songs[start_index:start_index + results_per_page],
+        admin = is_admin()
+    )
+
 def transform_boolean(dct, S):
 	return {k: ((v=='on') if k in S else v) for k, v in dct.items()}
 

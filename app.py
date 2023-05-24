@@ -884,7 +884,7 @@ if __name__ == "__main__":
 		action = "store_true",
 	)
 	parser.add_argument(
-		"-S", "--searched-file-location", help = "provide a file location that stores the searched files", action="store_true", default=False
+		"-S", "--searched-file-location", help = "provide a file location that stores the searched files", action="store_false", default=True
 	)
 	args = parser.parse_args()
 

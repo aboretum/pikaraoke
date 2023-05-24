@@ -883,6 +883,9 @@ if __name__ == "__main__":
 		help = "Run in flask developer mode. Only useful for tweaking the web UI in real time. Will disable the splash screen due to pygame main thread conflicts and may require FLASK_ENV=development env variable for full dev mode features.",
 		action = "store_true",
 	)
+	parser.add_argument(
+		"-S", "--searched-file-location", help = "provide a file location that stores the searched files", action="store_true", default=False
+	)
 	args = parser.parse_args()
 
 	set_language(args.lang)

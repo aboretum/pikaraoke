@@ -71,6 +71,7 @@ class Karaoke:
 	loop_interval = 500  # in milliseconds
 	default_logo_path = os.path.join(base_path, "logo.png")
 	logical_volume = None   # for normalized volume
+	searched_file_location = False
 
 	def __init__(self, args):
 
@@ -98,6 +99,7 @@ class Karaoke:
 		self.run_vocal = args.run_vocal
 		self.normalize_vol = args.normalize_vol
 		self.cookies_opt = args.cookies_opt
+		self.searched_file_location = args.searched_file_location
 
 		# other initializations
 		self.platform = get_platform()
@@ -179,7 +181,11 @@ class Karaoke:
 		self.url = "http://%s:%s" % (self.ip, self.port)
 
 		# get songs from download_path
-		self.get_available_songs()
+		if self.searched_file_location:
+			with open('.\\songs\\available_songs.json', 'r') as f:
+				self.available_songs = json.load(f)
+		else:
+			self.get_available_songs()
 		self.get_youtubedl_version()
 		
 		# Automatically upgrade yt-dlp if using pip
@@ -590,6 +596,8 @@ class Karaoke:
 
 		# self.available_songs = sorted(files_grabbed, key = lambda f: str.lower(os.path.basename(f)))
 		self.available_songs = sorted(self.songname_trans, key = self.songname_trans.get)
+		with open('.\\songs\\available_songs.json', 'w') as f:
+			json.dump(self.available_songs, f)
 
 	def get_all_assoc_files(self, song_path):
 		basename = os.path.basename(song_path)

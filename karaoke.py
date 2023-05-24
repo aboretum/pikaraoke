@@ -61,7 +61,7 @@ class Karaoke:
 	use_DNN_vocal = True
 	vocal_process = None
 	vocal_device = None
-	vocal_mode = 'mixed'
+	vocal_mode = 'nonvocal'
 	is_paused = True
 	firstSongStarted = False
 	switchingSong = False
@@ -576,16 +576,17 @@ class Karaoke:
 		logging.info("Fetching available songs in: " + self.download_path)
 		files_grabbed = []
 		self.songname_trans = {}
-		for bn in os.listdir(self.download_path):
-			fn = self.download_path + bn
-			if not bn.startswith('.') and os.path.isfile(fn):
-				if os.path.splitext(fn)[1].lower() in media_types:
-					files_grabbed.append(fn)
-					trans = unidecode(self.filename_from_path(fn)).lower()
-					# strip leading non-transliterable symbols
-					while trans and not trans[0].islower() and not trans[0].isdigit():
-						trans = trans[1:]
-					self.songname_trans[fn] = trans
+		for dirpath, dirnames, filenames in os.walk(self.download_path):
+			for bn in filenames:
+				fn = os.path.join(dirpath, bn)
+				if not bn.startswith('.') and os.path.isfile(fn):
+					if os.path.splitext(fn)[1].lower() in media_types:
+						files_grabbed.append(fn)
+						trans = unidecode(self.filename_from_path(fn)).lower()
+						# strip leading non-transliterable symbols
+						while trans and not trans[0].islower() and not trans[0].isdigit():
+							trans = trans[1:]
+						self.songname_trans[fn] = trans
 
 		# self.available_songs = sorted(files_grabbed, key = lambda f: str.lower(os.path.basename(f)))
 		self.available_songs = sorted(self.songname_trans, key = self.songname_trans.get)
@@ -970,8 +971,7 @@ class Karaoke:
 	def try_set_vocal_mode(self, mode, now_playing_filename):
 		if mode not in ['mixed', 'vocal', 'nonvocal']:
 			mode = {1: 'nonvocal', 2: 'mixed', 3: 'vocal'}[self.get_vocal_mode()]
-		play_slave = '' if mode == 'mixed' else self.download_path + mode + '/' + ('' if self.use_DNN_vocal else '.') \
-		                                       + os.path.basename(now_playing_filename) + '.m4a'
+		play_slave = '' if mode == 'mixed' or mode == 'vocal' else now_playing_filename
 		if os.path.isfile(play_slave):
 			self.vocal_mode = mode
 		else:
@@ -990,15 +990,19 @@ class Karaoke:
 			posi = info['position']*info['length']
 			self.play_file(self.now_playing_filename, [f'--start-time={posi}'] + (['--start-paused'] if self.is_paused else []))
 			self.get_vocal_info(True)
+			print("vocal setup completed")
 		else:
 			logging.error("Not using VLC. Can't play vocal/nonvocal.")
 
 	def get_vocal_mode(self):
-		if '/nonvocal/' in self.now_playing_slave.replace('\\', '/'):
+		# if '/nonvocal/' in self.now_playing_slave.replace('\\', '/'):
+		# 	return 1
+		# elif '/vocal/' in self.now_playing_slave.replace('\\', '/'):
+		# 	return 2
+		if self.vocal_mode == 'nonvocal':
 			return 1
-		elif '/vocal/' in self.now_playing_slave.replace('\\', '/'):
-			return 3
-		return 2
+		else:
+			return 2
 
 	def get_vocal_info(self, force_update=False):
 		tm = time.time()
@@ -1008,9 +1012,11 @@ class Karaoke:
 			return 0
 		mask = 0
 		bn = os.path.basename(self.now_playing_filename)
-		if os.path.isfile(f'{self.download_path}nonvocal/{bn}.m4a'):
+		# if os.path.isfile(f'{self.download_path}nonvocal/{bn}.m4a'):
+		if self.vocal_mode == 'nonvocal':
 			mask |= 0b00000001
-		if os.path.isfile(f'{self.download_path}vocal/{bn}.m4a'):
+		# if os.path.isfile(f'{self.download_path}vocal/{bn}.m4a'):
+		if self.vocal_mode == 'vocal':
 			mask |= 0b00000010
 		if os.path.isfile(f'{self.download_path}nonvocal/.{bn}.m4a'):
 			mask |= 0b00000100
@@ -1018,7 +1024,7 @@ class Karaoke:
 			mask |= 0b00001000
 		if 'vocal/.' in self.now_playing_slave:
 			mask |= 0b10000000
-		if self.use_DNN_vocal:
+		if not self.use_DNN_vocal:
 			mask |= 0b01000000
 		mask |= (self.get_vocal_mode() << 4)
 		self.last_vocal_info = mask

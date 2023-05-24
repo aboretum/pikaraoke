@@ -86,7 +86,7 @@
 					}
 
 					var use_DNN = obj.vocal_info&0x40;
-					s3_enable(1, use_DNN?(obj.vocal_info&1):(obj.vocal_info&4));
+			s3_enable(1, 1);
 					s3_enable(3, use_DNN?(obj.vocal_info&2):(obj.vocal_info&8));
 					s3_go_to((obj.vocal_info>>4)&3, false);
 					use_DNN ? $("#pytorch-logo").show():$("#pytorch-logo").hide();

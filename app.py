@@ -189,6 +189,7 @@ def get_vocal_todo_list(vocal_device):
 		K.rename(last_completed, os.path.splitext(K.rename_history[last_completed])[0])
 		K.rename_history.pop(last_completed)
 	q = ([K.now_playing_filename] if K.now_playing_filename else []) + [i['file'] for i in K.queue]
+	q = [song for song in q if song not in K.saved_songs]
 	return json.dumps({'download_path': K.download_path, 'queue': q, 'use_DNN': K.use_DNN_vocal})
 
 

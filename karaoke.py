@@ -72,7 +72,8 @@ class Karaoke:
 	default_logo_path = os.path.join(base_path, "logo.png")
 	logical_volume = None   # for normalized volume
 	searched_file_location = False
-	play_history = {}
+	play_history = []
+	saved_songs = []
 
 	def __init__(self, args):
 
@@ -600,8 +601,8 @@ class Karaoke:
 		if  os.path.exists(self.json_path_to_saved_file_location):
 			try:
 				with open(self.json_path_to_saved_file_location, 'r') as f:
-					saved_songs = json.load(f)
-				self.available_songs = list(set(saved_songs)|set(self.available_songs))
+					self.saved_songs = json.load(f)
+				self.available_songs = list(set(self.saved_songs)|set(self.available_songs))
 			except Exception as e:
 				print(f"Error in loading exisitng songs {e}")
 
@@ -1010,12 +1011,11 @@ class Karaoke:
 	def try_set_vocal_mode(self, mode, now_playing_filename):
 		if mode not in ['mixed', 'vocal', 'nonvocal']:
 			mode = {1: 'nonvocal', 2: 'mixed', 3: 'vocal'}[self.get_vocal_mode()]
-		play_slave = '' if mode == 'mixed' or mode == 'vocal' else now_playing_filename
-		if os.path.isfile(play_slave):
-			self.vocal_mode = mode
-		else:
-			play_slave = ''
-			self.vocal_mode = 'mixed'
+		
+		play_slave = '' if mode == 'mixed' else self.download_path + mode + '/' + ('' if self.use_DNN_vocal else '.')  + os.path.basename(now_playing_filename) + '.m4a'
+		if not os.path.isfile(play_slave):
+			play_slave = now_playing_filename
+		self.vocal_mode = mode
 		return play_slave
 
 	def play_vocal(self, mode = None, force = False):
@@ -1034,14 +1034,17 @@ class Karaoke:
 			logging.error("Not using VLC. Can't play vocal/nonvocal.")
 
 	def get_vocal_mode(self):
-		# if '/nonvocal/' in self.now_playing_slave.replace('\\', '/'):
-		# 	return 1
-		# elif '/vocal/' in self.now_playing_slave.replace('\\', '/'):
-		# 	return 2
-		if self.vocal_mode == 'nonvocal':
+		if '/nonvocal/' in self.now_playing_slave.replace('\\', '/'):
 			return 1
-		else:
+		elif '/vocal/' in self.now_playing_slave.replace('\\', '/'):
+			return 3
+		elif self.vocal_mode == 'nonvocal':
+			return 1
+		elif self.vocal_mode == 'mixed':
 			return 2
+		elif self.vocal_mode == 'vocal':
+			return 3
+		return 2
 
 	def get_vocal_info(self, force_update=False):
 		tm = time.time()
@@ -1052,10 +1055,10 @@ class Karaoke:
 		mask = 0
 		bn = os.path.basename(self.now_playing_filename)
 		# if os.path.isfile(f'{self.download_path}nonvocal/{bn}.m4a'):
-		if self.vocal_mode == 'nonvocal':
+		if self.vocal_mode == 'nonvocal' or os.path.isfile(f'{self.download_path}nonvocal/{bn}.m4a'):
 			mask |= 0b00000001
 		# if os.path.isfile(f'{self.download_path}vocal/{bn}.m4a'):
-		if self.vocal_mode == 'vocal':
+		if self.vocal_mode == 'vocal' or os.path.isfile(f'{self.download_path}vocal/{bn}.m4a'):
 			mask |= 0b00000010
 		if os.path.isfile(f'{self.download_path}nonvocal/.{bn}.m4a'):
 			mask |= 0b00000100

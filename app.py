@@ -103,6 +103,7 @@ def home():
 		audio_delay = s['audiodelay'],
 		play_speed = s['rate'],
 		vocal_info = K.get_vocal_info(),
+		audio_track = K.audio_track,
 	)
 
 
@@ -127,7 +128,8 @@ def nowplaying():
 			"audio_delay": s['audiodelay'],
 			"vol_norm": K.normalize_vol,
 			"play_speed": s['rate'],
-			"vocal_info": K.get_vocal_info()
+			"vocal_info": K.get_vocal_info(),
+			"audio_track": K.audio_track,
 		}
 		if K.has_subtitle:
 			rc['subtitle_delay'] = s['subtitledelay']

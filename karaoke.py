@@ -1020,14 +1020,15 @@ class Karaoke:
 		return play_slave
 
 	def track_select(self, idx = None):
-		idx = 1 if idx=='left' else 0
+		# idx 0: left audio track not setup 1:right setup audio track
 		self.switchingSong = True
 		if self.use_vlc:
 			extra_params1 = []
-			if idx==1:
+			if idx=='1':
 				extra_params1 += [f'--input-slave={self.now_playing_slave}', '--audio-track=1']
+				self.audio_track=1
 			else:
-				idx = 0
+				self.audio_track=0
 			file_path = self.now_playing_filename
 			logging.info("Change audio track in VLC: " + self.now_playing_filename + f" to audio track {idx}")
 			status_xml = self.vlcclient.command().text if self.is_paused else self.vlcclient.pause(False).text
@@ -1113,7 +1114,7 @@ class Karaoke:
 			mask |= 0b00001000
 		if 'vocal/.' in self.now_playing_slave:
 			mask |= 0b10000000
-		if not self.use_DNN_vocal:
+		if self.use_DNN_vocal:
 			mask |= 0b01000000
 		mask |= (self.get_vocal_mode() << 4)
 		self.last_vocal_info = mask

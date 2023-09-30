@@ -10,6 +10,7 @@
   var subdelay_typing = false;
   var volume_changing = false;
   var toggleSwitch;
+  var toggleSwitch1;
   var obj = {};
   function checkMobile() {
     let check = false;
@@ -86,9 +87,16 @@
 					}
 
 					var use_DNN = obj.vocal_info&0x40;
-			s3_enable(1, 1);
+					s3_enable(1, use_DNN?(obj.vocal_info&1):(obj.vocal_info&4));
 					s3_enable(3, use_DNN?(obj.vocal_info&2):(obj.vocal_info&8));
 					s3_go_to((obj.vocal_info>>4)&3, false);
+					if (obj.audio_track == 0) {
+						s2_go_to(1, false);
+					} else if (obj.audio_track == 1) {
+						s2_go_to(3, false);
+					}
+					console.log(obj.audio_track);
+
 					use_DNN ? $("#pytorch-logo").show():$("#pytorch-logo").hide();
 					
 					if(obj.vol_norm)
@@ -338,7 +346,6 @@
 	}
 
 	function s2_go_to(n, do_action) {
-		console.log('s2_go_to called', n, do_action);
 		if(n != 1 && n != 3) n = 1;
 		for(var i of [1, 3]){
 			if(i==n) toggleSwitch1.classList.add('horizTranslate'+i);
@@ -346,7 +353,7 @@
 		}
 		if(do_action){
 			cutoffTime = Date.now();
-			$.get("/track_select/"+(n==1 ? 'left' : 'right'));
+			$.get("/track_select/"+(n==1 ? 0 : 1));
 		}
 	}
 	

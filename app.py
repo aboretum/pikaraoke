@@ -317,9 +317,9 @@ def play_vocal(mode):
 	K.play_vocal(mode)
 	return ''
 
-@app.route("/track_select/<mode>", methods = ["GET"])
-def track_select(mode):
-	K.track_select(mode)
+@app.route("/track_select/<idx>", methods = ["GET"])
+def track_select(idx):
+	K.track_select(idx)
 	return ''
 
 @app.route("/play_speed/<speed>", methods = ["GET"])

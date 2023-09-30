@@ -74,6 +74,7 @@ class Karaoke:
 	searched_file_location = False
 	play_history = []
 	saved_songs = []
+	audio_track = 0
 
 	def __init__(self, args):
 
@@ -715,6 +716,7 @@ class Karaoke:
 			self.now_playing_slave = self.try_set_vocal_mode(self.vocal_mode, file_path)
 			if os.path.isfile(self.now_playing_slave):
 				extra_params1 += [f'--input-slave={self.now_playing_slave}', '--audio-track=1']
+				self.audio_track = 1
 			if self.audio_delay:
 				extra_params1 += [f'--audio-desync={self.audio_delay * 1000}']
 			if self.subtitle_delay:
@@ -725,7 +727,6 @@ class Karaoke:
 				extra_params1 += [f'--rate={self.play_speed}']
 			self.now_playing = self.filename_from_path(file_path)
 			self.now_playing_filename = file_path
-			self.play_history.append(self.now_playing)
 			self.is_paused = ('--start-paused' in extra_params1)
 			if self.normalize_vol and self.logical_volume is not None:
 				self.volume = self.logical_volume / np.sqrt(self.compute_volume(file_path))
@@ -1017,6 +1018,52 @@ class Karaoke:
 			play_slave = now_playing_filename
 		self.vocal_mode = mode
 		return play_slave
+
+	def track_select(self, idx = None):
+		idx = 1 if idx=='left' else 0
+		self.switchingSong = True
+		if self.use_vlc:
+			extra_params1 = []
+			if idx==1:
+				extra_params1 += [f'--input-slave={self.now_playing_slave}', '--audio-track=1']
+			else:
+				idx = 0
+			file_path = self.now_playing_filename
+			logging.info("Change audio track in VLC: " + self.now_playing_filename + f" to audio track {idx}")
+			status_xml = self.vlcclient.command().text if self.is_paused else self.vlcclient.pause(False).text
+			info = self.vlcclient.get_info_xml(status_xml)
+			posi = info['position']*info['length']
+			extra_params1 += ([f'--start-time={posi}'] + (['--start-paused'] if self.is_paused else []))
+			if self.platform != 'osx':
+				extra_params1 += ['--drawable-hwnd' if self.platform == 'windows' else '--drawable-xid',
+				                  hex(pygame.display.get_wm_info()['window'])]
+			if self.audio_delay:
+				extra_params1 += [f'--audio-desync={self.audio_delay * 1000}']
+			if self.subtitle_delay:
+				extra_params1 += [f'--sub-delay={self.subtitle_delay * 10}']
+			if self.show_subtitle:
+				extra_params1 += [f'--sub-track=0']
+			if self.play_speed != 1:
+				extra_params1 += [f'--rate={self.play_speed}']
+			self.is_paused = ('--start-paused' in extra_params1)
+			if self.normalize_vol and self.logical_volume is not None:
+				self.volume = self.logical_volume / np.sqrt(self.compute_volume(file_path))
+			if self.now_playing_transpose == 0:
+				xml = self.vlcclient.play_file(file_path, self.volume, extra_params1)
+			else:
+				xml = self.vlcclient.play_file_transpose(file_path, self.now_playing_transpose, self.volume, extra_params1)
+			self.has_subtitle = "<info name='Type'>Subtitle</info>" in xml
+			self.has_video = "<info name='Type'>Video</info>" in xml
+			self.volume = round(float(self.vlcclient.get_val_xml(xml, 'volume')))
+			if self.normalize_vol:
+				self.media_vol = self.compute_volume(self.now_playing_filename)
+				self.logical_volume = self.volume * np.sqrt(self.media_vol)
+		else:
+			logging.info("Playing video in omxplayer: " + file_path)
+			self.omxclient.play_file(file_path)
+
+		self.switchingSong = False
+		self.render_splash_screen()  # remove old previous track
 
 	def play_vocal(self, mode = None, force = False):
 		# mode=vocal/nonvocal/mixed, or else (use current)

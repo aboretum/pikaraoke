@@ -61,7 +61,7 @@ class Karaoke:
 	use_DNN_vocal = True
 	vocal_process = None
 	vocal_device = None
-	vocal_mode = 'nonvocal'
+	vocal_mode = 'mixed'
 	is_paused = True
 	firstSongStarted = False
 	switchingSong = False
@@ -72,6 +72,7 @@ class Karaoke:
 	default_logo_path = os.path.join(base_path, "logo.png")
 	logical_volume = None   # for normalized volume
 	searched_file_location = False
+	play_history = {}
 
 	def __init__(self, args):
 
@@ -100,6 +101,8 @@ class Karaoke:
 		self.normalize_vol = args.normalize_vol
 		self.cookies_opt = args.cookies_opt
 		self.searched_file_location = args.searched_file_location
+		self.saved_file_location=args.saved_file_location
+		self.json_path_to_saved_file_location = args.json_path_to_saved_file_location
 
 		# other initializations
 		self.platform = get_platform()
@@ -181,9 +184,8 @@ class Karaoke:
 		self.url = "http://%s:%s" % (self.ip, self.port)
 
 		# get songs from download_path
-		if self.searched_file_location:
-			with open('.\\songs\\available_songs.json', 'r') as f:
-				self.available_songs = json.load(f)
+		if not self.searched_file_location:
+			self.get_available_songs_in_saved()
 		else:
 			self.get_available_songs()
 		self.get_youtubedl_version()
@@ -582,7 +584,32 @@ class Karaoke:
 		logging.info("Fetching available songs in: " + self.download_path)
 		files_grabbed = []
 		self.songname_trans = {}
-		for dirpath, dirnames, filenames in os.walk(self.download_path):
+		for bn in os.listdir(self.download_path):
+			fn = self.download_path + bn
+			if not bn.startswith('.') and os.path.isfile(fn):
+				if os.path.splitext(fn)[1].lower() in media_types:
+					files_grabbed.append(fn)
+					trans = unidecode(self.filename_from_path(fn)).lower()
+					# strip leading non-transliterable symbols
+					while trans and not trans[0].islower() and not trans[0].isdigit():
+						trans = trans[1:]
+					self.songname_trans[fn] = trans
+
+		# self.available_songs = sorted(files_grabbed, key = lambda f: str.lower(os.path.basename(f)))
+		self.available_songs = sorted(self.songname_trans, key = self.songname_trans.get)
+		if  os.path.exists(self.json_path_to_saved_file_location):
+			try:
+				with open(self.json_path_to_saved_file_location, 'r') as f:
+					saved_songs = json.load(f)
+				self.available_songs = list(set(saved_songs)|set(self.available_songs))
+			except Exception as e:
+				print(f"Error in loading exisitng songs {e}")
+
+	def get_available_songs_in_saved(self):
+		logging.info("Fetching available songs in: " + self.saved_file_location)
+		files_grabbed = []
+		self.songname_trans = {}
+		for dirpath, dirnames, filenames in os.walk(self.saved_file_location):
 			for bn in filenames:
 				fn = os.path.join(dirpath, bn)
 				if not bn.startswith('.') and os.path.isfile(fn):
@@ -596,7 +623,10 @@ class Karaoke:
 
 		# self.available_songs = sorted(files_grabbed, key = lambda f: str.lower(os.path.basename(f)))
 		self.available_songs = sorted(self.songname_trans, key = self.songname_trans.get)
-		with open('.\\songs\\available_songs.json', 'w') as f:
+		with open(self.json_path_to_saved_file_location, 'r') as f:
+			saved_songs = json.load(f)
+		self.available_songs = list(set(saved_songs)|set(self.available_songs))
+		with open(self.json_path_to_saved_file_location, 'w') as f:
 			json.dump(self.available_songs, f)
 
 	def get_all_assoc_files(self, song_path):
@@ -694,6 +724,7 @@ class Karaoke:
 				extra_params1 += [f'--rate={self.play_speed}']
 			self.now_playing = self.filename_from_path(file_path)
 			self.now_playing_filename = file_path
+			self.play_history.append(self.now_playing)
 			self.is_paused = ('--start-paused' in extra_params1)
 			if self.normalize_vol and self.logical_volume is not None:
 				self.volume = self.logical_volume / np.sqrt(self.compute_volume(file_path))

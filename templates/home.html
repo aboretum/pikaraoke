@@ -325,6 +325,29 @@
 		}
 	}
 	
+	function s2_enable(n, val) {
+		var s2t = document.getElementById("s2t"+n);
+		if(val!=0){
+			s2t.onclick = function(){s2_go_to(n, true)};
+			s2t.style.color = '#ffffff';
+		} else {
+			s2t.onclick = null;
+			s2t.style.color = '#444444';
+		}
+	}
+
+	function s2_go_to(n, do_action) {
+		if(n != 1 && n != 3) n = 1;
+		for(var i of [1, 3]){
+			if(i==n) toggleSwitch.classList.add('horizTranslate'+i);
+			else toggleSwitch.classList.remove('horizTranslate'+i);
+		}
+		if(do_action){
+			cutoffTime = Date.now();
+			$.get("/track_select/"+(n==1 ? 'left' : 'right'));
+		}
+	}
+	
 	function s3_enable(n, val) {
 		var s3t = document.getElementById("s3t"+n);
 		if(val!=0){
@@ -385,6 +408,17 @@ body {
 						<div id="s3t2" style="color:#ffffff" class="legendText" onclick="s3_go_to(2,true)">{{getString1(66)}}</div>
 						<div id="s3t3" style="color:#ffffff" class="legendText" onclick="s3_go_to(3,true)">{{getString1(67)}}</div>
 				</div>
+		</div>
+		<!-- New element -->
+		<div id="s2-outer" style="position:relative; width:150px; height:50px;">
+			<div id="s2-inner" style="background-color: #222D41; width:150px; height:28px; left:0; position:relative; top:20px; border-radius:14px;">
+				<div class="redButton horizTranslate1" style="width:16px; height:16px; background-color:#DB3D2B; border-radius:8px; position:relative; top:6px; left:6px;"></div>
+			</div>
+	
+			<div id="s2-text" class="is-flex" style="width:150px; display:inline-block; left:0; position:absolute; top:0; font-family:Arial; font-size:12pt; text-align:center; justify-content: space-between">
+				<div id="s2t1" style="color:#ffffff" class="legendText" onclick="s2_go_to(1,true)">{{getString1(213)}}</div>
+				<div id="s2t2" style="color:#ffffff" class="legendText" onclick="s2_go_to(2,true)">{{getString1(214)}}</div>
+			</div>
 		</div>
 	</div>
 

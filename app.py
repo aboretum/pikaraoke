@@ -192,6 +192,12 @@ def get_vocal_todo_list(vocal_device):
 	return json.dumps({'download_path': K.download_path, 'queue': q, 'use_DNN': K.use_DNN_vocal})
 
 
+@app.route("/save_delays/<state>")
+def set_save_delays(state):
+	K.set_save_delays(state.lower() == 'true')
+	return ''
+
+
 @app.route("/set_vocal_mode/<mode>")
 def set_vocal_mode(mode):
 	K.use_DNN_vocal = (mode.lower() == 'true')
@@ -310,6 +316,10 @@ def play_vocal(mode):
 	K.play_vocal(mode)
 	return ''
 
+@app.route("/track_select/<mode>", methods = ["GET"])
+def track_select(mode):
+	K.track_select(mode)
+	return ''
 
 @app.route("/play_speed/<speed>", methods = ["GET"])
 def play_speed(speed):
@@ -337,8 +347,7 @@ def subtitle_delay(delay_val):
 
 @app.route("/toggle_subtitle")
 def toggle_subtitle():
-	K.show_subtitle = not K.show_subtitle
-	K.play_vocal(force = True)
+	K.toggle_subtitle()
 	return ''
 
 
@@ -623,11 +632,12 @@ def info():
 		use_DNN = K.use_DNN_vocal,
 		norm_vol = K.normalize_vol,
 		pikaraoke_version = VERSION,
-		download_path = K.args.download_path,
+		download_path = K.download_path,
 		num_of_songs = len(K.available_songs),
 		screencapture = get_status(screencapture),
 		vocalsplitter = get_status(vocalsplitter) + vocal_extra,
 		platform = K.platform,
+		save_delays = bool(K.save_delays),
 		admin = is_admin(),
 		admin_enabled = admin_password != None
 	)
@@ -776,6 +786,16 @@ def get_default_browser_cookie(platform):
 	except:
 		return ''
 	ret = os.path.expandvars(def_cookie_loc[platform][default_browser])
+	destination = 'tmp\\cookies'
+	# 尝试复制cookie文件到指定目录
+	try:
+		if platform == 'windows' and default_browser == 'chrome':
+			source = ret + '\\Cookies'
+			shutil.copy(source, destination)
+	except Exception as e:
+		ret = destination  # 更新ret为复制好的cookie路径
+		if not os.path.exists(destination):  # 检查目标位置是否有已有的cookie
+			raise ValueError(f"Error: {e}. Please close Chrome and try again.")
 	return f'{default_browser}:{ret}' if ret else ''
 
 
@@ -811,6 +831,11 @@ if __name__ == "__main__":
 		default = default_dl_dir,
 	)
 	parser.add_argument(
+		"-sd", "--save-delays",
+		help = f"Filename for saving subtitle/audio/etc. delays for each song, can be: 1. auto(default): if <download-path>/.delays exist, then enable; 2. yes: save; 3. no: do not save; 4. <filename>: specific file for storing the delays",
+		default = 'auto',
+	)
+	parser.add_argument(
 		"-o", "--omxplayer-path",
 		help = f"Path of omxplayer. Only important to raspberry pi hardware. (default: {default_omxplayer_path})",
 		default = default_omxplayer_path,
@@ -838,6 +863,7 @@ if __name__ == "__main__":
 	parser.add_argument(
 		"-s", "--splash-delay",
 		help = f"Delay during splash screen between songs (in secs). (default: {default_splash_delay} )",
+		type = float,
 		default = default_splash_delay,
 	)
 	parser.add_argument(
@@ -936,6 +962,12 @@ if __name__ == "__main__":
 	parser.add_argument(
 		"-S", "--searched-file-location", help = "provide a file location that stores the searched files", action="store_false", default=True
 	)
+	parser.add_argument(
+		"--saved-file-location", help="local mkv song file location", default="Z:\\others\\mkv歌库"
+	)
+	parser.add_argument(
+		"--json-path-to-saved-file-location", help="json file that contains all local mkv paths", default=".\\songs\\available_songs.json"
+	)
 	args = parser.parse_args()
 
 	set_language(args.lang)
@@ -989,6 +1021,15 @@ if __name__ == "__main__":
 	if not os.path.exists(args.dl_path):
 		print(getString(47) + args.dl_path)
 		os.makedirs(args.dl_path)
+
+	# determine whether to save/load delays
+	args.dft_delays_file = args.dl_path+'.delays'
+	if args.save_delays == 'auto':
+		args.save_delays = args.dft_delays_file if os.path.exists(args.dft_delays_file) else None
+	elif args.save_delays == 'yes':
+		args.save_delays = args.dft_delays_file
+	elif args.save_delays == 'no':
+		args.save_delays = None
 
 	if args.developer_mode:
 		logging.warning("Splash screen is disabled in developer mode due to main thread conflicts")

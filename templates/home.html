@@ -36,6 +36,14 @@
   		img.attr('src', src)
   }
 
+  function updateRepeatButton() {
+    $.get('/get_repeat_status', function(data) {
+        isRepeated = (data == 'True');
+        document.getElementById('repeatButton').style.backgroundColor = isRepeated ? '#4CAF50' : '#008CBA';
+        document.getElementById('repeatButton').innerText = isRepeated ? '{{getString1(215)}}' : '{{getString1(216)}}';
+    });
+  }
+
   function getNowPlaying() {
   		queryTime = Date.now();
       $.get('{{ url_for("nowplaying") }}').done(function (data) {
@@ -367,6 +375,19 @@
 			s3t.style.color = '#444444';
 		}
 	}
+
+	var isRepeated = false;
+    function toggleRepeat() {
+        isRepeated = !isRepeated;
+		var repeatButton = document.getElementById('repeatButton');
+        repeatButton.style.backgroundColor = isRepeated ? '#4CAF50' : '#008CBA';
+		repeatButton.innerHTML = isRepeated ? '{{getString1(215)}}' : '{{getString1(216)}}';
+        if(isRepeated) {
+            $.get("/repeat_on");
+        } else {
+            $.get("/repeat_off");
+        }
+    }
 </script>
 
 {% endblock %} {% block header %}
@@ -385,6 +406,11 @@ body {
 .legendText{display:inline-block; width:50px; padding-bottom:33px; cursor:default; user-select: none;}
 .boxedText { padding: 2px; border: 1px solid white; font-size:1.6rem; }
 </style>
+<script>
+    window.onload = function() {
+        updateRepeatButton();
+    };
+</script>
 <h1>
 	{% block title %}{{getString1(74)}}
 	<img
@@ -544,6 +570,10 @@ body {
 		</div>
 	</div>
 	{% endif %}
+</div>
+
+<div style="margin-top: 20px;">
+    <button id="repeatButton" style="width: 100%; padding: 1.5em; border: none; background-color: #008CBA; color: white; font-size: 16px;" onclick="toggleRepeat()">Repeat</button>
 </div>
 
 {% endblock %}

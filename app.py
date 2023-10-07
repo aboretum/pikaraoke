@@ -218,6 +218,24 @@ def norm_vol(mode):
 def queue():
 	return render_template("queue.html", getString1 = lambda ii: getString1(request.client_lang, ii), queue = K.queue, site_title = site_name, title = "Queue", admin = is_admin())
 
+@app.route("/repeat_on")
+def set_repeat_on():
+	K.set_repeat_on()
+	return ''
+
+@app.route("/repeat_off")
+def set_repeat_off():
+	K.set_repeat_off()
+	return ''
+
+@app.route("/get_repeat_status", methods = ["GET"])
+def get_repeat_status():
+	return str(K.repeat_song)
+
+@app.route("/randomize")
+def randomize():
+	K.randomize()
+	return ''
 
 @app.route("/get_queue/<last_hash>", methods = ["GET"])
 def get_queue(last_hash):
@@ -500,6 +518,49 @@ def select():
         sort_order_text = sort_order_text,
         site_title = site_name,
         letter = letter,
+        title = getString2(98),
+        songs = songs[start_index:start_index + results_per_page],
+        admin = is_admin()
+    )
+
+@app.route("/favorite", methods = ["GET"])
+def favorite():
+    page = request.args.get(get_page_parameter(), type = int, default = 1)
+    search_query = request.args.get('q')
+
+    available_songs = K.available_songs
+
+    matching_songs = []
+    if search_query:
+        search_terms = search_query.split()
+        for song in available_songs:
+            if all(term.lower() in song.lower() for term in search_terms):
+                matching_songs.append(song)
+        available_songs = matching_songs
+
+    getString2 = lambda ii: getString1(request.client_lang, ii)
+
+    if "sort" in request.args and request.args["sort"] == "date":
+        songs = sorted(available_songs, key = lambda x: os.path.getctime(x))
+        songs.reverse()
+        sort_order = "Date"
+        sort_order_text = getString2(99)
+    else:
+        songs = available_songs
+        sort_order = "Alphabetical"
+        sort_order_text = getString2(100)
+
+    results_per_page = 500
+    pagination = Pagination(css_framework = 'bulma', page = page, total = len(songs), search = False, search_msg = getString2(103),
+                            record_name = getString2(101), display_msg = getString2(102), per_page = results_per_page)
+    start_index = (page - 1) * (results_per_page - 1)
+    return render_template(
+        "favorite.html",
+        getString1 = getString2,
+        pagination = pagination,
+        sort_order = sort_order,
+        sort_order_text = sort_order_text,
+        site_title = site_name,
         title = getString2(98),
         songs = songs[start_index:start_index + results_per_page],
         admin = is_admin()

@@ -75,6 +75,7 @@ class Karaoke:
 	play_history = []
 	saved_songs = []
 	audio_track = 0
+	repeat_song = False
 
 	def __init__(self, args):
 
@@ -715,8 +716,7 @@ class Karaoke:
 				                  hex(pygame.display.get_wm_info()['window'])]
 			self.now_playing_slave = self.try_set_vocal_mode(self.vocal_mode, file_path)
 			if os.path.isfile(self.now_playing_slave):
-				extra_params1 += [f'--input-slave={self.now_playing_slave}', '--audio-track=1']
-				self.audio_track = 1
+				extra_params1 += [f'--input-slave={self.now_playing_slave}', f'--audio-track={self.audio_track}']
 			if self.audio_delay:
 				extra_params1 += [f'--audio-desync={self.audio_delay * 1000}']
 			if self.subtitle_delay:
@@ -861,6 +861,12 @@ class Karaoke:
 				return False
 		self.update_queue_hash()
 		return True
+	
+	def randomize(self):
+		if self.queue:
+			print("Randomize current songs")
+			random.shuffle(self.queue)
+			self.update_queue_hash() 
 
 	def skip(self):
 		if self.is_file_playing():
@@ -1019,16 +1025,26 @@ class Karaoke:
 		self.vocal_mode = mode
 		return play_slave
 
-	def track_select(self, idx = None):
+	def track_select(self, idx=None):
+		if idx:
+			self.audio_track = idx
+		if self.use_vlc:
+			status_xml = self.vlcclient.command().text if self.is_paused else self.vlcclient.pause(False).text
+			info = self.vlcclient.get_info_xml(status_xml)
+			posi = info['position']*info['length']
+			self.play_file(self.now_playing_filename, [f'--start-time={posi}'] + (['--start-paused'] if self.is_paused else []))
+			print("track switch completed")
+		else:
+			logging.error("Not using VLC. Can't play vocal/nonvocal.")
+
+	def track_select_1(self, idx = None):
 		# idx 0: left audio track not setup 1:right setup audio track
 		self.switchingSong = True
+		if idx:
+			self.audio_track = idx
 		if self.use_vlc:
 			extra_params1 = []
-			if idx=='1':
-				extra_params1 += [f'--input-slave={self.now_playing_slave}', '--audio-track=1']
-				self.audio_track=1
-			else:
-				self.audio_track=0
+			extra_params1 += [f'--input-slave={self.now_playing_slave}', f'--audio-track={self.audio_track}']
 			file_path = self.now_playing_filename
 			logging.info("Change audio track in VLC: " + self.now_playing_filename + f" to audio track {idx}")
 			status_xml = self.vlcclient.command().text if self.is_paused else self.vlcclient.pause(False).text
@@ -1269,7 +1285,15 @@ class Karaoke:
 			self.media_vol = self.compute_volume(self.now_playing_filename)
 			self.update_logical_vol()
 		return str(self.logical_volume)
-
+	
+	def set_repeat_on(self):
+		self.repeat_song = True
+		return 1
+	
+	def set_repeat_off(self):
+		self.repeat_song = False
+		return
+	
 	def run(self):
 		logging.info("Starting PiKaraoke!")
 		self.running = True
@@ -1277,11 +1301,15 @@ class Karaoke:
 		# Windows does not have tmux, vocal splitter can only be invoked from the main program
 		if self.platform == 'windows' or self.run_vocal:
 			self.vocal_restart()
+		
+		head = None
 
 		while self.running:
 			try:
 				if not self.is_file_playing() and self.now_playing != None:
 					self.reset_now_playing()
+				if self.repeat_song and head and not self.is_file_playing():
+					self.play_file(head['file'])
 				if self.queue:
 					if not self.is_file_playing():
 						self.reset_now_playing()

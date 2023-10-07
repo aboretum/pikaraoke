@@ -212,3 +212,7 @@ Save play settings for each song, this includes: audio delay, subtitle delay, an
 Select
 Left-Track
 Right-Track
+Repeat On
+Repeat Off
+Randomize
+Favorite

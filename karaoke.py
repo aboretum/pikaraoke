@@ -599,14 +599,16 @@ class Karaoke:
 					self.songname_trans[fn] = trans
 
 		# self.available_songs = sorted(files_grabbed, key = lambda f: str.lower(os.path.basename(f)))
-		self.available_songs = sorted(self.songname_trans, key = self.songname_trans.get)
 		if  os.path.exists(self.json_path_to_saved_file_location):
 			try:
 				with open(self.json_path_to_saved_file_location, 'r') as f:
 					self.saved_songs = json.load(f)
-				self.available_songs = list(set(self.saved_songs)|set(self.available_songs))
+				self.saved_songs.update(self.songname_trans)
+				self.songname_trans = self.saved_songs
 			except Exception as e:
 				print(f"Error in loading exisitng songs {e}")
+		self.available_songs = sorted(self.songname_trans, key = self.songname_trans.get)
+
 
 	def get_available_songs_in_saved(self):
 		logging.info("Fetching available songs in: " + self.saved_file_location)
@@ -624,13 +626,30 @@ class Karaoke:
 							trans = trans[1:]
 						self.songname_trans[fn] = trans
 
+		logging.info("Fetching available songs in: " + self.download_path)
+		files_grabbed = []
+		self.songname_trans_dl = {}
+		for bn in os.listdir(self.download_path):
+			fn = self.download_path + bn
+			if not bn.startswith('.') and os.path.isfile(fn):
+				if os.path.splitext(fn)[1].lower() in media_types:
+					files_grabbed.append(fn)
+					trans = unidecode(self.filename_from_path(fn)).lower()
+					# strip leading non-transliterable symbols
+					while trans and not trans[0].islower() and not trans[0].isdigit():
+						trans = trans[1:]
+					self.songname_trans_dl[fn] = trans
+
 		# self.available_songs = sorted(files_grabbed, key = lambda f: str.lower(os.path.basename(f)))
-		self.available_songs = sorted(self.songname_trans, key = self.songname_trans.get)
+		
 		with open(self.json_path_to_saved_file_location, 'r') as f:
 			saved_songs = json.load(f)
-		self.available_songs = list(set(saved_songs)|set(self.available_songs))
+		
+		self.songname_trans.update(saved_songs)
+		self.songname_trans.update(self.songname_trans_dl)
+		self.available_songs = sorted(self.songname_trans, key = self.songname_trans.get)
 		with open(self.json_path_to_saved_file_location, 'w') as f:
-			json.dump(self.available_songs, f)
+			json.dump(self.songname_trans, f)
 
 	def get_all_assoc_files(self, song_path):
 		basename = os.path.basename(song_path)

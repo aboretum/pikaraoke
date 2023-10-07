@@ -458,10 +458,10 @@ def browse():
 
 	results_per_page = 500
 	pagination = Pagination(css_framework = 'bulma', page = page, total = len(songs), search = search, search_msg = getString2(103),
-	                        record_name = getString2(101), display_msg = getString2(102), per_page = results_per_page)
+	record_name = getString2(101), display_msg = getString2(102), per_page = results_per_page)
 	start_index = (page - 1) * (results_per_page - 1)
 	return render_template(
-		"files.html",
+		"select.html",
 		getString1 = getString2,
 		pagination = pagination,
 		sort_order = sort_order,

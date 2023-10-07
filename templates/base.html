@@ -69,9 +69,9 @@
       if (currentPath == "/info") {
         $("#info").addClass("is-active")
       }
-      if (currentPath == "/select") {
-        $("#select").addClass("is-active")
-      }
+      // if (currentPath == "/select") {
+      //   $("#select").addClass("is-active")
+      // }
       if (currentPath == "/favorite") {
         $("#favorite").addClass("is-active")
       }
@@ -183,10 +183,10 @@
         <i class="icon icon-folder-open-empty" title="{{getString1(98)}}"></i>
         <span>{{getString1(98)}}</span>
       </a>
-      <a id="select" class="navbar-item" href="{{ url_for('select') }}">
+      <!-- <a id="select" class="navbar-item" href="{{ url_for('select') }}">
         <i class="icon icon-search-2" title="{{getString1(212)}}"></i>
         <span>{{getString1(212)}}</span>
-      </a>
+      </a> -->
       <a id="favorite" class="navbar-item" href="{{ url_for('favorite') }}">
         <i class="icon icon-pencil" title="{{getString1(218)}}"></i>
         <span>{{getString1(218)}}</span>

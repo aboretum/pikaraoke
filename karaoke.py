@@ -725,7 +725,7 @@ class Karaoke:
 		elif self.omxclient != None:
 				self.omxclient.kill()
 
-	def play_file(self, file_path, extra_params = []):
+	def play_file(self, file_path, extra_params = [], audio_track=1):
 		self.switchingSong = True
 		if self.use_vlc:
 			extra_params1 = []
@@ -735,7 +735,7 @@ class Karaoke:
 				                  hex(pygame.display.get_wm_info()['window'])]
 			self.now_playing_slave = self.try_set_vocal_mode(self.vocal_mode, file_path)
 			if os.path.isfile(self.now_playing_slave):
-				extra_params1 += [f'--input-slave={self.now_playing_slave}', f'--audio-track={self.audio_track}']
+				extra_params1 += [f'--input-slave={self.now_playing_slave}', f'--audio-track={audio_track}']
 			if self.audio_delay:
 				extra_params1 += [f'--audio-desync={self.audio_delay * 1000}']
 			if self.subtitle_delay:
@@ -1038,7 +1038,8 @@ class Karaoke:
 		if mode not in ['mixed', 'vocal', 'nonvocal']:
 			mode = {1: 'nonvocal', 2: 'mixed', 3: 'vocal'}[self.get_vocal_mode()]
 		
-		play_slave = '' if mode == 'mixed' else self.download_path + mode + '/' + ('' if self.use_DNN_vocal else '.')  + os.path.basename(now_playing_filename) + '.m4a'
+		fn, _ = os.path.splitext(os.path.basename(now_playing_filename))
+		play_slave = '' if mode == 'mixed' else self.download_path + mode + '\\' + ('' if self.use_DNN_vocal else '.')  + fn + '.m4a'
 		if not os.path.isfile(play_slave):
 			play_slave = now_playing_filename
 		self.vocal_mode = mode
@@ -1051,7 +1052,7 @@ class Karaoke:
 			status_xml = self.vlcclient.command().text if self.is_paused else self.vlcclient.pause(False).text
 			info = self.vlcclient.get_info_xml(status_xml)
 			posi = info['position']*info['length']
-			self.play_file(self.now_playing_filename, [f'--start-time={posi}'] + (['--start-paused'] if self.is_paused else []))
+			self.play_file(self.now_playing_filename, [f'--start-time={posi}'] + (['--start-paused'] if self.is_paused else []), audio_track = idx)
 			print("track switch completed")
 		else:
 			logging.error("Not using VLC. Can't play vocal/nonvocal.")
@@ -1136,7 +1137,7 @@ class Karaoke:
 		if not self.now_playing_filename:
 			return 0
 		mask = 0
-		bn = os.path.basename(self.now_playing_filename)
+		bn, _ = os.path.splitext(os.path.basename(self.now_playing_filename))
 		# if os.path.isfile(f'{self.download_path}nonvocal/{bn}.m4a'):
 		if self.vocal_mode == 'nonvocal' or os.path.isfile(f'{self.download_path}nonvocal/{bn}.m4a'):
 			mask |= 0b00000001

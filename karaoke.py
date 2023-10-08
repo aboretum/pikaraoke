@@ -1,4 +1,4 @@
-import os, sys, io, random, time, json, hashlib
+import os, sys, io, random, time, json, hashlib, datetime
 import logging, socket, subprocess
 import multiprocessing as mp
 import shutil, psutil
@@ -76,6 +76,14 @@ class Karaoke:
 	saved_songs = []
 	audio_track = 0
 	repeat_song = False
+	song_stat = {}
+	default_favorite_structure = {
+		"name":"",
+		"song_path":"",
+		"play_count":1,
+		"user_list":[],
+		"last_play":"",
+	}
 
 	def __init__(self, args):
 
@@ -106,6 +114,7 @@ class Karaoke:
 		self.searched_file_location = args.searched_file_location
 		self.saved_file_location=args.saved_file_location
 		self.json_path_to_saved_file_location = args.json_path_to_saved_file_location
+		self.stat_file_path = args.song_stat_filepath
 
 		# other initializations
 		self.platform = get_platform()
@@ -192,6 +201,9 @@ class Karaoke:
 		else:
 			self.get_available_songs()
 		self.get_youtubedl_version()
+
+		# get favorite songs
+		self.get_song_stat()
 		
 		# Automatically upgrade yt-dlp if using pip
 		if not args.youtubedl_path:
@@ -796,6 +808,7 @@ class Karaoke:
 		else:
 			logging.info("'%s' is adding song to queue: %s" % (user, song_path))
 			self.queue.append({"user": user, "file": song_path, "title": self.filename_from_path(song_path)})
+			self.update_song_stat(user, song_path)
 			self.update_queue_hash()
 			return True
 
@@ -1313,6 +1326,52 @@ class Karaoke:
 	def set_repeat_off(self):
 		self.repeat_song = False
 		return
+	
+	def get_song_stat(self):
+		if os.path.exists(self.stat_file_path):
+			try:
+				with open(self.stat_file_path, 'r') as f:
+					data = json.load(f)
+				# Process data...
+				self.song_stat.update(data)
+				logging.info(f"{self.stat_file_path} favorite songs load succeed")
+			except Exception as e:
+				# Handle JSON decode error or other file read errors
+				os.rename(self.stat_file_path, self.stat_file_path + '.bak')
+				with open(self.stat_file_path, 'w') as f:
+					json.dump(self.song_stat, f)  # Create a new empty file
+				logging.info(f"Target file location has unsupported content format. Move current file to {self.stat_file_path+'.bak'} and created empty favorite songs file.")
+		else:
+			with open(self.stat_file_path, 'w') as f:
+				json.dump(self.song_stat, f)  # Create a new empty file
+
+	def save_song_stat(self):
+		try:
+			with open(self.stat_file_path, 'w') as f:
+				json.dump(self.song_stat, f)
+			logging.info(f"Current favorite songs has been saved to {self.stat_file_path}")
+		except:
+			logging.error(f"Favorite songs can't be saved to target location {self.stat_file_path}")
+
+	def update_song_stat(self, user, song_path):
+		song_name = self.filename_from_path(song_path)
+		current_song_stat = self.song_stat.setdefault(song_name, {
+			"name":song_name,
+			"song_path":song_path,
+			"play_count":0,
+			"user_list":[],
+			"last_play":datetime.datetime.now(),
+		})
+		current_song_stat["play_count"]+=1
+		if user not in current_song_stat["user_list"]:
+			current_song_stat["user_list"].append(user)
+		current_song_stat["last_play"] = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+		self.song_stat[song_name] = current_song_stat
+		self.save_song_stat()
+
+	def get_favorite_song_list(self):
+		sorted_songs = sorted(self.song_stat.values(), key=lambda x: x['play_count'], reverse=True)
+		return sorted_songs
 	
 	def run(self):
 		logging.info("Starting PiKaraoke!")

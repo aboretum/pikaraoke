@@ -522,49 +522,16 @@ def select():
         songs = songs[start_index:start_index + results_per_page],
         admin = is_admin()
     )
-
-@app.route("/favorite", methods = ["GET"])
+@app.route('/favorite')
 def favorite():
-    page = request.args.get(get_page_parameter(), type = int, default = 1)
-    search_query = request.args.get('q')
+    songs_data = K.get_favorite_song_list()  # 确保这个函数能返回你需要的歌曲数据
+    return render_template('favorite.html', songs=songs_data)
 
-    available_songs = K.available_songs
+@app.route('/get_songs_data')
+def get_songs_data():
+    songs_data = K.get_favorite_song_list()  # 确保这个函数能返回你需要的歌曲数据
+    return jsonify(songs_data)
 
-    matching_songs = []
-    if search_query:
-        search_terms = search_query.split()
-        for song in available_songs:
-            if all(term.lower() in song.lower() for term in search_terms):
-                matching_songs.append(song)
-        available_songs = matching_songs
-
-    getString2 = lambda ii: getString1(request.client_lang, ii)
-
-    if "sort" in request.args and request.args["sort"] == "date":
-        songs = sorted(available_songs, key = lambda x: os.path.getctime(x))
-        songs.reverse()
-        sort_order = "Date"
-        sort_order_text = getString2(99)
-    else:
-        songs = available_songs
-        sort_order = "Alphabetical"
-        sort_order_text = getString2(100)
-
-    results_per_page = 500
-    pagination = Pagination(css_framework = 'bulma', page = page, total = len(songs), search = False, search_msg = getString2(103),
-                            record_name = getString2(101), display_msg = getString2(102), per_page = results_per_page)
-    start_index = (page - 1) * (results_per_page - 1)
-    return render_template(
-        "favorite.html",
-        getString1 = getString2,
-        pagination = pagination,
-        sort_order = sort_order,
-        sort_order_text = sort_order_text,
-        site_title = site_name,
-        title = getString2(98),
-        songs = songs[start_index:start_index + results_per_page],
-        admin = is_admin()
-    )
 
 def transform_boolean(dct, S):
 	return {k: ((v=='on') if k in S else v) for k, v in dct.items()}
@@ -1031,6 +998,9 @@ if __name__ == "__main__":
 	)
 	parser.add_argument(
 		"--json-path-to-saved-file-location", help="json file that contains all local mkv paths", default=".\\songs\\available_songs.json"
+	)
+	parser.add_argument(
+		"-H", "--song-stat-filepath", help="file location for song statistics", default=".\\songs\\song_stat.json"
 	)
 	args = parser.parse_args()
 

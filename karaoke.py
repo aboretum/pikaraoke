@@ -4,6 +4,7 @@ import multiprocessing as mp
 import shutil, psutil
 from subprocess import check_output
 from collections import *
+from tempfile import NamedTemporaryFile
 
 import numpy as np
 
@@ -745,9 +746,9 @@ class Karaoke:
 			if self.platform != 'osx':
 				extra_params1 += ['--drawable-hwnd' if self.platform == 'windows' else '--drawable-xid',
 				                  hex(pygame.display.get_wm_info()['window'])]
-			self.now_playing_slave = self.try_set_vocal_mode(self.vocal_mode, file_path)
+			self.now_playing_slave = self.create_temp_file_if_needed(self.try_set_vocal_mode(self.vocal_mode, file_path))
 			if os.path.isfile(self.now_playing_slave):
-				extra_params1 += [f'--input-slave={self.now_playing_slave}', f'--audio-track={audio_track}']
+				extra_params1 += [f'--input-slave={self.now_playing_slave}', f'--audio-track={self.audio_track}']
 			if self.audio_delay:
 				extra_params1 += [f'--audio-desync={self.audio_delay * 1000}']
 			if self.subtitle_delay:
@@ -762,7 +763,7 @@ class Karaoke:
 			if self.normalize_vol and self.logical_volume is not None:
 				self.volume = self.logical_volume / np.sqrt(self.compute_volume(file_path))
 			if self.now_playing_transpose == 0:
-				xml = self.vlcclient.play_file(file_path, self.volume, extra_params + extra_params1)
+				xml = self.vlcclient.play_file(self.create_temp_file_if_needed(file_path), self.volume, extra_params + extra_params1)
 			else:
 				xml = self.vlcclient.play_file_transpose(file_path, self.now_playing_transpose, self.volume, extra_params + extra_params1)
 			self.has_subtitle = "<info name='Type'>Subtitle</info>" in xml
@@ -1420,3 +1421,24 @@ class Karaoke:
 		(self.vlcclient if self.use_vlc else self.omxclient).stop()
 		time.sleep(1)
 		(self.vlcclient if self.use_vlc else self.omxclient).kill()
+
+	def create_temp_file_if_needed(self, original_path):
+		if '&' in original_path:
+			# temp_files = []
+			# base_dir, original_filename = os.path.split(original_path)
+			# original_basename, original_ext = os.path.splitext(original_filename)
+			# for track_type in ['vocal', 'nonvocal']:
+			# 	track_path = os.path.join(base_dir, track_type, f"{original_basename}.m4a")
+			# 	if os.path.exists(track_path):
+			# 		with NamedTemporaryFile(delete=True, suffix='.m4a', dir=os.path.join(base_dir, track_type)) as temp_file:
+			# 			temp_track_path = temp_file.name
+			# 			shutil.copy2(track_path, temp_track_path)
+			# 			temp_files.append(temp_track_path)
+			# 			print(f"Created a temporary {track_type} track file: {temp_track_path}")
+			with NamedTemporaryFile(delete=True, suffix=os.path.splitext(original_path)[1]) as temp_file:
+				temp_video_path = temp_file.name
+			shutil.copy2(original_path, temp_video_path)
+			print(f"Created a temporary video file: {temp_video_path}")
+			return temp_video_path
+		else:
+			return original_path

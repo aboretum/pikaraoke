@@ -252,6 +252,9 @@ def main(argv):
 			time.sleep(2)
 			continue
 
+		if not os.path.exists(song_path+'/'+next_file):
+			continue
+
 		# run vocal splitter on next_file
 		print(f'Start processing {next_file} :')
 		ffm_video2wav(song_path+'/'+next_file, in_wav)

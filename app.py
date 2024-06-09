@@ -186,7 +186,7 @@ def logout():
 @app.route("/get_vocal_todo_list/<vocal_device>")
 def get_vocal_todo_list(vocal_device):
 	K.vocal_device = vocal_device
-	last_completed = request.headers['last_completed']
+	last_completed = request.headers.get('last_completed', None)
 	if last_completed in K.rename_history:
 		K.rename(last_completed, os.path.splitext(K.rename_history[last_completed])[0])
 		K.rename_history.pop(last_completed)
@@ -835,7 +835,7 @@ if __name__ == "__main__":
 	default_port = 5000
 	default_volume = 0
 	default_splash_delay = 3
-	default_log_level = logging.INFO
+	default_log_level = logging.DEBUG
 
 	default_dl_dir = get_default_dl_dir(platform)
 	default_omxplayer_path = "/usr/bin/omxplayer"

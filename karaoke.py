@@ -85,6 +85,8 @@ class Karaoke:
 		"user_list":[],
 		"last_play":"",
 	}
+	full_screen=True
+	audio_mask=1
 
 	def __init__(self, args):
 
@@ -240,6 +242,8 @@ class Karaoke:
 		if not self.hide_splash_screen:
 			self.initialize_screen(not args.windowed)
 			self.render_splash_screen()
+		else:
+			pygame.init()
 
 	# Other ip-getting methods are unreliable and sometimes return 127.0.0.1
 	# https://stackoverflow.com/a/28950776
@@ -745,7 +749,7 @@ class Karaoke:
 			logging.info("Playing video in VLC: " + file_path)
 			if self.platform != 'osx':
 				extra_params1 += ['--drawable-hwnd' if self.platform == 'windows' else '--drawable-xid',
-				                  hex(pygame.display.get_wm_info()['window'])]
+				                  hex(pygame.display.get_wm_info().get('window',0))]
 			self.now_playing_slave = self.create_temp_file_if_needed(self.try_set_vocal_mode(self.vocal_mode, file_path))
 			if os.path.isfile(self.now_playing_slave):
 				extra_params1 += [f'--input-slave={self.now_playing_slave}', f'--audio-track={self.audio_track}']
@@ -1119,6 +1123,12 @@ class Karaoke:
 	def play_vocal(self, mode = None, force = False):
 		# mode=vocal/nonvocal/mixed, or else (use current)
 		if self.use_vlc:
+			if mode == "mixed":
+				self.audio_track = 0
+			elif mode in ['vocal', 'nonvocal']:
+				self.audio_track = 1
+			else:
+				self.audio_track = self.audio_mask - self.audio_track
 			play_slave = self.try_set_vocal_mode(mode, self.now_playing_filename)
 			if not force and self.now_playing_slave == play_slave:
 				return
@@ -1408,7 +1418,7 @@ class Karaoke:
 							self.firstSongStarted = True
 						self.now_playing_user = head["user"]
 						self.update_queue_hash()
-				elif (self.full_screen and not pygame.display.get_active()) and not self.is_file_playing():
+				elif (not pygame.display.get_active() and self.full_screen ) and not self.is_file_playing():
 					self.pygame_reset_screen()
 				self.handle_run_loop()
 			except KeyboardInterrupt:

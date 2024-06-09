@@ -71,6 +71,7 @@ class VLCClient:
 			"--no-loop",
 			"--no-repeat",
 			"--mouse-hide-timeout", "0",
+			"--stop-time", "68400.000"
 		]
 		if self.platform == "osx":
 			self.cmd_base += [

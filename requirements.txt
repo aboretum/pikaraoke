@@ -4,7 +4,7 @@ tempora==1.14.0
 jaraco.functools==2.0
 cherrypy
 six
-Flask
+Flask==2.3.2
 pillow
 qrcode
 pygame; sys_platform != 'darwin'
@@ -20,3 +20,5 @@ torch>=1.5.1
 tqdm>=4.30
 librosa>=0.6.3,<0.9
 pip
+pydub
+yt-dlp

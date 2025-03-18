@@ -668,7 +668,7 @@ def info():
 		screencapture = get_status(screencapture),
 		vocalsplitter = get_status(vocalsplitter) + vocal_extra,
 		platform = K.platform,
-		save_delays = bool(K.save_delays),
+		save_delays = False,
 		admin = is_admin(),
 		admin_enabled = admin_password != None
 	)

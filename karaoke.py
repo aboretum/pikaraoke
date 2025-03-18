@@ -185,6 +185,13 @@ class Karaoke:
 		output = ret_stderr.getvalue()
 		posi1 = output.find('versions:')
 		posi2 = output.find(')', posi1)
+		if posi1<=0 and posi2<=0:
+			old_stdout, sys.stdout = sys.stdout, io.StringIO()
+			pip.main(['index', 'versions', 'yt-dlp'])
+			ret_stdout, sys.stdout = sys.stdout, old_stdout
+			output = ret_stdout.getvalue()
+			posi1 = output.find('LATEST:')
+			posi2 = len(output)-1
 		assert posi1>0 and posi2>0
 		latest_version = output[posi1:posi2].split()[-1]
 		if self.youtubedl_version.replace('.0', '.') != latest_version.replace('.0', '.'):
@@ -1399,7 +1406,7 @@ class Karaoke:
 							self.firstSongStarted = True
 						self.now_playing_user = head["user"]
 						self.update_queue_hash()
-            self.update_queue()
+						self.update_queue()
 				elif (not pygame.display.get_active() and self.full_screen ) and not self.is_file_playing():
 					self.pygame_reset_screen()
 				self.handle_run_loop()

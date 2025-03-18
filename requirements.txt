@@ -18,7 +18,7 @@ python-bidi
 flask-paginate==2021.10.29
 torch>=1.5.1
 tqdm>=4.30
-librosa>=0.6.3,<0.9
+librosa==0.10.0.post2
 pip
 pydub
 yt-dlp

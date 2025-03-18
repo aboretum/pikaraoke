@@ -1,7 +1,7 @@
 import os, sys, io, random, time, json, hashlib, datetime
-import logging, socket, subprocess
+import logging, socket, subprocess, threading
 import multiprocessing as mp
-import shutil, psutil
+import shutil, psutil, traceback, tarfile, requests
 from subprocess import check_output
 from collections import *
 from tempfile import NamedTemporaryFile
@@ -36,13 +36,10 @@ def cleanse_modules(name):
 
 
 class Karaoke:
-	raspi_wifi_config_ip = "10.0.0.1"
-	raspi_wifi_conf_file = "/etc/raspiwifi/raspiwifi.conf"
-	raspi_wifi_config_installed = os.path.exists(raspi_wifi_conf_file)
 	ref_W, ref_H = 1920, 1080      # reference screen size, control drawing scale
 
 	queue = []
-	queue_hash = None
+	queue_json = ''
 	available_songs = []
 	rename_history = {}
 	songname_trans = {} # transliteration is used for sorting and initial letter search
@@ -86,6 +83,8 @@ class Karaoke:
 	}
 	full_screen=True
 	audio_mask=1
+	status_dirty = True
+	event_dirty = threading.Event()
 
 	def __init__(self, args):
 
@@ -138,7 +137,7 @@ class Karaoke:
 
 		logging.debug("IP address (for QR code and splash screen): " + self.ip)
 
-		self.url = "http://%s:%s" % (self.ip, self.port)
+		self.url = "%s://%s:%s" % (('https' if self.ssl else 'http'), self.ip, self.port)
 
 		# get songs from download_path
 		if not self.searched_file_location:
@@ -152,22 +151,7 @@ class Karaoke:
 		
 		# Automatically upgrade yt-dlp if using pip
 		if not args.youtubedl_path:
-			try:
-				import pip, yt_dlp
-				old_stderr, sys.stderr = sys.stderr, io.StringIO()
-				pip.main(['install', 'yt-dlp=='])
-				ret_stderr, sys.stderr = sys.stderr, old_stderr
-				output = ret_stderr.getvalue()
-				posi1 = output.find('versions:')
-				posi2 = output.find(')', posi1)
-				assert posi1>0 and posi2>0
-				latest_version = output[posi1:posi2].split()[-1]
-				if self.youtubedl_version.replace('.0', '.') != latest_version.replace('.0', '.'):
-					self.upgrade_youtubedl()
-					self.get_youtubedl_version()
-			except:
-				pass
-
+			threading.Thread(target=self._upgrade_yt_dlp).start()
 
 		# clean up old sessions
 		self.kill_player()
@@ -187,44 +171,64 @@ class Karaoke:
 		else:
 			pygame.init()
 
+		self.cloud = args.cloud
+		if args.cloud:
+			self.cloud_trigger = threading.Event()
+			self.cloud_tasks = []
+			threading.Thread(target=self._cloud_thread).start()
+
+	def _upgrade_yt_dlp(self):
+		import pip, yt_dlp
+		old_stderr, sys.stderr = sys.stderr, io.StringIO()
+		pip.main(['install', 'yt-dlp=='])
+		ret_stderr, sys.stderr = sys.stderr, old_stderr
+		output = ret_stderr.getvalue()
+		posi1 = output.find('versions:')
+		posi2 = output.find(')', posi1)
+		assert posi1>0 and posi2>0
+		latest_version = output[posi1:posi2].split()[-1]
+		if self.youtubedl_version.replace('.0', '.') != latest_version.replace('.0', '.'):
+			self.upgrade_youtubedl()
+			self.get_youtubedl_version()
+
+	def _cloud_thread(self):
+		while True:
+			self.cloud_trigger.wait()
+			self.cloud_trigger.clear()
+			if not self.running: return
+			while self.cloud_tasks:
+				try:
+					fn = self.cloud_tasks.pop(0)
+					bn, dn = os.path.basename(fn), os.path.dirname(fn)
+					if os.path.isfile(f'{self.download_path}nonvocal/{bn}.m4a') and os.path.isfile(f'{self.download_path}vocal/{bn}.m4a'):
+						continue
+					os.system(f'ffmpeg -y -i "{fn}" -vn -c copy {self.tmp_dir}/input.m4a')
+					with open(f'{self.tmp_dir}/input.m4a', 'rb') as f:
+						r = requests.post(self.cloud+'/split_vocal', files={'file': f})
+					with open(f'{self.tmp_dir}/output.tar.gz', 'wb') as f:
+						f.write(r.content)
+					with tarfile.open(f'{self.tmp_dir}/output.tar.gz') as tar:
+						tar.extract('nonvocal.m4a', f'{self.download_path}nonvocal')
+						os.rename(f'{self.download_path}nonvocal/nonvocal.m4a', f'{self.download_path}nonvocal/{bn}.m4a')
+						tar.extract('vocal.m4a', f'{self.download_path}vocal')
+						os.rename(f'{self.download_path}vocal/vocal.m4a', f'{self.download_path}vocal/{bn}.m4a')
+				except:
+					traceback.print_exc()
+
+
 	# Other ip-getting methods are unreliable and sometimes return 127.0.0.1
 	# https://stackoverflow.com/a/28950776
 	def get_ip(self):
 		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		try:
 			# doesn't even have to be reachable
-			s.connect(("10.255.255.255", 1))
+			s.connect(("8.8.8.8", 1))
 			IP = s.getsockname()[0]
 		except Exception:
 			IP = "127.0.0.1"
 		finally:
 			s.close()
 		return IP
-
-	def get_raspi_wifi_conf_vals(self):
-		"""Extract values from the RaspiWiFi configuration file."""
-		f = open(self.raspi_wifi_conf_file, "r")
-
-		# Define default values.
-		#
-		# References:
-		# - https://github.com/jasbur/RaspiWiFi/blob/master/initial_setup.py (see defaults in input prompts)
-		# - https://github.com/jasbur/RaspiWiFi/blob/master/libs/reset_device/static_files/raspiwifi.conf
-		#
-		server_port = "80"
-		ssid_prefix = "RaspiWiFi Setup"
-		ssl_enabled = "0"
-
-		# Override the default values according to the configuration file.
-		for line in f.readlines():
-			if "server_port=" in line:
-				server_port = line.split("t=")[1].strip()
-			elif "ssid_prefix=" in line:
-				ssid_prefix = line.split("x=")[1].strip()
-			elif "ssl_enabled=" in line:
-				ssl_enabled = line.split("d=")[1].strip()
-
-		return (server_port, ssid_prefix, ssl_enabled)
 
 	def get_youtubedl_version(self):
 		self.youtubedl_version = self.call_yt_dlp(['--version'], True).strip()
@@ -356,27 +360,11 @@ class Karaoke:
 				if self.streamer_alive():
 					text = self.render_font(sysfont_size, getString(50) + self.url.rsplit(":", 1)[0] + ":4000", (255, 255, 255))
 					self.screen.blit(text[0], self.normalize((qr_size + 35, blitY - 40)))
-				if not self.firstSongStarted and self.platform != 'osx':
+				if not self.firstSongStarted:
 					text = self.render_font(sysfont_size, getString(51), (255, 255, 255))
 					self.screen.blit(text[0], self.normalize((qr_size + 35, blitY - 120)))
 					text = self.render_font(sysfont_size, getString(52), (255, 255, 255))
 					self.screen.blit(text[0], self.normalize((qr_size + 35, blitY - 80)))
-
-		if not self.hide_raspiwifi_instructions and self.raspi_wifi_config_installed and self.raspi_wifi_config_ip in self.url:
-			server_port, ssid_prefix, ssl_enabled = self.get_raspi_wifi_conf_vals()
-
-			text1 = self.render_font(sysfont_size, getString(53), (255, 255, 255))
-			text2 = self.render_font(sysfont_size, getString(54) % ssid_prefix, (255, 255, 255))
-			text3 = self.render_font(sysfont_size,
-				getString(55)
-				% ("https" if ssl_enabled == "1" else "http",
-				   self.raspi_wifi_config_ip,
-				   ":%s" % server_port if server_port != "80" else ""),
-				(255, 255, 255),
-			)
-			self.screen.blit(text1[0], self.normalize((10, 10)))
-			self.screen.blit(text2[0], self.normalize((10, 50)))
-			self.screen.blit(text3[0], self.normalize((10, 90)))
 
 		blitY = 10
 		if not self.has_video:
@@ -728,6 +716,7 @@ class Karaoke:
 			self.omxclient.play_file(file_path)
 
 		self.switchingSong = False
+		self.status_dirty = True
 		self.render_splash_screen()  # remove old previous track
 
 	def play_transposed(self, semitones):
@@ -762,6 +751,7 @@ class Karaoke:
 			self.queue.append({"user": user, "file": song_path, "title": self.filename_from_path(song_path)})
 			self.update_song_stat(user, song_path)
 			self.update_queue_hash()
+			self.update_queue()
 			return True
 
 	def queue_add_random(self, amount):
@@ -780,19 +770,20 @@ class Karaoke:
 				i += 1
 			songs.pop(r)
 			if len(songs) == 0:
-				self.update_queue_hash()
+				self.update_queue()
 				logging.warn("Ran out of songs!")
 				return False
-		self.update_queue_hash()
+		self.update_queue()
 		return True
 
-	def update_queue_hash(self):
-		self.queue_hash = hashlib.md5(json.dumps(self.queue).encode('utf-8')).hexdigest()
+	def update_queue(self):
+		self.queue_json = json.dumps(self.queue)
+		self.status_dirty = True
 
 	def queue_clear(self):
 		logging.info("Clearing queue!")
 		self.queue = []
-		self.update_queue_hash()
+		self.update_queue()
 		self.skip()
 
 	def queue_edit(self, song_name, action, **kwargs):
@@ -810,14 +801,8 @@ class Karaoke:
 				logging.error("Invalid move song request: " + str(kwargs))
 				return False
 		else:
-			index = 0
-			song = None
-			for each in self.queue:
-				if song_name in each["file"]:
-					song = each
-					break
-				else:
-					index += 1
+			match = [(ii,each) for ii,each in enumerate(self.queue) if f'/{song_name}.' in each["file"]]
+			index, song = match[0] if match else (-1, None)
 			if song == None:
 				logging.error("Song not found in queue: " + song["file"])
 				return False
@@ -843,7 +828,7 @@ class Karaoke:
 			else:
 				logging.error("Unrecognized direction: " + action)
 				return False
-		self.update_queue_hash()
+		self.update_queue()
 		return True
 	
 	def randomize(self):
@@ -909,6 +894,7 @@ class Karaoke:
 				self.vlcclient.command(f"audiodelay&val={self.audio_delay}")
 			else:
 				logging.warning("OMXplayer cannot set audio delay!")
+			self.status_dirty = True
 			return self.audio_delay
 		logging.warning("Tried to set audio delay, but no file is playing!")
 		return False
@@ -935,6 +921,7 @@ class Karaoke:
 				self.vlcclient.command(f"subdelay&val={self.subtitle_delay}")
 			else:
 				logging.warning("OMXplayer cannot set subtitle delay!")
+			self.status_dirty = True
 			return self.subtitle_delay
 		logging.warning("Tried to set subtitle delay, but no file is playing!")
 		return False
@@ -962,6 +949,7 @@ class Karaoke:
 				else:
 					self.omxclient.play()
 					self.is_paused = False
+			self.status_dirty = True
 			return True
 		else:
 			logging.warning("Tried to pause, but no file is playing!")
@@ -1235,18 +1223,12 @@ class Karaoke:
 	def streamer_restart(self, delay=0):
 		if self.platform in ['windows', 'osx']:
 			return
-		if os.geteuid()==0 and self.nonroot_user:
-			os.system(f"su -l {self.nonroot_user} -c 'sleep {delay} && tmux send-keys -t PiKaraoke:0.3 C-c && tmux send-keys -t PiKaraoke:0.3 Up Enter'")
-		else:
-			os.system(f"sleep {delay} && tmux send-keys -t PiKaraoke:0.3 C-c && tmux send-keys -t PiKaraoke:0.3 Up Enter")
+		os.system(f"sleep {delay} && tmux send-keys -t PiKaraoke:0.3 C-c && tmux send-keys -t PiKaraoke:0.3 Up Enter")
 
 	def streamer_stop(self, delay=0):
 		if self.platform in ['windows', 'osx']:
 			return
-		if os.geteuid()==0 and self.nonroot_user:
-			os.system(f"su -l {self.nonroot_user} -c 'sleep {delay} && tmux send-keys -t PiKaraoke:0.3 C-c'")
-		else:
-			os.system(f"sleep {delay} && tmux send-keys -t PiKaraoke:0.3 C-c")
+		os.system(f"sleep {delay} && tmux send-keys -t PiKaraoke:0.3 C-c")
 
 	def vocal_alive(self):
 		try:
@@ -1264,19 +1246,13 @@ class Karaoke:
 				self.vocal_process = mp.Process(target=vocal_splitter.main, args=(['-p', '-d', self.download_path],))
 				self.vocal_process.start()
 		else:
-			if os.geteuid()==0 and self.nonroot_user:
-				os.system(f"su -l {self.nonroot_user} -c 'tmux send-keys -t PiKaraoke:0.4 C-c && tmux send-keys -t PiKaraoke:0.4 Up Enter'")
-			else:
-				os.system(f"tmux send-keys -t PiKaraoke:0.4 C-c && tmux send-keys -t PiKaraoke:0.4 Up Enter")
+			os.system(f"tmux send-keys -t PiKaraoke:0.4 C-c && tmux send-keys -t PiKaraoke:0.4 Up Enter")
 
 	def vocal_stop(self):
 		if self.vocal_process is not None and self.vocal_process.is_alive():
 			self.vocal_process.kill()
 		elif self.platform != 'windows':
-			if os.geteuid() == 0 and self.nonroot_user:
-				os.system(f"su -l {self.nonroot_user} -c 'tmux send-keys -t PiKaraoke:0.4 C-c'")
-			else:
-				os.system(f"tmux send-keys -t PiKaraoke:0.4 C-c")
+			os.system(f"tmux send-keys -t PiKaraoke:0.4 C-c")
 
 	def compute_volume(self, filename):
 		try:
@@ -1405,12 +1381,16 @@ class Karaoke:
 							self.handle_run_loop()
 						head = self.queue.pop(0)
 						self.play_file(head['file'])
+						if self.cloud:
+							self.cloud_tasks += [head['file']]
+							self.cloud_trigger.set()
 						if not self.firstSongStarted:
 							if self.streamer_alive():
 								self.streamer_restart(1)
 							self.firstSongStarted = True
 						self.now_playing_user = head["user"]
 						self.update_queue_hash()
+            self.update_queue()
 				elif (not pygame.display.get_active() and self.full_screen ) and not self.is_file_playing():
 					self.pygame_reset_screen()
 				self.handle_run_loop()
@@ -1421,7 +1401,8 @@ class Karaoke:
 		# Clean up before quit
 		self.streamer_stop()
 		self.vocal_stop()
-		(self.vlcclient if self.use_vlc else self.omxclient).stop()
+		vplayer = self.vlcclient if self.use_vlc else self.omxclient
+		if vplayer is not None: vplayer.stop()
 		self.auto_save_delays()
 		time.sleep(1)
 		(self.vlcclient if self.use_vlc else self.omxclient).kill()
@@ -1446,3 +1427,4 @@ class Karaoke:
 			return temp_video_path
 		else:
 			return original_path
+		if vplayer is not None: vplayer.kill()

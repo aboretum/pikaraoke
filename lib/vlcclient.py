@@ -75,11 +75,12 @@ class VLCClient:
 		]
 		if self.platform == "osx":
 			self.cmd_base += [
+				"--no-macosx-video-autoresize",
 				"--no-macosx-show-playback-buttons",
 				"--no-macosx-show-playmode-buttons",
 				"--no-macosx-interfacestyle",
 				"--macosx-nativefullscreenmode",
-				"--macosx-continue-playback", "0",
+				"--macosx-continue-playback=2",
 			]
 		else:
 			self.cmd_base += ["--intf", "dummy"]
@@ -144,6 +145,9 @@ class VLCClient:
 			if self.platform == "windows":
 				file_path = r"{}".format(file_path.replace('/', '\\'))
 			command = self.cmd_base + params + [file_path]
+			if self.platform == 'osx' and not os.K.full_screen:
+				command.remove('--fullscreen')
+				command.remove('--macosx-nativefullscreenmode')
 			logging.info("VLC Command: %s" % command)
 
 			self.process = subprocess.Popen(command, shell = (self.platform == "windows"), stdin = subprocess.PIPE)
@@ -321,7 +325,7 @@ class VLCClient:
 
 	def kill(self):
 		try:
-			self.process.kill()
+			if self.process is not None: self.process.kill()
 		except (OSError, AttributeError) as e:
 			print(e)
 		return

@@ -213,134 +213,115 @@
 					$("#pause-resume").removeClass("icon-play");
 					$("#pause-resume").addClass("icon-pause");
 				}
-      });
-    });
-
-    $("#vol-up").click(function () {
-      $.get("/vol_up", function(vol){$("#vol").text(vol)});
-    });
-
-    $("#vol-down").click(function () {
-      $.get("/vol_down", function(vol){$("#vol").text(vol)});
-    });
-
-    $("#vol").keypress(function (e) {
-			var ch = String.fromCharCode(e.which);
-      if(!("0123456789".includes(ch))) e.preventDefault();
-      if(ch=="\n" || ch=="\r") $(this).blur();
-    });
-
-    $("#vol").blur(function () {
-    	$.get("/vol/"+$(this).text(), function(vol){$("#vol").text(vol)});
-    	volume_changing = false;
-    });
-
-    $("#restart").click(function () {
-      if (checkUser() || confirm("{{getString1(71)}}")) {
-      	cutoffTime = Date.now();
-        $.get("/restart");
-      }
-    });
-
-    $("#skip").click(function () {
-      if (checkUser() || confirm("{{getString1(72)}}")) {
-        $.get("/skip");
-      }
-    });
-
-    $("#delay-val").keypress(function (e) {
-    	var ch = String.fromCharCode(e.which);
-      if(!("0123456789.-".includes(ch))) e.preventDefault();
-      if(ch=="\n" || ch=="\r") $(this).blur();
-    });
-
-		$("#subdelay-val").keypress(function (e) {
-    	var ch = String.fromCharCode(e.which);
-      if(!("0123456789.-".includes(ch))) e.preventDefault();
-      if(ch=="\n" || ch=="\r") $(this).blur();
-    });
-
-		$("#playspeed-val").keypress(function (e) {
-    	var ch = String.fromCharCode(e.which);
-      if(!("0123456789.".includes(ch))) e.preventDefault();
-      if(ch=="\n" || ch=="\r") $(this).blur();
-    });
-
-    $("#delay-val").blur(function () {
-    	if($(this).text()=="") $(this).text("0");
-    	$.get("/audio_delay/" + $(this).text());
-    	audiodelay_typing=false;
-    });
-
-    $("#playspeed-val").blur(function () {
-    	if($(this).text()=="") $(this).text("1");
-    	$.get("/play_speed/" + $(this).text());
-    	playspeed_typing=false;
-    });
-
-		$("#subtitle-sel").click(function () {
-    	$.get("/toggle_subtitle");
-    });
-
-		$("#subdelay-val").blur(function () {
-    	if($(this).text()=="") $(this).text("0");
-    	$.get("/subtitle_delay/" + $(this).text());
-    	subdelay_typing=false;
-    });
-
-    $("#delay-inc").click(function () {
-    	$.get("/audio_delay/+", function(data){$("#delay-val").text(parseFloat(data).toFixed(2))});
-    });
-
-    $("#delay-dec").click(function () {
-    	$.get("/audio_delay/-", function(data){$("#delay-val").text(parseFloat(data).toFixed(2))});
-    });
-
-    $("#subdelay-inc").click(function () {
-    	$.get("/subtitle_delay/+", function(data){$("#subdelay-val").text(parseFloat(data).toFixed(1))});
-    });
-
-    $("#subdelay-dec").click(function () {
-    	$.get("/subtitle_delay/-", function(data){$("#subdelay-val").text(parseFloat(data).toFixed(1))});
-    });
-
-    $("#audiodelay-info").click(function () {
-      showNotification("{{getString1(60)}}","is-info",8000)
-    });
-
-    $("#subdelay-info").click(function () {
-      showNotification("{{getString1(61)}}","is-info",8000)
-    });
-
-    $("#semitones-info").click(function () {
-      showNotification("{{getString1(62)}}","is-info",10000)
-    });
-
-    $("#playspeed-info").click(function () {
-      showNotification("{{getString1(200)}}","is-info",10000)
-    });
-
-    $("#pytorch-logo").click(function () {
-      showNotification("{{getString1(63)}}","is-info",12000)
-    });
-
-    getNowPlaying();
-    setInterval(getNowPlaying, 1500);
-    if(isMobile)
-    	$("#label-player-control")[0].outerHTML = '<h3 id="label-player-control">{{getString1(73)}}</h3>';
-  });
-
-	function s3_go_to(n, do_action) {
-		if(n<1 || n>3) n=2;
-		for(var i=1; i<=3; i++){
-			if(i==n) toggleSwitch.classList.add('horizTranslate'+i);
-			else toggleSwitch.classList.remove('horizTranslate'+i);
+			}
 		}
-		if(do_action){
-			cutoffTime = Date.now();
-			$.get("/play_vocal/"+(n==2?'mixed':(n==1?'nonvocal':'vocal')));
+
+		$("#now-playing").html(nowPlayingHtml);
+		$(".control-box").show();
+
+		if($("#seektrack") && !seektrack_seeking){
+			$("#seektrack").attr({'max':obj.seektrack_max, 'value':obj.seektrack_value});
+			$("#seektrack").val(obj.seektrack_value);
+			$("#seektrack-val").text(getHHMMSS(obj.seektrack_value));
+			$("#seektrack-max").text(getHHMMSS(obj.seektrack_max));
 		}
+
+		if(obj.audio_delay!==null && !audiodelay_typing)
+			$("#delay-val").text(obj.audio_delay.toFixed(2));
+
+		if("subtitle_delay" in obj){
+			$("#subdelay-box").show();
+			if(obj.subtitle_delay!==null && !subdelay_typing)
+				$("#subdelay-val").text(obj.subtitle_delay.toFixed(1));
+			$('#subtitle-sel').css('text-decoration', obj.show_subtitle?"":"line-through");
+		} else {
+			$("#subdelay-box").hide();
+		}
+
+		var use_DNN = obj.vocal_info&0x40;
+		s3_enable(1, use_DNN?(obj.vocal_info&1):(obj.vocal_info&4));
+		s3_enable(3, use_DNN?(obj.vocal_info&2):(obj.vocal_info&8));
+		s3_go_to((obj.vocal_info>>4)&3, false);
+		use_DNN ? $("#pytorch-logo").show():$("#pytorch-logo").hide();
+		
+		if(obj.vol_norm)
+			$("#vol").addClass('boxedText');
+		else
+			$("#vol").removeClass('boxedText');
+		} else {
+			$("#now-playing").html("{{getString1(69)}}");
+			$(".control-box").hide();
+		}
+
+		if (obj.up_next) {
+		$("#up-next").html(`<p style="white-space: nowrap; overflow:hidden;"><span style="max-width:75%;">${obj.up_next}</span>
+			<span class="has-text-success" style="float:right; max-width:25%;"><i class="icon icon-adult" title="Next singer"></i>${obj.next_user}</span></p>`);
+		} else {
+			$("#up-next").html("{{getString1(70)}}");
+		}
+
+		if (obj.is_paused) {
+			$("#pause-resume").removeClass("icon-pause").addClass("icon-play");
+			setImgSrc($(".playing_gif"), '/static/images/now-playing.png');
+		} else {
+			$("#pause-resume").removeClass("icon-play").addClass("icon-pause");
+			setImgSrc($(".playing_gif"), '/static/images/now-playing.gif')
+		}
+
+		if("volume" in obj && !volume_changing)
+			$("#vol").text(obj.volume);
+	});
+}
+
+function checkUser() {
+	try{ return obj.now_playing_user=='Randomizer' || $('#current-user').text().trim()==obj.now_playing_user; }
+	catch(err){ return false; }
+}
+
+function set_reset_key(state){
+	$("#reset_key").text(state?"{{getString1(204)}}":"{{getString1(68)}}");
+	if(state)$("#reset_key").addClass('boxedText');
+	else $("#reset_key").removeClass('boxedText');
+}
+
+function set_reset_speed(state){
+	$("#reset_speed").text(state?"{{getString1(205)}}":"{{getString1(199)}}");
+	if(state)$("#reset_speed").addClass('boxedText');
+	else $("#reset_speed").removeClass('boxedText');
+}
+
+$(function () {
+	$(".control-box").hide();
+	toggleSwitch = document.getElementsByClassName('redButton')[0];
+
+	var slider = document.getElementById("transpose");
+	var slider_prev_value = 0;
+	var output = document.getElementById("semitones-label");
+	if (slider) {
+		// Update the current slider value (each time you drag the slider handle)
+		slider.oninput = function () {
+			output.innerHTML = getSemitonesLabel(slider.value);
+		};
+		slider.oninput()
+		slider_prev_value = slider.value;
 	}
+
+	$("#transpose").change(function () {
+		var value = slider?slider.value:0;
+		if ( value != slider_prev_value ){
+			cutoffTime = Date.now();
+			$.get("/transpose/" + value);
+			output.innerHTML = getSemitonesLabel(slider.value);
+			slider_prev_value = value
+		}
+	});
+
+	var seektrack = document.getElementById("seektrack");
+	seektrack.onchange = function () {
+		cutoffTime = Date.now();
+		$.get("/seek/" + seektrack.value);
+	};
+	seektrack.oninput = function () {$("#seektrack-val").text(getHHMMSS(seektrack.value));};
 	
 	function s2_enable(n, val) {
 		var s2t = document.getElementById("s2t"+n);
@@ -373,8 +354,109 @@
 		} else {
 			s3t.onclick = null;
 			s3t.style.color = '#444444';
+	var speedtrack = document.getElementById("playspeed");
+	speedtrack.onchange = function () {$.get("/play_speed/" + speedtrack.value/100);};
+	speedtrack.oninput = function () {$("#playspeed-val").text(speedtrack.value/100);};
+
+	$("#pause-resume").click(function () {
+		$.get("/pause", function (is_paused) {
+			if (is_paused=="true") {
+				$("#pause-resume").removeClass("icon-pause");
+				$("#pause-resume").addClass("icon-play");
+			} else {
+				$("#pause-resume").removeClass("icon-play");
+				$("#pause-resume").addClass("icon-pause");
+			}
+		});
+	});
+
+	$("#vol-up").click(function () {
+		$.get("/vol_up", function(vol){$("#vol").text(vol)});
+	});
+
+	$("#vol-down").click(function () {
+		$.get("/vol_down", function(vol){$("#vol").text(vol)});
+	});
+
+	$("#vol").keypress(function (e) {
+		var ch = String.fromCharCode(e.which);
+		if(!("0123456789".includes(ch))) e.preventDefault();
+		if(ch=="\n" || ch=="\r") $(this).blur();
+	});
+
+	$("#vol").blur(function () {
+		$.get("/vol/"+$(this).text(), function(vol){$("#vol").text(vol)});
+		volume_changing = false;
+	});
+
+	$("#restart").click(function () {
+		if (checkUser() || confirm("{{getString1(71)}}")) {
+			cutoffTime = Date.now();
+			$.get("/restart");
 		}
+	});
+
+	$("#skip").click(function () {if (checkUser() || confirm("{{getString1(72)}}")) {$.get("/skip");}});
+	$("#delay-val").keypress(function (e) {
+		var ch = String.fromCharCode(e.which);
+		if(!("0123456789.-".includes(ch))) e.preventDefault();
+		if(ch=="\n" || ch=="\r") $(this).blur();
+	});
+
+	$("#subdelay-val").keypress(function (e) {
+		var ch = String.fromCharCode(e.which);
+		if(!("0123456789.-".includes(ch))) e.preventDefault();
+		if(ch=="\n" || ch=="\r") $(this).blur();
+	});
+
+	$("#playspeed-val").keypress(function (e) {
+		var ch = String.fromCharCode(e.which);
+		if(!("0123456789.".includes(ch))) e.preventDefault();
+		if(ch=="\n" || ch=="\r") $(this).blur();
+	});
+
+	$("#delay-val").blur(function () {
+		if($(this).text()=="") $(this).text("0");
+		$.get("/audio_delay/" + $(this).text());
+		audiodelay_typing=false;
+	});
+
+	$("#playspeed-val").blur(function () {
+		if($(this).text()=="") $(this).text("1");
+		$.get("/play_speed/" + $(this).text());
+		playspeed_typing=false;
+	});
+
+	$("#subdelay-val").blur(function () {
+		if($(this).text()=="") $(this).text("0");
+		$.get("/subtitle_delay/" + $(this).text());
+		subdelay_typing=false;
+	});
+
+	$("#subtitle-sel").click(function () {$.get("/toggle_subtitle");});
+	$("#delay-inc").click(function () {$.get("/audio_delay/+", function(data){$("#delay-val").text(parseFloat(data).toFixed(2))});});
+	$("#delay-dec").click(function () {$.get("/audio_delay/-", function(data){$("#delay-val").text(parseFloat(data).toFixed(2))});});
+	$("#subdelay-inc").click(function () {$.get("/subtitle_delay/+", function(data){$("#subdelay-val").text(parseFloat(data).toFixed(1))});});
+	$("#subdelay-dec").click(function () {$.get("/subtitle_delay/-", function(data){$("#subdelay-val").text(parseFloat(data).toFixed(1))});});
+	$("#audiodelay-info").click(function () {showNotification("{{getString1(60)}}","is-info",8000)});
+	$("#subdelay-info").click(function () {showNotification("{{getString1(61)}}","is-info",8000)});
+	$("#semitones-info").click(function () {showNotification("{{getString1(62)}}","is-info",10000)});
+	$("#playspeed-info").click(function () {showNotification("{{getString1(200)}}","is-info",10000)});
+	$("#pytorch-logo").click(function () {showNotification("{{getString1(63)}}","is-info",12000)});
+
+	getNowPlaying();
+	setInterval(getNowPlaying, 1500);
+	if(isMobile)
+		$("#label-player-control")[0].outerHTML = '<h3 id="label-player-control">{{getString1(73)}}</h3>';
+});
+
+function s3_go_to(n, do_action) {
+	if(n<1 || n>3) n=2;
+	for(var i=1; i<=3; i++){
+		if(i==n) toggleSwitch.classList.add('horizTranslate'+i);
+		else toggleSwitch.classList.remove('horizTranslate'+i);
 	}
+
 
 	var isRepeated = false;
     function toggleRepeat() {
@@ -388,6 +470,24 @@
             $.get("/repeat_off");
         }
     }
+
+	if(do_action){
+		cutoffTime = Date.now();
+		$.get("/play_vocal/"+(n==2?'mixed':(n==1?'nonvocal':'vocal')));
+	}
+}
+
+function s3_enable(n, val) {
+	var s3t = document.getElementById("s3t"+n);
+	if(val!=0){
+		s3t.onclick = function(){s3_go_to(n, true)};
+		s3t.style.color = '#ffffff';
+	} else {
+		s3t.onclick = null;
+		s3t.style.color = '#444444';
+	}
+}
+
 </script>
 
 {% endblock %} {% block header %}
@@ -405,6 +505,15 @@ body {
 .redButton.horizTranslate3 { -webkit-transition: -webkit-transform 0.1s linear; -webkit-transform: translateX(120px);}
 .legendText{display:inline-block; width:50px; padding-bottom:33px; cursor:default; user-select: none;}
 .boxedText { padding: 2px; border: 1px solid white; font-size:1.6rem; }
+.truncate {
+   overflow-x: hidden;
+   overflow-y: scroll;
+   text-overflow: ellipsis;
+   display: -webkit-box;
+   -webkit-line-clamp: 3; /* number of lines to show */
+           line-clamp: 3;
+   -webkit-box-orient: vertical;
+}
 </style>
 <script>
     window.onload = function() {
@@ -425,7 +534,7 @@ body {
 
 <hr/>
 <h3>{{getString1(75)}}</h3>
-<p id="up-next" class="has-text-warning"></p>
+<p id="up-next" class="has-text-warning truncate"></p>
 <hr/>
 
 <div class="has-background-black-bis box control-box" style="max-width: 500px">
@@ -462,10 +571,10 @@ body {
 		<a title="{{getString1(80)}}"><i id="pause-resume" class="icon icon-pause"></i> </a>&nbsp;&nbsp;
 		<a title="{{getString1(81)}}" id="skip"><i class="icon icon-to-end"></i> </a>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;
 		<span class="is-pulled-right">
-      <a title="{{getString1(82)}}" id="vol-down"><i class="icon icon-volume-down"></i> </a>
-      <a title="{{getString1(83)}}" id="vol" style="cursor: pointer" contenteditable="true" onfocus="volume_changing=true"> {{ volume }} </a>&nbsp;
-      <a title="{{getString1(84)}}" id="vol-up"><i class="icon icon-volume-up"></i> </a>
-    </span>
+		<a title="{{getString1(82)}}" id="vol-down"><i class="icon icon-volume-down"></i> </a>
+		<a title="{{getString1(83)}}" id="vol" style="cursor: pointer" contenteditable="true" onfocus="volume_changing=true"> {{ volume }} </a>&nbsp;
+		<a title="{{getString1(84)}}" id="vol-up"><i class="icon icon-volume-up"></i> </a>
+		</span>
 	</p>
 
 	<div id="subdelay-box">
@@ -493,18 +602,18 @@ body {
 	<div style="width: 100%">
 		<div class="is-flex">
 			<input
-					id="seektrack"
-					type="range"
-					min="0"
-					max="{{ seektrack_max }}"
-					value="{{ seektrack_value }}"
-					width="300px"
-					class="transpose-slider"
-					style="width: 100%"
-					onmousedown="seektrack_seeking=true"
-					onmouseup="seektrack_seeking=false"
-					ontouchstart="seektrack_seeking=true"
-					ontouchend="seektrack_seeking=false"
+				id="seektrack"
+				type="range"
+				min="0"
+				max="{{ seektrack_max }}"
+				value="{{ seektrack_value }}"
+				width="300px"
+				class="transpose-slider"
+				style="width: 100%"
+				onmousedown="seektrack_seeking=true"
+				onmouseup="seektrack_seeking=false"
+				ontouchstart="seektrack_seeking=true"
+				ontouchend="seektrack_seeking=false"
 			/>
 		</div>
 	</div>
@@ -525,18 +634,18 @@ body {
 	<div style="width: 100%">
 		<div class="is-flex">
 			<input
-					id="transpose"
-					type="range"
-					min="-12"
-					max="12"
-					value="{{ transpose_value }}"
-					width="300px"
-					class="transpose-slider"
-					style="width: 100%"
-					onmousedown="transpose_seeking=true"
-					onmouseup="transpose_seeking=false"
-					ontouchstart="transpose_seeking=true"
-					ontouchend="transpose_seeking=false"
+				id="transpose"
+				type="range"
+				min="-12"
+				max="12"
+				value="{{ transpose_value }}"
+				width="300px"
+				class="transpose-slider"
+				style="width: 100%"
+				onmousedown="transpose_seeking=true"
+				onmouseup="transpose_seeking=false"
+				ontouchstart="transpose_seeking=true"
+				ontouchend="transpose_seeking=false"
 			/>
 		</div>
 	</div>
@@ -554,18 +663,18 @@ body {
 	<div style="width: 100%">
 		<div class="is-flex">
 			<input
-					id="playspeed"
-					type="range"
-					min="80"
-					max="120"
-					value="{{ play_speed }}"
-					width="300px"
-					class="transpose-slider"
-					style="width: 100%"
-					onmousedown="playspeed_seeking=true"
-					onmouseup="playspeed_seeking=false"
-					ontouchstart="playspeed_seeking=true"
-					ontouchend="playspeed_seeking=false"
+				id="playspeed"
+				type="range"
+				min="80"
+				max="120"
+				value="{{ play_speed }}"
+				width="300px"
+				class="transpose-slider"
+				style="width: 100%"
+				onmousedown="playspeed_seeking=true"
+				onmouseup="playspeed_seeking=false"
+				ontouchstart="playspeed_seeking=true"
+				ontouchend="playspeed_seeking=false"
 			/>
 		</div>
 	</div>

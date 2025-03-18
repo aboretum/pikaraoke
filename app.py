@@ -1080,16 +1080,16 @@ def get_default_browser_cookie(platform):
 	except:
 		return ''
 	ret = os.path.expandvars(def_cookie_loc[platform][default_browser])
-	destination = 'tmp\\cookies'
-	# 尝试复制cookie文件到指定目录
-	try:
-		if platform == 'windows' and default_browser == 'chrome':
-			source = ret + '\\Cookies'
-			shutil.copy(source, destination)
-	except Exception as e:
-		ret = destination  # 更新ret为复制好的cookie路径
-		if not os.path.exists(destination):  # 检查目标位置是否有已有的cookie
-			raise ValueError(f"Error: {e}. Please close Chrome and try again.")
+	# destination = 'tmp\\cookies'
+	# # 尝试复制cookie文件到指定目录
+	# try:
+	# 	if platform == 'windows' and default_browser == 'chrome':
+	# 		source = ret + '\\Cookies'
+	# 		shutil.copy(source, destination)
+	# except Exception as e:
+	# 	ret = destination  # 更新ret为复制好的cookie路径
+	# 	if not os.path.exists(destination):  # 检查目标位置是否有已有的cookie
+	# 		raise ValueError(f"Error: {e}. Please close Chrome and try again.")
 	return f'{default_browser}:{ret}' if ret else ''
 
 

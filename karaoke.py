@@ -554,6 +554,10 @@ class Karaoke:
 				self.songname_trans = self.saved_songs
 			except Exception as e:
 				print(f"Error in loading exisitng songs {e}")
+		else:
+			os.makedirs(os.path.dirname(self.json_path_to_saved_file_location), exist_ok=True)
+			with open(self.json_path_to_saved_file_location, "w") as f:
+				json.dump(self.songname_trans, f)
 		self.available_songs = sorted(self.songname_trans, key = self.songname_trans.get)
 
 
@@ -588,9 +592,14 @@ class Karaoke:
 					self.songname_trans_dl[fn] = trans
 
 		# self.available_songs = sorted(files_grabbed, key = lambda f: str.lower(os.path.basename(f)))
-		
-		with open(self.json_path_to_saved_file_location, 'r') as f:
-			saved_songs = json.load(f)
+		if  os.path.exists(self.json_path_to_saved_file_location):
+			with open(self.json_path_to_saved_file_location, 'r') as f:
+				saved_songs = json.load(f)
+		else:
+			saved_songs = {}
+			os.makedirs(os.path.dirname(self.json_path_to_saved_file_location), exist_ok=True)
+			with open(self.json_path_to_saved_file_location, "w") as f:
+				json.dump(saved_songs, f)
 		
 		self.songname_trans.update(saved_songs)
 		self.songname_trans.update(self.songname_trans_dl)

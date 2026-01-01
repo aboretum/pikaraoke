@@ -552,7 +552,7 @@ class Karaoke:
 
 	def get_yt_dlp_json(self, url):
 		# out_json = subprocess.check_output([self.youtubedl_path, '-j', url])
-		out_json = self.call_yt_dlp(['-j', url], True)
+		out_json = self.call_yt_dlp(['-j', url, '--cookies-from-browser', 'chrome'], True)
 		return json.loads(out_json)
 
 	def get_downloaded_file_basename(self, url):
@@ -623,7 +623,9 @@ class Karaoke:
 					self.songname_trans[fn] = trans
 
 		# self.available_songs = sorted(files_grabbed, key = lambda f: str.lower(os.path.basename(f)))
+		logging.info("Path to json file: " + self.json_path_to_saved_file_location)
 		if  os.path.exists(self.json_path_to_saved_file_location):
+			logging.info("Path to json file exists: " + self.json_path_to_saved_file_location)
 			try:
 				with open(self.json_path_to_saved_file_location, 'r') as f:
 					self.saved_songs = json.load(f)
@@ -767,6 +769,7 @@ class Karaoke:
 				extra_params1 += ['--drawable-hwnd' if self.platform == 'windows' else '--drawable-xid',
 				                  hex(pygame.display.get_wm_info().get('window',0))]
 			self.now_playing_slave = self.create_temp_file_if_needed(self.try_set_vocal_mode(self.vocal_mode, file_path))
+			logging.info("Input Slave: " + self.now_playing_slave)
 			if os.path.isfile(self.now_playing_slave):
 				extra_params1 += [f'--input-slave={self.now_playing_slave}', f'--audio-track={self.audio_track}']
 			if self.audio_delay:
@@ -777,6 +780,7 @@ class Karaoke:
 				extra_params1 += [f'--sub-track=0']
 			if self.play_speed != 1:
 				extra_params1 += [f'--rate={self.play_speed}']
+			extra_params1 += ['--file-caching=24000', '--network-caching=24000']
 			self.now_playing = self.filename_from_path(file_path)
 			self.now_playing_filename = file_path
 			self.is_paused = ('--start-paused' in extra_params1)
@@ -1069,14 +1073,19 @@ class Karaoke:
 			return False
 
 	def try_set_vocal_mode(self, mode, now_playing_filename):
+		logging.info("Now playing file: " + now_playing_filename)
 		if mode not in ['mixed', 'vocal', 'nonvocal']:
 			mode = {1: 'nonvocal', 2: 'mixed', 3: 'vocal'}[self.get_vocal_mode()]
-		
+
 		fn, _ = os.path.splitext(os.path.basename(now_playing_filename))
-		play_slave = '' if mode == 'mixed' else self.download_path + mode + '\\' + ('' if self.use_DNN_vocal else '.')  + fn + '.m4a'
-		if not os.path.isfile(play_slave):
-			play_slave = now_playing_filename
-		self.vocal_mode = mode
+		play_slave = '' if mode == 'mixed' else self.download_path + mode + '/' + ('' if self.use_DNN_vocal else '.') \
+		                                       + fn + '.m4a'
+		logging.info("playing slave file: " + play_slave)
+		if os.path.isfile(play_slave):
+			self.vocal_mode = mode
+		else:
+			play_slave = ''
+			self.vocal_mode = 'mixed'
 		return play_slave
 
 	def track_select(self, idx=None):

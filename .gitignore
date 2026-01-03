@@ -7,3 +7,5 @@ qrcode.png
 .DS_Store
 .venv
 tmp
+.\\songs\\song_stat.json
+strace.out

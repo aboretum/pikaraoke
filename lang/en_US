@@ -1,7 +1,7 @@
 English
 Incorrect admin password!
 Logged out of admin mode!
-Added %s random tracks
+Added %s tracks
 Ran out of songs!
 Cleared the queue!
 Error moving item inside queue: invalid-argument
@@ -105,7 +105,7 @@ Edit song
 Move up in queue
 Move down in queue
 Are you sure you want to delete from the queue
-Are you sure you want to clear the ENTIRE queue? Type 'OK' to continue
+Are you sure you want to clear the ENTIRE queue?
 Add 3 random songs
 Clear all
 The queue is empty
@@ -221,3 +221,6 @@ Play Count
 Player Count
 Last Play
 User Who Loves it
+Add all 咪 songs
+Add all 绵 songs
+Add all 籟宇 songs

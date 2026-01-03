@@ -2,6 +2,7 @@ import os, sys, io, random, time, json, hashlib, datetime
 import logging, socket, subprocess
 import multiprocessing as mp
 import shutil, psutil
+from PIL import Image
 from subprocess import check_output
 from collections import *
 from tempfile import NamedTemporaryFile
@@ -251,6 +252,9 @@ class Karaoke:
 			self.render_splash_screen()
 		else:
 			pygame.init()
+			im = Image.open(self.qr_code_path)
+			im_resized = im.resize((360,360))
+			im_resized.show()
 
 	# Other ip-getting methods are unreliable and sometimes return 127.0.0.1
 	# https://stackoverflow.com/a/28950776
@@ -552,7 +556,7 @@ class Karaoke:
 
 	def get_yt_dlp_json(self, url):
 		# out_json = subprocess.check_output([self.youtubedl_path, '-j', url])
-		out_json = self.call_yt_dlp(['-j', url, '--cookies-from-browser', 'chrome'], True)
+		out_json = self.call_yt_dlp(['-j', url, '--cookies-from-browser', 'brave'], True)
 		return json.loads(out_json)
 
 	def get_downloaded_file_basename(self, url):
@@ -578,7 +582,7 @@ class Karaoke:
 		logging.info("Downloading video: " + song_url)
 		self.downloading_songs[song_url] = 1
 		dl_path = "%(title)s---%(id)s.%(ext)s"
-		opt_quality = ['-f', 'bestvideo[height<=1080]+bestaudio[abr<=160]'] if high_quality else ['-f', 'mp4+m4a']
+		opt_quality = ['-f', 'bestvideo[height<=1080]+bestaudio[abr<=160]'] if high_quality else []
 		opt_sub = ['--sub-langs', 'all', '--embed-subs'] if include_subtitles else []
 		cmd = ['--fixup', 'force', '--remux-video', 'mp4'] + self.cookies_opt + opt_quality +\
 		      ["-o", self.download_path+'tmp/'+dl_path] + opt_sub + [song_url]
@@ -780,7 +784,7 @@ class Karaoke:
 				extra_params1 += [f'--sub-track=0']
 			if self.play_speed != 1:
 				extra_params1 += [f'--rate={self.play_speed}']
-			extra_params1 += ['--file-caching=24000', '--network-caching=24000']
+			extra_params1 += ['--file-caching=24000', '--network-caching=24000', '--avcodec-hw=vaapi']
 			self.now_playing = self.filename_from_path(file_path)
 			self.now_playing_filename = file_path
 			self.is_paused = ('--start-paused' in extra_params1)
@@ -859,6 +863,34 @@ class Karaoke:
 		self.update_queue_hash()
 		return True
 
+	def queue_add_all(self, who):
+		who_string = ''
+		if who == 1:
+			who_string = '咪'
+		elif who == 2:
+			who_string = '绵'
+		elif who == 3:
+			who_string = '告五人'
+		else:
+			who_string = 'placeholder'
+
+		logging.info("Adding songs that starts with %s to queue." % who_string)
+		songs = list(self.available_songs)  # make a copy
+
+		if len(songs) == 0:
+			logging.warn("No available songs!")
+			return 0
+
+		count = 0
+		for song_path in songs:
+			filename = self.filename_from_path(song_path)
+			if filename.startswith(who_string):
+				logging.info("Adding song %s to queue." % filename)
+				self.queue.append({"user": "Randomizer", "file": song_path, "title": filename})
+				count+=1
+		self.update_queue_hash()
+		return count
+
 	def update_queue_hash(self):
 		self.queue_hash = hashlib.md5(json.dumps(self.queue).encode('utf-8')).hexdigest()
 
@@ -866,7 +898,6 @@ class Karaoke:
 		logging.info("Clearing queue!")
 		self.queue = []
 		self.update_queue_hash()
-		self.skip()
 
 	def queue_edit(self, song_name, action, **kwargs):
 		if action == "move":

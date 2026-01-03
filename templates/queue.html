@@ -111,10 +111,7 @@
 
   $(document).on('click', '.confirm-clear', function (e) {
     e.preventDefault();
-    let prompt = window.prompt(
-      "{{getString1(108)}}"
-    );
-    if (prompt.toLowerCase() === "ok") {
+    if (window.confirm("{{getString1(108)}}")) {
       location.href = this.href;
     }
   });
@@ -152,7 +149,19 @@
 {% if admin %}
 <a class="confirm-clear has-text-danger is-pulled-right" href="/queue/edit?action=clear">
   <i class="icon icon-trash-empty"></i>{{getString1(110)}}
-</a><br />
+</a><br /><br />
 {% endif %}
+
+<a class="add-random has-text-success" href="/queue/addall?query=1">
+  <i class="icon icon-plus-circled"></i>{{getString1(224)}}
+</a><br /><br />
+
+<a class="add-random has-text-success" href="/queue/addall?query=2">
+  <i class="icon icon-plus-circled"></i>{{getString1(225)}}
+</a><br /><br />
+
+<a class="add-random has-text-success" href="/queue/addall?query=3">
+  <i class="icon icon-plus-circled"></i>{{getString1(226)}}
+</a><br /><br />
 
 {% endblock %}

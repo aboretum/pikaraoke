@@ -252,6 +252,15 @@ def add_random():
 		flash(getString(5), "is-warning")
 	return redirect(url_for("queue"))
 
+@app.route("/queue/addall", methods = ["GET"])
+def add_all():
+	who = int(request.args["query"])
+	rc = K.queue_add_all(who)
+	if rc > 0:
+		flash(getString(4) % rc, "is-success")
+	else:
+		flash(getString(5), "is-warning")
+	return redirect(url_for("queue"))
 
 @app.route("/queue/edit", methods = ["GET"])
 def queue_edit():

@@ -95,7 +95,7 @@ class VLCClient:
 		self.last_status_time = time.time()
 
 	def get_marquee_cmd(self):
-		return ["--sub-source", 'logo{file=%s,position=9,x=8,opacity=200}:marq{marquee="Pikaraoke - connect at: \n%s",position=9,x=38,color=0xFFFFFF,size=11,opacity=200}' % (self.qrcode, self.url)]
+		return ["--sub-source", 'logo{file=%s,position=9,x=8,size=30,opacity=200}:marq{marquee="Pikaraoke - connect at: \n%s",position=9,x=38,color=0xFFFFFF,size=11,opacity=200}' % (self.qrcode, self.url)]
 
 	def handle_zipped_cdg(self, file_path):
 		extracted_dir = os.path.join(self.tmp_dir, "extracted")

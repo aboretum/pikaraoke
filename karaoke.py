@@ -318,7 +318,7 @@ class Karaoke:
 
 	def generate_qr_code(self):
 		logging.debug("Generating URL QR code")
-		qr = qrcode.QRCode(version = 1, box_size = 1, border = 4, error_correction = qrcode.constants.ERROR_CORRECT_H)
+		qr = qrcode.QRCode(version = 1, box_size = 10, border = 4, error_correction = qrcode.constants.ERROR_CORRECT_H)
 		qr.add_data(self.url)
 		qr.make()
 		img = qr.make_image()

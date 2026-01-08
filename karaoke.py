@@ -786,6 +786,7 @@ class Karaoke:
 				extra_params1 += [f'--rate={self.play_speed}']
 			extra_params1 += ['--file-caching=24000', '--network-caching=24000', '--avcodec-hw=vaapi']
 			self.now_playing = self.filename_from_path(file_path)
+			extra_params1 += ['--file-logging', f'--logfile=vlc-{self.now_playing}.log']
 			self.now_playing_filename = file_path
 			self.is_paused = ('--start-paused' in extra_params1)
 			if self.normalize_vol and self.logical_volume is not None:

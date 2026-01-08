@@ -251,7 +251,6 @@ class Karaoke:
 			self.initialize_screen(not args.windowed)
 			self.render_splash_screen()
 		else:
-			pygame.init()
 			im = Image.open(self.qr_code_path)
 			im_resized = im.resize((360,360))
 			im_resized.show()
@@ -769,9 +768,6 @@ class Karaoke:
 		if self.use_vlc:
 			extra_params1 = []
 			logging.info("Playing video in VLC: " + file_path)
-			if self.platform != 'osx':
-				extra_params1 += ['--drawable-hwnd' if self.platform == 'windows' else '--drawable-xid',
-				                  hex(pygame.display.get_wm_info().get('window',0))]
 			self.now_playing_slave = self.create_temp_file_if_needed(self.try_set_vocal_mode(self.vocal_mode, file_path))
 			logging.info("Input Slave: " + self.now_playing_slave)
 			if os.path.isfile(self.now_playing_slave):
@@ -1146,9 +1142,6 @@ class Karaoke:
 			info = self.vlcclient.get_info_xml(status_xml)
 			posi = info['position']*info['length']
 			extra_params1 += ([f'--start-time={posi}'] + (['--start-paused'] if self.is_paused else []))
-			if self.platform != 'osx':
-				extra_params1 += ['--drawable-hwnd' if self.platform == 'windows' else '--drawable-xid',
-				                  hex(pygame.display.get_wm_info()['window'])]
 			if self.audio_delay:
 				extra_params1 += [f'--audio-desync={self.audio_delay * 1000}']
 			if self.subtitle_delay:

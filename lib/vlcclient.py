@@ -144,12 +144,14 @@ class VLCClient:
 			if self.platform == "windows":
 				file_path = r"{}".format(file_path.replace('/', '\\'))
 			command = self.cmd_base + params + [file_path]
-			logging.info("VLC Command: %s" % command)
+			logging.info("Running VLC Command: [%s] to play file [%s]..." % command)
 
 			self.process = subprocess.Popen(command, shell = (self.platform == "windows"), stdin = subprocess.PIPE)
 
 			# wait for the process to start
 			while self.process.poll() is not None:
+				time.sleep(0.1)
+				logging.debug("Waiting for the VLC playfile subprocess to start.")
 				pass
 
 			# wait for VLC HTTP is ready

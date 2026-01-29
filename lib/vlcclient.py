@@ -144,7 +144,7 @@ class VLCClient:
 			if self.platform == "windows":
 				file_path = r"{}".format(file_path.replace('/', '\\'))
 			command = self.cmd_base + params + [file_path]
-			logging.info("Running VLC Command: [%s] to play file [%s]..." % command)
+			logging.info(f"Running VLC Command: [{command}] to play file [{file_path}]...")
 
 			self.process = subprocess.Popen(command, shell = (self.platform == "windows"), stdin = subprocess.PIPE)
 
@@ -237,7 +237,7 @@ class VLCClient:
 				self.K.now_playing = self.K.filename_from_path(self.K.now_playing_filename)
 			return request
 		except Exception as e:
-			logging.error("Error running command [{command}] for VLC: " + str(e))
+			logging.error(f"Error running command [{command}] for VLC: {e}")
 			return SimpleNamespace(**{'text': self.last_status_text, 'status_code': 500})
 
 	def pause(self, save_status=True):

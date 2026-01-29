@@ -236,8 +236,8 @@ class VLCClient:
 					self.K.now_playing_filename = self.K.download_path + self.K.now_playing_filename
 				self.K.now_playing = self.K.filename_from_path(self.K.now_playing_filename)
 			return request
-		except:
-			logging.error("No active VLC process. Could not run command: " + command)
+		except Exception as e:
+			print(f"Error running command {command} for VLC: {e}")
 			return SimpleNamespace(**{'text': self.last_status_text, 'status_code': 500})
 
 	def pause(self, save_status=True):

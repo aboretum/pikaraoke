@@ -144,7 +144,7 @@ class VLCClient:
 			if self.platform == "windows":
 				file_path = r"{}".format(file_path.replace('/', '\\'))
 			command = self.cmd_base + params + [file_path]
-			logging.info(f"Running VLC Command: [{command}] to play file [{file_path}]...")
+			logging.info(f"Running VLC Command: [{command}] to play file [{file_path}]")
 
 			self.process = subprocess.Popen(command, shell = (self.platform == "windows"), stdin = subprocess.PIPE)
 
@@ -157,6 +157,7 @@ class VLCClient:
 			# wait for VLC HTTP is ready
 			while True:
 				time.sleep(0.1)
+				logging.debug("Waiting for the VLC HTTP server to respond.")
 				req = self.command("", False)
 				xml = req.text
 				if not self.K.is_paused and self.get_val_xml(xml, 'state') == 'stopped':
@@ -175,6 +176,7 @@ class VLCClient:
 					if not self.K.is_paused and self.get_val_xml(xml, 'state') != 'playing':
 						okay = False
 				except:
+					logging.debug("Failed to set volume, will wait and try again.")
 					time.sleep(0.1)
 
 			self.is_transposing = False

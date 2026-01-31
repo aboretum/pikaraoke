@@ -1242,7 +1242,10 @@ class Karaoke:
 			'state': ('paused' if self.omxclient.paused else 'playing')
 		}
 		self.player_state.update(new_state)
-		return defaultdict(lambda: None, self.player_state)
+		result = defaultdict(lambda: None, self.player_state)
+		logging.debug(f"Home page player state: {result}")
+
+		return result
 
 	def restart(self):
 		if self.is_file_playing():

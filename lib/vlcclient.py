@@ -146,12 +146,11 @@ class VLCClient:
 			command = self.cmd_base + params + [file_path]
 			logging.info(f"Running VLC Command: [{command}] to play file [{file_path}]")
 
-			start_name = time.time()
+			start_time = time.time()
 
 			self.process = subprocess.Popen(command, shell = (self.platform == "windows"), stdin = subprocess.PIPE)
 
-
-			logging.debug(f"'Pipe open' took {(time.time() - start_time)} seconds.")
+			# logging.debug(f"'Pipe open' took {(time.time() - start_time)} seconds.")
 
 			# wait for the process to start
 			while self.process.poll() is not None:

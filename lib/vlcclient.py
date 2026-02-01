@@ -148,8 +148,9 @@ class VLCClient:
 
 			start_time = time.time()
 
-			self.process = subprocess.Popen(command, shell = (self.platform == "windows"), stdin = subprocess.PIPE)
+			self.process = subprocess.Popen(command, shell = (self.platform == "windows"), stdin = subprocess.PIPE, stdout = sys.stdout, stderr = sys.stderr)
 
+			# For some reason variable start_time defined is not accessible here.
 			# logging.debug(f"'Pipe open' took {(time.time() - start_time)} seconds.")
 
 			# wait for the process to start

@@ -586,7 +586,7 @@ class Karaoke:
 	def get_yt_dlp_json(self, url):
 		# out_json = subprocess.check_output([self.youtubedl_path, '-j', url])
 		out_json = self.call_yt_dlp(['-j', url, '--cookies-from-browser', 'brave'], True)
-		print("info_json: " + out_json)
+		# print("info_json: " + out_json)
 		return json.loads(out_json)
 
 	def get_downloaded_file_basename(self, url):

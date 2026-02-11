@@ -513,7 +513,9 @@ class Karaoke:
 	def call_yt_dlp(self, argv, get_stdout = False):
 		if self.youtubedl_path:
 			if get_stdout:
-				return subprocess.check_output([self.youtubedl_path]+argv).decode("utf-8")
+				output = subprocess.check_output([self.youtubedl_path]+argv).decode("utf-8")
+				print('output: '+output)
+				return output
 			else:
 				return subprocess.call([self.youtubedl_path]+argv)
 		ret_code = 0
@@ -555,7 +557,7 @@ class Karaoke:
 
 	def get_yt_dlp_json(self, url):
 		# out_json = subprocess.check_output([self.youtubedl_path, '-j', url])
-		out_json = self.call_yt_dlp(['--print', '"%()j"', url, '--cookies-from-browser', 'brave'], True)
+		out_json = self.call_yt_dlp(['-j', url, '--cookies-from-browser', 'brave'], True)
 		print("info_json: " + out_json)
 		return json.loads(out_json)
 

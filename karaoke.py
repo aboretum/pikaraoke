@@ -528,7 +528,7 @@ class Karaoke:
 		# 	import yt_dlp
 		# 	yt_dlp.main(argv)
 
-		f = StringIO()
+		f = io.StringIO()
 		with redirect_stderr(f):
 			import yt_dlp
 			yt_dlp.main(argv)
@@ -542,7 +542,6 @@ class Karaoke:
 			sys.stdout = old_stdout
 			output = ret_stdout.getvalue()
 			print('output: '+output)
-			print('error output: '+sys.stderr.getvalue())
 			return output
 		return ret_code
 

@@ -548,7 +548,7 @@ class Karaoke:
 		out = ff.getvalue()
 		print(f"Captured Output: {out}")
 
-		if get_stdout
+		if get_stdout:
 			return out
 		# except SystemExit as e:
 		# 	print('System exit: ' + str(e))

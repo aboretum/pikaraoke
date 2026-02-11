@@ -534,10 +534,22 @@ class Karaoke:
 				import yt_dlp
 				yt_dlp.main(argv)
 			except SystemExit as e:
-				print('System exit: ' + str(e))
 				ret_code = e.code
-		output = f.getvalue()
-		print(f"Captured Output: {output}")
+		err = f.getvalue()
+		print(f"Captured Error: {err}")
+
+		ff = io.StringIO()
+		with redirect_stdout(f):
+			try:				
+				import yt_dlp
+				yt_dlp.main(argv)
+			except SystemExit as e:
+				ret_code = e.code
+		out = ff.getvalue()
+		print(f"Captured Output: {out}")
+
+		if get_stdout
+			return out
 		# except SystemExit as e:
 		# 	print('System exit: ' + str(e))
 		# 	ret_code = e.code

@@ -526,6 +526,7 @@ class Karaoke:
 			import yt_dlp
 			yt_dlp.main(argv)
 		except SystemExit as e:
+			print('System exit: ' + str(e))
 			ret_code = e.code
 		if get_stdout:
 			ret_stdout = sys.stdout
@@ -559,7 +560,7 @@ class Karaoke:
 
 	def get_yt_dlp_json(self, url):
 		# out_json = subprocess.check_output([self.youtubedl_path, '-j', url])
-		out_json = self.call_yt_dlp(['--get-filename', url, '--cookies-from-browser', 'brave'], True)
+		out_json = self.call_yt_dlp(['-j', url, '--cookies-from-browser', 'brave'], True)
 		print("info_json: " + out_json)
 		return json.loads(out_json)
 

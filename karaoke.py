@@ -539,7 +539,7 @@ class Karaoke:
 		# print(f"Captured Error: {err}")
 
 		ff = io.StringIO()
-		with redirect_stdout(f):
+		with redirect_stdout(ff):
 			try:				
 				import yt_dlp
 				yt_dlp.main(argv)

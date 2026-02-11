@@ -525,7 +525,7 @@ class Karaoke:
 		try:
 			import yt_dlp
 			yt_dlp.main(argv)
-		except SystemExit as e:
+		except Exception as e:
 			print('System exit: ' + str(e))
 			ret_code = e.code
 		if get_stdout:

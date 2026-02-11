@@ -530,7 +530,9 @@ class Karaoke:
 		if get_stdout:
 			ret_stdout = sys.stdout
 			sys.stdout = old_stdout
-			return ret_stdout.getvalue()
+			output = ret_stdout.getvalue()
+			print('output: '+output)
+			return output
 		return ret_code
 
 	def get_search_results(self, textToSearch):

@@ -564,6 +564,7 @@ class Karaoke:
 		except:
 			try:
 				info_json = self.get_yt_dlp_json(url)
+				print("info_json: " + info_json)
 				youtube_id = info_json['id']
 			except Exception as e:
 				logging.error("Error parsing video id from url [" + url + "]: "+ str(e))

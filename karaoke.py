@@ -6,6 +6,8 @@ from PIL import Image
 from subprocess import check_output
 from collections import *
 from tempfile import NamedTemporaryFile
+from contextlib import redirect_stdout
+from contextlib import redirect_stderr
 
 import numpy as np
 
@@ -522,12 +524,19 @@ class Karaoke:
 		if get_stdout:
 			old_stdout = sys.stdout
 			sys.stdout = io.StringIO()
-		try:
+		# try:
+		# 	import yt_dlp
+		# 	yt_dlp.main(argv)
+
+		f = StringIO()
+		with redirect_stderr(f):
 			import yt_dlp
 			yt_dlp.main(argv)
-		except SystemExit as e:
-			print('System exit: ' + str(e))
-			ret_code = e.code
+		output = f.getvalue()
+		print(f"Captured Output: {output}")
+		# except SystemExit as e:
+		# 	print('System exit: ' + str(e))
+		# 	ret_code = e.code
 		if get_stdout:
 			ret_stdout = sys.stdout
 			sys.stdout = old_stdout

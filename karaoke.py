@@ -528,15 +528,15 @@ class Karaoke:
 		# 	import yt_dlp
 		# 	yt_dlp.main(argv)
 
-		# f = io.StringIO()
-		# with redirect_stderr(f):
-		# 	try:				
-		# 		import yt_dlp
-		# 		yt_dlp.main(argv)
-		# 	except SystemExit as e:
-		# 		ret_code = e.code
-		# err = f.getvalue()
-		# print(f"Captured Error: {err}")
+		f = io.StringIO()
+		with redirect_stderr(f):
+			try:				
+				import yt_dlp
+				yt_dlp.main(argv)
+			except SystemExit as e:
+				ret_code = e.code
+		err = f.getvalue()
+		print(f"Captured Error: {err}")
 
 		ff = io.StringIO()
 		with redirect_stdout(ff):

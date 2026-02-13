@@ -599,12 +599,12 @@ class Karaoke:
 		opt_sub = ['--sub-langs', 'all', '--embed-subs'] if include_subtitles else []
 		cmd = ['--fixup', 'force', '--remux-video', 'mp4'] + self.cookies_opt + opt_quality +\
 		      ["-o", self.download_path+'tmp/'+dl_path] + opt_sub + [song_url]
-		logging.debug("Youtube-dl command: " + " ".join(cmd))
+		logging.info("Youtube-dl command: " + " ".join(cmd))
 		rc = self.call_yt_dlp(cmd)
 		if rc != 0:
 			logging.error("Error code while downloading, retrying without format options ...")
 			cmd = ["-o", self.download_path + 'tmp/' + dl_path] + opt_sub + [song_url]
-			logging.debug("Youtube-dl command: " + " ".join(cmd))
+			logging.info("Youtube-dl command: " + " ".join(cmd))
 			rc = self.call_yt_dlp(cmd)
 		if rc == 0:
 			logging.debug("Song successfully downloaded: " + song_url)

@@ -516,31 +516,10 @@ class Karaoke:
 		if self.youtubedl_path:
 			if get_stdout:
 				output = subprocess.check_output([self.youtubedl_path]+argv).decode("utf-8")
-				print('output: '+output)
 				return output
 			else:
 				return subprocess.call([self.youtubedl_path]+argv)
 		ret_code = 0
-
-		# f = io.StringIO()
-		# with redirect_stderr(f):
-		# 	try:
-		# 		import yt_dlp
-		# 		yt_dlp.main(argv)
-		# 	except SystemExit as e:
-		# 		ret_code = e.code
-		# err = f.getvalue()
-		# print(f"Captured Error: {err}")
-
-		# ff = io.StringIO()
-		# with redirect_stdout(ff):
-		# 	try:
-		# 		import yt_dlp
-		# 		yt_dlp.main(argv)
-		# 	except SystemExit as e:
-		# 		ret_code = e.code
-		# out = ff.getvalue()
-		# print(f"Captured Output: {out}")
 
 		if get_stdout:
 			old_stdout = sys.stdout
@@ -553,8 +532,6 @@ class Karaoke:
 		except SystemExit as e:
 			ret_code = e.code
 
-		# if get_stdout:
-		# 	return out
 		if get_stdout:
 			ret_stdout = sys.stdout
 			sys.stdout = old_stdout
@@ -562,8 +539,8 @@ class Karaoke:
 			sys.stderr = old_stderr
 			output = ret_stdout.getvalue()
 			err_output = ret_stderr.getvalue()
-			print('Captured output: ' + output)
-			print('Captured error: ' + err_output)
+			logging.debug(f"Captured output: {output}")
+			logging.debug(f"Captured error: {err_output}")
 			return output
 		return ret_code
 
@@ -592,20 +569,20 @@ class Karaoke:
 	def get_yt_dlp_json(self, url):
 		# out_json = subprocess.check_output([self.youtubedl_path, '-j', url])
 		out_json = self.call_yt_dlp(['--get-id', url, '--cookies-from-browser', 'brave'], True)
-		# print("info_json: " + out_json)
 		return json.loads(out_json)
 
 	def get_downloaded_file_basename(self, url):
-		try:
+		if url.include?('watch?v='):
 			youtube_id = url.split("watch?v=")[1].split('&')[0]
-		except:
+		elif url.include?('youtu.be'):
+			youtube_id = url.split("youtu.be/")[1].split('?')[0]
+		else:
 			try:
 				info_json = self.get_yt_dlp_json(url)
 				youtube_id = info_json['id']
 			except Exception as e:
 				logging.error("Error parsing video id from url [" + url + "]: "+ str(e))
 				return None
-
 		try:
 			return [i for i in os.listdir(self.download_path+'tmp/') if youtube_id in i][0]
 		except:

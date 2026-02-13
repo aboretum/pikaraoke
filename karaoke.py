@@ -521,44 +521,50 @@ class Karaoke:
 			else:
 				return subprocess.call([self.youtubedl_path]+argv)
 		ret_code = 0
-		# if get_stdout:
-		# 	old_stdout = sys.stdout
-		# 	sys.stdout = io.StringIO()
-		# try:
-		# 	import yt_dlp
-		# 	yt_dlp.main(argv)
 
-		f = io.StringIO()
-		with redirect_stderr(f):
-			try:				
-				import yt_dlp
-				yt_dlp.main(argv)
-			except SystemExit as e:
-				ret_code = e.code
-		err = f.getvalue()
-		print(f"Captured Error: {err}")
+		# f = io.StringIO()
+		# with redirect_stderr(f):
+		# 	try:
+		# 		import yt_dlp
+		# 		yt_dlp.main(argv)
+		# 	except SystemExit as e:
+		# 		ret_code = e.code
+		# err = f.getvalue()
+		# print(f"Captured Error: {err}")
 
-		ff = io.StringIO()
-		with redirect_stdout(ff):
-			try:				
-				import yt_dlp
-				yt_dlp.main(argv)
-			except SystemExit as e:
-				ret_code = e.code
-		out = ff.getvalue()
-		print(f"Captured Output: {out}")
+		# ff = io.StringIO()
+		# with redirect_stdout(ff):
+		# 	try:
+		# 		import yt_dlp
+		# 		yt_dlp.main(argv)
+		# 	except SystemExit as e:
+		# 		ret_code = e.code
+		# out = ff.getvalue()
+		# print(f"Captured Output: {out}")
 
 		if get_stdout:
-			return out
-		# except SystemExit as e:
-		# 	print('System exit: ' + str(e))
-		# 	ret_code = e.code
+			old_stdout = sys.stdout
+			sys.stdout = io.StringIO()
+			old_stderr = sys.stderr
+			sys.stderr = io.StringIO()
+		try:
+			import yt_dlp
+			yt_dlp.main(argv)
+		except SystemExit as e:
+			ret_code = e.code
+
 		# if get_stdout:
-		# 	ret_stdout = sys.stdout
-		# 	sys.stdout = old_stdout
-		# 	output = ret_stdout.getvalue()
-		# 	print('output: '+output)
-		# 	return output
+		# 	return out
+		if get_stdout:
+			ret_stdout = sys.stdout
+			sys.stdout = old_stdout
+			ret_stderr = sys.stderr
+			sys.stderr = old_stderr
+			output = ret_stdout.getvalue()
+			err_output = ret_stderr.getvalue()
+			print('Captured output: ' + output)
+			print('Captured error: ' + err_output)
+			return output
 		return ret_code
 
 	def get_search_results(self, textToSearch):

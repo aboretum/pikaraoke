@@ -603,7 +603,7 @@ class Karaoke:
 		rc = self.call_yt_dlp(cmd)
 		if rc != 0:
 			logging.error("Error code while downloading, retrying without format options ...")
-			cmd = ["-o", self.download_path + 'tmp/' + dl_path] + opt_sub + [song_url]
+			cmd = + self.cookies_opt + ["-o", self.download_path + 'tmp/' + dl_path] + opt_sub + [song_url]
 			logging.info("Youtube-dl command: " + " ".join(cmd))
 			rc = self.call_yt_dlp(cmd)
 		if rc == 0:

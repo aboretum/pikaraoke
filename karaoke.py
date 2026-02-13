@@ -513,6 +513,8 @@ class Karaoke:
 		return render
 
 	def call_yt_dlp(self, argv, get_stdout = False):
+		argv += ['--cookies', os.path.join(self.base_path, 'cookies.txt')]
+		logging.info(f"Youtube-dl cmd opts: {argv}")
 		if self.youtubedl_path:
 			if get_stdout:
 				output = subprocess.check_output([self.youtubedl_path]+argv).decode("utf-8")
@@ -568,7 +570,7 @@ class Karaoke:
 
 	def get_yt_dlp_json(self, url):
 		# out_json = subprocess.check_output([self.youtubedl_path, '-j', url])
-		out_json = self.call_yt_dlp(['--get-id', url, '--cookies-from-browser', 'brave'], True)
+		out_json = self.call_yt_dlp(['--get-id', url], True)
 		return json.loads(out_json)
 
 	def get_downloaded_file_basename(self, url):
@@ -597,17 +599,15 @@ class Karaoke:
 		dl_path = "%(title)s---%(id)s.%(ext)s"
 		opt_quality = ['-f', 'bestvideo[height<=1080]+bestaudio[abr<=160]'] if high_quality else []
 		opt_sub = ['--sub-langs', 'all', '--embed-subs'] if include_subtitles else []
-		cmd = ['--fixup', 'force', '--remux-video', 'mp4'] + self.cookies_opt + opt_quality +\
+		cmd = ['--fixup', 'force', '--remux-video', 'mp4'] + opt_quality +\
 		      ["-o", self.download_path+'tmp/'+dl_path] + opt_sub + [song_url]
-		logging.info("Youtube-dl command: " + " ".join(cmd))
 		rc = self.call_yt_dlp(cmd)
 		if rc != 0:
 			logging.error("Error code while downloading, retrying without format options ...")
-			cmd = self.cookies_opt + ["-o", self.download_path + 'tmp/' + dl_path] + opt_sub + [song_url]
-			logging.info("Youtube-dl command: " + " ".join(cmd))
+			cmd = ["-o", self.download_path + 'tmp/' + dl_path] + opt_sub + [song_url]
 			rc = self.call_yt_dlp(cmd)
 		if rc == 0:
-			logging.debug("Song successfully downloaded: " + song_url)
+			logging.info("Song successfully downloaded: " + song_url)
 			self.downloading_songs[song_url] = 0
 			bn = self.get_downloaded_file_basename(song_url)
 			if bn:

@@ -572,9 +572,9 @@ class Karaoke:
 		return json.loads(out_json)
 
 	def get_downloaded_file_basename(self, url):
-		if url.include?('watch?v='):
+		if 'watch?v=' in url:
 			youtube_id = url.split("watch?v=")[1].split('&')[0]
-		elif url.include?('youtu.be'):
+		elif 'youtu.be' in url:
 			youtube_id = url.split("youtu.be/")[1].split('?')[0]
 		else:
 			try:

@@ -206,7 +206,10 @@ class Karaoke:
 			self.get_available_songs_in_saved()
 		else:
 			self.get_available_songs()
+
+		logging.debug("Before call")
 		self.get_youtubedl_version()
+		logging.debug("After call")
 
 		# get favorite songs
 		self.get_song_stat()

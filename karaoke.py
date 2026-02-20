@@ -207,9 +207,7 @@ class Karaoke:
 		else:
 			self.get_available_songs()
 
-		logging.debug("Before call")
 		self.get_youtubedl_version()
-		logging.debug("After call")
 
 		# get favorite songs
 		self.get_song_stat()
@@ -239,11 +237,16 @@ class Karaoke:
 			except:
 				pass
 
+		logging.debug("Test debugging 1")
 
 		# clean up old sessions
 		self.kill_player()
 
+		logging.debug("Test debugging 2")
+
 		self.generate_qr_code()
+
+		logging.debug("Test debugging 3")
 		if self.use_vlc:
 			self.vlcclient = vlcclient.VLCClient(port = self.vlc_port, path = self.vlc_path,
 			                                     qrcode = (self.qr_code_path if self.show_overlay else None), url = self.url)

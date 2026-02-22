@@ -519,7 +519,7 @@ class Karaoke:
 		return render
 
 	def call_yt_dlp(self, argv, get_stdout = False):
-		argv += ['--cookies', os.path.join(self.base_path, 'cookies.txt')]
+		# argv += ['--cookies', os.path.join(self.base_path, 'cookies.txt')]
 		logging.info(f"Youtube-dl cmd opts: {argv}")
 		if self.youtubedl_path:
 			if get_stdout:

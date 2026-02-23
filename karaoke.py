@@ -313,7 +313,7 @@ class Karaoke:
 		else:
 			try:
 				import pip
-				pip.main(['install', 'yt-dlp', '-U'])
+				pip.main(['install', 'yt-dlp[default]', '-U'])
 				cleanse_modules('yt_dlp')
 				import yt_dlp
 			except:

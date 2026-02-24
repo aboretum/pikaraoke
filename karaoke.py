@@ -206,7 +206,7 @@ class Karaoke:
 		else:
 			self.get_available_songs()
 
-		self.get_youtubedl_version()
+		# self.get_youtubedl_version()
 
 		logging.debug("Test debugging 1")
 
@@ -218,7 +218,7 @@ class Karaoke:
 		# Automatically upgrade yt-dlp if using pip
 		if not args.youtubedl_path:
 			self.upgrade_youtubedl()
-			self.get_youtubedl_version()
+			# self.get_youtubedl_version()
 
 		logging.debug("Test debugging 3")
 
@@ -290,7 +290,7 @@ class Karaoke:
 		return self.youtubedl_version
 
 	def upgrade_youtubedl(self):
-		logging.info("Upgrading youtube-dl, current version: %s" % self.youtubedl_version)
+		# logging.info("Upgrading youtube-dl, current version: %s" % self.youtubedl_version)
 		if self.youtubedl_path:
 			self.call_yt_dlp(['-U'])
 		else:
@@ -301,7 +301,7 @@ class Karaoke:
 				import yt_dlp
 			except:
 				pass
-		logging.info("Done. New version: %s" % self.get_youtubedl_version())
+		# logging.info("Done. New version: %s" % self.get_youtubedl_version())
 
 	def is_network_connected(self):
 		return not len(self.ip) < 7

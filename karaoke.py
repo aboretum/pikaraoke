@@ -206,7 +206,7 @@ class Karaoke:
 		else:
 			self.get_available_songs()
 
-		# self.get_youtubedl_version()
+		self.get_youtubedl_version()
 
 		logging.debug("Test debugging 1")
 

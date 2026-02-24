@@ -6,8 +6,7 @@ from PIL import Image
 from subprocess import check_output
 from collections import *
 from tempfile import NamedTemporaryFile
-from contextlib import redirect_stdout
-from contextlib import redirect_stderr
+from contextlib import redirect_stdout, redirect_stderr
 
 import numpy as np
 
@@ -221,24 +220,20 @@ class Karaoke:
 			try:
 				import pip, yt_dlp
 				logging.debug("Test debugging before stderr io call")
-				old_stderr = sys.stderr
-				sys.stderr = io.StringIO()
-				logging.debug("Test debugging during stderr io call")
-				pip.main(['install', 'yt-dlp=='])
-				ret_stderr = sys.stderr
-				sys.stderr = old_stderr
+				err_str = io.StringIO()
+				with contextlib.redirect_stderr(err_str):
+				    pip.main(['install', 'yt-dlp=='])
 				logging.debug("Test debugging after stderr io call")
-				output = ret_stderr.getvalue()
+				output = err_str.getvalue()
 				posi1 = output.find('versions:')
 				posi2 = output.find(')', posi1)
 				if posi1<=0 and posi2<=0:
 					logging.debug("Test debugging before stdout io call")
-					old_stdout, sys.stdout = sys.stdout, io.StringIO()
-					logging.debug("Test debugging during stdout io call")
-					pip.main(['index', 'versions', 'yt-dlp'])
-					ret_stdout, sys.stdout = sys.stdout, old_stdout
+					out_str = io.StringIO()
+					with contextlib.redirect_stdout(out_str):
+						pip.main(['index', 'versions', 'yt-dlp'])
 					logging.debug("Test debugging after stdout io call")
-					output = ret_stdout.getvalue()
+					output = out_str.getvalue()
 					posi1 = output.find('LATEST:')
 					posi2 = len(output)-1
 				assert posi1>0 and posi2>0

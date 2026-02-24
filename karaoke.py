@@ -521,8 +521,8 @@ class Karaoke:
 			sys.stderr = old_stderr
 			output = ret_stdout.getvalue()
 			err_output = ret_stderr.getvalue()
-			logging.verbose(f"Captured output: {output}")
-			logging.verbose(f"Captured error: {err_output}")
+			logging.debug(f"Captured yt-dlp command {argv} output: {output}")
+			logging.debug(f"Captured yt-dlp command {argv} error: {err_output}")
 			return output
 		return ret_code
 

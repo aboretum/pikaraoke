@@ -217,7 +217,7 @@ class Karaoke:
 		
 		# Automatically upgrade yt-dlp if using pip
 		if not args.youtubedl_path:
-			self.upgrade_youtubedl()
+			# self.upgrade_youtubedl()
 			# self.get_youtubedl_version()
 
 		logging.debug("Test debugging 3")

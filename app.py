@@ -844,7 +844,7 @@ if __name__ == "__main__":
 	default_port = 5000
 	default_volume = 0
 	default_splash_delay = 3
-	default_log_level = logging.DEBUG
+	default_log_level = logging.INFO
 
 	default_dl_dir = get_default_dl_dir(platform)
 	default_omxplayer_path = "/usr/bin/omxplayer"

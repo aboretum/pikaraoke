@@ -217,33 +217,8 @@ class Karaoke:
 		
 		# Automatically upgrade yt-dlp if using pip
 		if not args.youtubedl_path:
-			try:
-				import pip, yt_dlp
-				logging.debug("Test debugging before stderr io call")
-				with redirect_stderr(io.StringIO()) as err_str:
-					pip.main(['install', 'yt-dlp=='])
-
-				logging.debug("Test debugging after stderr io call")
-				output = err_str.getvalue()
-				# print(output)
-				posi1 = output.find('versions:')
-				posi2 = output.find(')', posi1)
-				if posi1<=0 and posi2<=0:
-					logging.debug("Test debugging before stdout io call")
-					with redirect_stdout(io.StringIO()) as out_str:
-						pip.main(['index', 'versions', 'yt-dlp'])
-					logging.debug("Test debugging after stdout io call")
-					output = out_str.getvalue()
-					# print(output)
-					posi1 = output.find('LATEST:')
-					posi2 = len(output)-1
-				assert posi1>0 and posi2>0
-				latest_version = output[posi1:posi2].split()[-1]
-				if self.youtubedl_version.replace('.0', '.') != latest_version.replace('.0', '.'):
-					self.upgrade_youtubedl()
-					self.get_youtubedl_version()
-			except:
-				pass
+			self.upgrade_youtubedl()
+			self.get_youtubedl_version()
 
 		logging.debug("Test debugging 3")
 
@@ -537,17 +512,26 @@ class Karaoke:
 				return subprocess.call([self.youtubedl_path]+argv)
 		ret_code = 0
 
+		if get_stdout:
+			old_stdout = sys.stdout
+			sys.stdout = io.StringIO()
+			old_stderr = sys.stderr
+			sys.stderr = io.StringIO()
 		try:
 			import yt_dlp
-			out_str = io.StringIO()
-			with redirect_stderr(out_str), redirect_stdout(out_str):
-				yt_dlp.main(argv)
+			yt_dlp.main(argv)
 		except SystemExit as e:
 			ret_code = e.code
 
 		if get_stdout:
-			output = out_str.getvalue()
+			ret_stdout = sys.stdout
+			sys.stdout = old_stdout
+			ret_stderr = sys.stderr
+			sys.stderr = old_stderr
+			output = ret_stdout.getvalue()
+			err_output = ret_stderr.getvalue()
 			logging.debug(f"Captured output: {output}")
+			logging.debug(f"Captured error: {err_output}")
 			return output
 		return ret_code
 

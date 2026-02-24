@@ -209,8 +209,12 @@ class Karaoke:
 
 		self.get_youtubedl_version()
 
+		logging.debug("Test debugging 1")
+
 		# get favorite songs
 		self.get_song_stat()
+
+		logging.debug("Test debugging 2")
 		
 		# Automatically upgrade yt-dlp if using pip
 		if not args.youtubedl_path:
@@ -237,16 +241,16 @@ class Karaoke:
 			except:
 				pass
 
-		logging.debug("Test debugging 1")
+		logging.debug("Test debugging 3")
 
 		# clean up old sessions
 		self.kill_player()
 
-		logging.debug("Test debugging 2")
+		logging.debug("Test debugging 4")
 
 		self.generate_qr_code()
 
-		logging.debug("Test debugging 3")
+		logging.debug("Test debugging 5")
 		if self.use_vlc:
 			self.vlcclient = vlcclient.VLCClient(port = self.vlc_port, path = self.vlc_path,
 			                                     qrcode = (self.qr_code_path if self.show_overlay else None), url = self.url)

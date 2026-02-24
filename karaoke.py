@@ -223,8 +223,10 @@ class Karaoke:
 				err_str = io.StringIO()
 				with contextlib.redirect_stderr(err_str):
 				    pip.main(['install', 'yt-dlp=='])
+
 				logging.debug("Test debugging after stderr io call")
 				output = err_str.getvalue()
+				println(output)
 				posi1 = output.find('versions:')
 				posi2 = output.find(')', posi1)
 				if posi1<=0 and posi2<=0:
@@ -234,6 +236,7 @@ class Karaoke:
 						pip.main(['index', 'versions', 'yt-dlp'])
 					logging.debug("Test debugging after stdout io call")
 					output = out_str.getvalue()
+					println(output)
 					posi1 = output.find('LATEST:')
 					posi2 = len(output)-1
 				assert posi1>0 and posi2>0

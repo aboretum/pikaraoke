@@ -536,13 +536,14 @@ class Karaoke:
 			else:
 				return subprocess.call([self.youtubedl_path]+argv)
 		ret_code = 0
-		out_str = io.StringIO()
-		with redirect_stderr(out_str), redirect_stdout(out_str):
-			try:
-				import yt_dlp
+
+		try:
+			import yt_dlp
+			out_str = io.StringIO()
+			with redirect_stderr(out_str), redirect_stdout(out_str):
 				yt_dlp.main(argv)
-			except SystemExit as e:
-				ret_code = e.code
+		except SystemExit as e:
+			ret_code = e.code
 
 		if get_stdout:
 			output = out_str.getvalue()

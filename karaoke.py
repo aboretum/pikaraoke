@@ -221,10 +221,12 @@ class Karaoke:
 			try:
 				import pip, yt_dlp
 				logging.debug("Test debugging before stderr io call")
-				old_stderr, sys.stderr = sys.stderr, io.StringIO()
+				old_stderr = sys.stderr
+				sys.stderr = io.StringIO()
 				logging.debug("Test debugging during stderr io call")
 				pip.main(['install', 'yt-dlp=='])
-				ret_stderr, sys.stderr = sys.stderr, old_stderr
+				ret_stderr = sys.stderr
+				sys.stderr = old_stderr
 				logging.debug("Test debugging after stderr io call")
 				output = ret_stderr.getvalue()
 				posi1 = output.find('versions:')

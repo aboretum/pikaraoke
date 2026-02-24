@@ -296,12 +296,8 @@ class Karaoke:
 		else:
 			try:
 				import pip
-				pip.main(['install', 'yt-dlp[default]', '-U'])
-				logging.basicConfig(
-					format = "[%(asctime)s] %(levelname)s: %(message)s",
-					datefmt = "%Y-%m-%d %H:%M:%S",
-					level = self.log_level,
-				)
+				process = subprocess.Popen(['install', 'yt-dlp[default]', '-U'], shell = (self.platform == "windows"), stdin = subprocess.PIPE, stdout = sys.stdout, stderr = sys.stderr)
+				process.wait()
 				cleanse_modules('yt_dlp')
 				import yt_dlp
 			except Exception as e:

@@ -296,7 +296,7 @@ class Karaoke:
 		else:
 			try:
 				import pip
-				process = subprocess.Popen(['install', 'yt-dlp[default]', '-U'], shell = (self.platform == "windows"), stdin = subprocess.PIPE, stdout = sys.stdout, stderr = sys.stderr)
+				process = subprocess.Popen(['pip', 'install', 'yt-dlp[default]', '-U'], shell = (self.platform == "windows"), stdin = subprocess.PIPE, stdout = sys.stdout, stderr = sys.stderr)
 				process.wait()
 				cleanse_modules('yt_dlp')
 				import yt_dlp

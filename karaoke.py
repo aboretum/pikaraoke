@@ -220,19 +220,22 @@ class Karaoke:
 		if not args.youtubedl_path:
 			try:
 				import pip, yt_dlp
+				logging.debug("Test debugging before stderr io call")
 				old_stderr, sys.stderr = sys.stderr, io.StringIO()
+				logging.debug("Test debugging during stderr io call")
 				pip.main(['install', 'yt-dlp=='])
 				ret_stderr, sys.stderr = sys.stderr, old_stderr
+				logging.debug("Test debugging after stderr io call")
 				output = ret_stderr.getvalue()
 				posi1 = output.find('versions:')
 				posi2 = output.find(')', posi1)
 				if posi1<=0 and posi2<=0:
-					logging.debug("Test debugging before io call")
+					logging.debug("Test debugging before stdout io call")
 					old_stdout, sys.stdout = sys.stdout, io.StringIO()
-					logging.debug("Test debugging during io call")
+					logging.debug("Test debugging during stdout io call")
 					pip.main(['index', 'versions', 'yt-dlp'])
 					ret_stdout, sys.stdout = sys.stdout, old_stdout
-					logging.debug("Test debugging after io call")
+					logging.debug("Test debugging after stdout io call")
 					output = ret_stdout.getvalue()
 					posi1 = output.find('LATEST:')
 					posi2 = len(output)-1

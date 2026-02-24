@@ -298,10 +298,10 @@ class Karaoke:
 				process.wait()
 				cleanse_modules('yt_dlp')
 				import yt_dlp
+				logging.info("Successfully upgraded yt-dlp version to: %s" % self.get_youtubedl_version())
 			except Exception as e:
 				logging.error(f"Error upgrading yt-dlp: {e.str()}")
 				pass
-		logging.info("Done. New version: %s" % self.get_youtubedl_version())
 
 	def is_network_connected(self):
 		return not len(self.ip) < 7

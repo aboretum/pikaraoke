@@ -221,7 +221,7 @@ class Karaoke:
 				import pip, yt_dlp
 				logging.debug("Test debugging before stderr io call")
 				err_str = io.StringIO()
-				with contextlib.redirect_stderr(err_str):
+				with redirect_stderr(err_str):
 					pip.main(['install', 'yt-dlp=='])
 
 				logging.debug("Test debugging after stderr io call")
@@ -232,7 +232,7 @@ class Karaoke:
 				if posi1<=0 and posi2<=0:
 					logging.debug("Test debugging before stdout io call")
 					out_str = io.StringIO()
-					with contextlib.redirect_stdout(out_str):
+					with redirect_stdout(out_str):
 						pip.main(['index', 'versions', 'yt-dlp'])
 					logging.debug("Test debugging after stdout io call")
 					output = out_str.getvalue()
@@ -539,7 +539,7 @@ class Karaoke:
 				return subprocess.call([self.youtubedl_path]+argv)
 		ret_code = 0
 		out_str = io.StringIO()
-		with contextlib.redirect_stderr(out_str), contextlib.redirect_stdout(out_str):
+		with redirect_stderr(out_str), redirect_stdout(out_str):
 			try:
 				import yt_dlp
 				yt_dlp.main(argv)

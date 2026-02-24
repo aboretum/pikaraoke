@@ -294,14 +294,19 @@ class Karaoke:
 		if self.youtubedl_path:
 			self.call_yt_dlp(['-U'])
 		else:
-			import pip
-			pip.main(['install', 'yt-dlp[default]', '-U'])
-			# try:
-
-			# 	# cleanse_modules('yt_dlp')
-			# 	# import yt_dlp
-			# except:
-			# 	pass
+			try:
+				import pip
+				pip.main(['install', 'yt-dlp[default]', '-U'])
+				logging.basicConfig(
+					format = "[%(asctime)s] %(levelname)s: %(message)s",
+					datefmt = "%Y-%m-%d %H:%M:%S",
+					level = self.log_level,
+				)
+				cleanse_modules('yt_dlp')
+				import yt_dlp
+			except Exception as e:
+				logging.error(f"Error upgrading yt-dlp: {e.str()}")
+				pass
 		# logging.info("Done. New version: %s" % self.get_youtubedl_version())
 
 	def is_network_connected(self):

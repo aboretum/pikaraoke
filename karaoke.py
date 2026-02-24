@@ -289,7 +289,7 @@ class Karaoke:
 		return self.youtubedl_version
 
 	def upgrade_youtubedl(self):
-		logging.info("Upgrading youtube-dl, current version: %s" % self.youtubedl_version)
+		logging.info("Uplifting yt-dlp version [%s]" % self.youtubedl_version)
 		if self.youtubedl_path:
 			self.call_yt_dlp(['-U'])
 		else:
@@ -298,7 +298,7 @@ class Karaoke:
 				process.wait()
 				cleanse_modules('yt_dlp')
 				import yt_dlp
-				logging.info("Successfully upgraded yt-dlp version to: %s" % self.get_youtubedl_version())
+				logging.info("Uplifting successful, yt-dlp version: %s" % self.get_youtubedl_version())
 			except Exception as e:
 				logging.error(f"Error upgrading yt-dlp: {e.str()}")
 				pass
@@ -503,7 +503,7 @@ class Karaoke:
 
 	def call_yt_dlp(self, argv, get_stdout = False):
 		argv += ['--cookies', os.path.join(self.base_path, 'cookies.txt')]
-		logging.info(f"Youtube-dl cmd opts: {argv}")
+		logging.debug(f"yt-dlp cmd opts: {argv}")
 		if self.youtubedl_path:
 			if get_stdout:
 				output = subprocess.check_output([self.youtubedl_path]+argv).decode("utf-8")

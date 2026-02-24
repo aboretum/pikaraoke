@@ -220,23 +220,21 @@ class Karaoke:
 			try:
 				import pip, yt_dlp
 				logging.debug("Test debugging before stderr io call")
-				err_str = io.StringIO()
-				with redirect_stderr(err_str):
+				with redirect_stderr(io.StringIO()) as err_str:
 					pip.main(['install', 'yt-dlp=='])
 
 				logging.debug("Test debugging after stderr io call")
 				output = err_str.getvalue()
-				print(output)
+				# print(output)
 				posi1 = output.find('versions:')
 				posi2 = output.find(')', posi1)
 				if posi1<=0 and posi2<=0:
 					logging.debug("Test debugging before stdout io call")
-					out_str = io.StringIO()
-					with redirect_stdout(out_str):
+					with redirect_stdout(io.StringIO()) as out_str:
 						pip.main(['index', 'versions', 'yt-dlp'])
 					logging.debug("Test debugging after stdout io call")
 					output = out_str.getvalue()
-					print(output)
+					# print(output)
 					posi1 = output.find('LATEST:')
 					posi2 = len(output)-1
 				assert posi1>0 and posi2>0

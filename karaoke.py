@@ -222,7 +222,7 @@ class Karaoke:
 				logging.debug("Test debugging before stderr io call")
 				err_str = io.StringIO()
 				with contextlib.redirect_stderr(err_str):
-				    pip.main(['install', 'yt-dlp=='])
+					pip.main(['install', 'yt-dlp=='])
 
 				logging.debug("Test debugging after stderr io call")
 				output = err_str.getvalue()

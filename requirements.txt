@@ -7,8 +7,6 @@ six
 Flask==2.3.2
 pillow
 qrcode
-pygame; sys_platform != 'darwin'
-pygame==2.1.0; sys_platform == 'darwin'
 futures
 psutil 
 unidecode

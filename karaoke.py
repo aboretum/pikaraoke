@@ -504,10 +504,11 @@ class Karaoke:
 		ret_code = 0
 
 		if get_stdout:
+			redirection_str = io.StringIO()
 			old_stdout = sys.stdout
-			sys.stdout = io.StringIO()
+			sys.stdout = redirection_str
 			old_stderr = sys.stderr
-			sys.stderr = io.StringIO()
+			sys.stderr = redirection_str
 		try:
 			import yt_dlp
 			yt_dlp.main(argv)
@@ -517,12 +518,9 @@ class Karaoke:
 		if get_stdout:
 			ret_stdout = sys.stdout
 			sys.stdout = old_stdout
-			ret_stderr = sys.stderr
 			sys.stderr = old_stderr
 			output = ret_stdout.getvalue()
-			err_output = ret_stderr.getvalue()
 			logging.debug(f"Captured yt-dlp command {argv} output: {output}")
-			logging.debug(f"Captured yt-dlp command {argv} error: {err_output}")
 			return output
 		return ret_code
 
@@ -533,7 +531,6 @@ class Karaoke:
 		cmd = ["-j", "--no-playlist", "--flat-playlist", yt_search]
 		logging.debug("Youtube-dl search command: " + " ".join(cmd))
 		try:
-			# output = subprocess.check_output(cmd).decode("utf-8")
 			output = self.call_yt_dlp(cmd, True)
 			logging.debug("Search results: " + output)
 			rc = []
@@ -549,7 +546,6 @@ class Karaoke:
 			raise e
 
 	def get_yt_dlp_json(self, url):
-		# out_json = subprocess.check_output([self.youtubedl_path, '-j', url])
 		out_json = self.call_yt_dlp(['--get-id', url], True)
 		return json.loads(out_json)
 

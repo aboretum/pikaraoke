@@ -392,6 +392,8 @@ class Karaoke:
 		# 	    if d['status'] == 'downloading':
 		# 	    	self.downloading_songs_pct[song_url] = int(d["downloaded_bytes"] / d["total_bytes"] * 100)
 
+		import yt_dlp
+
 		logging.info("Downloading video: " + song_url)
 		self.downloading_songs[song_url] = 1
 		dl_path = "%(title)s---%(id)s.%(ext)s"

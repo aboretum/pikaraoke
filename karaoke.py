@@ -395,12 +395,12 @@ class Karaoke:
 			    	pct = int(d["downloaded_bytes"] / d["total_bytes"] * 100)
 			    	file_name = d['filename'].split('tmp/')[1]
 			    	logging.debug(f'Downloading {file_name}, now {pct}%')
-			    	self.downloading_songs_pct[song_url] = f"{file_name}@-----@{pct}"
+			    	self.downloading_songs_pct[song_url] = file_name + '@-----@' + pct
 			return my_hook
 
 		logging.info("Downloading video: " + song_url)
 		self.downloading_songs[song_url] = 1
-		self.downloading_songs_pct[song_url] = ''
+		# self.downloading_songs_pct[song_url] = ''
 		dl_path = "%(title)s---%(id)s.%(ext)s"
 		# opt_sub = ['--sub-langs', 'all', '--embed-subs'] if include_subtitles else []
 		# cmd = ['--fixup', 'force', '--remux-video', 'mp4'] + opt_quality +\

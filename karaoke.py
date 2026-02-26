@@ -404,7 +404,7 @@ class Karaoke:
 		    'progress_hooks': [progress_hook(song_url)]
 		}
 
-		with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+		with YoutubeDL(ydl_opts) as ydl:
 		    rc = ydl.download([song_url])
 		# if rc != 0:
 		# 	logging.error("Error code while downloading, retrying without format options ...")

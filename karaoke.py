@@ -390,11 +390,12 @@ class Karaoke:
 			def my_hook(d):
 			    if d['status'] == 'finished':
 			        logging.debug('Download complete, now post-processing ...')
-			        self.downloading_songs_pct[song_url] = 100
+			        self.downloading_songs_pct[song_url] = '@-----@100'
 			    if d['status'] == 'downloading':
 			    	pct = int(d["downloaded_bytes"] / d["total_bytes"] * 100)
-			    	self.downloading_songs_pct[song_url] = pct
-			    	logging.debug(f'Downloading {d['filename']}, now {pct}%')
+			    	file_name = d['filename'].split('tmp/')[1]
+			    	logging.debug(f'Downloading {filename}, now {pct}%')
+			    	self.downloading_songs_pct[song_url] = f"{filename}@-----@{pct}"
 			return my_hook
 
 		logging.info("Downloading video: " + song_url)

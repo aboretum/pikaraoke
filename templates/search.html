@@ -70,6 +70,7 @@
   }
   function check_download_pct(){
     $.post('/check_download_pct', {"url": download_url}, function(val){
+      console.log('Val from server call:' + val)
       strs = val.split('@-----@')
       num = parseInt(strs[1], 10);
       console.log('Val from server call:' + num)

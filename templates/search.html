@@ -67,6 +67,7 @@
   function check_download_pct(){
     $.post('/check_download_pct', {"url": download_url}, function(val){
       num = parseInt(val, 10);
+      console.log('Val from server call:' + num)
       if (num < 100) {
         $("#progressbar").removeClass("is-hidden")
         $(".progress-label" ).text(num + "%")

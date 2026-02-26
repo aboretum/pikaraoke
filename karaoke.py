@@ -395,9 +395,9 @@ class Karaoke:
 		logging.info("Downloading video: " + song_url)
 		self.downloading_songs[song_url] = 1
 		dl_path = "%(title)s---%(id)s.%(ext)s"
-		opt_sub = ['--sub-langs', 'all', '--embed-subs'] if include_subtitles else []
-		cmd = ['--fixup', 'force', '--remux-video', 'mp4'] + opt_quality +\
-		      ["-o", self.download_path+'tmp/'+dl_path] + opt_sub + [song_url]
+		# opt_sub = ['--sub-langs', 'all', '--embed-subs'] if include_subtitles else []
+		# cmd = ['--fixup', 'force', '--remux-video', 'mp4'] + opt_quality +\
+		#       ["-o", self.download_path+'tmp/'+dl_path] + opt_sub + [song_url]
 
 		ydl_opts = {
 			'outtmpl': self.download_path+'tmp/'+dl_path,

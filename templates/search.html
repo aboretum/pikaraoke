@@ -8,6 +8,18 @@
     font-weight: bold;
   }
 
+  .ui-progressbar {
+    position: relative;
+  }
+
+  .progress-label {
+    position: absolute;
+    left: 50%;
+    top: 4px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #fff;
+  }
+
   .row {
     display: flex;
     /* equal height of the children */
@@ -65,9 +77,9 @@
         return
       } else {
         $(".progress-label" ).text("Complete")
+        $("#progressbar").addClass("is-hidden")
         console.log('Val is 100')
         clearInterval(timer2)
-        $("#progressbar").addClass("is-hidden")
       }
     });
   }

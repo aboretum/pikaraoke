@@ -384,15 +384,15 @@ class Karaoke:
 
 
 	def download_video(self, song_url = '', enqueue = False, song_added_by = "Pikaraoke", include_subtitles = False, high_quality = False):
-		# def progress_hook(song_url):
-		# 	def my_hook(d):
-		# 	    if d['status'] == 'finished':
-		# 	        print('Done downloading, now post-processing ...')
-		# 	        self.downloading_songs_pct[song_url] = 100
-		# 	    if d['status'] == 'downloading':
-		# 	    	self.downloading_songs_pct[song_url] = int(d["downloaded_bytes"] / d["total_bytes"] * 100)
-
 		import yt_dlp
+
+		def progress_hook(song_url):
+			def my_hook(d):
+			    if d['status'] == 'finished':
+			        print('Done downloading, now post-processing ...')
+			        self.downloading_songs_pct[song_url] = 100
+			    if d['status'] == 'downloading':
+			    	self.downloading_songs_pct[song_url] = int(d["downloaded_bytes"] / d["total_bytes"] * 100)
 
 		logging.info("Downloading video: " + song_url)
 		self.downloading_songs[song_url] = 1
@@ -403,7 +403,7 @@ class Karaoke:
 
 		ydl_opts = {
 			'outtmpl': self.download_path+'tmp/'+dl_path,
-		    # 'progress_hooks': [progress_hook(song_url)],
+		    'progress_hooks': [progress_hook(song_url)],
 		    'cookiefile': os.path.join(self.base_path, 'cookies.txt')
 		}
 

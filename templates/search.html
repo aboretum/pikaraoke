@@ -55,7 +55,7 @@
   function check_download_pct(){
     $.post('/check_download_pct', {"url": download_url}, function(val){
       if (val != '100') {
-        $("#direct-download-button-pct").button( "option", "label", val );
+        $("#direct-download-button-pct").val(val);
         console.log('Updated val to:' + val)
         return
       } else {

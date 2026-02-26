@@ -562,6 +562,11 @@ def check_download():
 	ret = K.downloading_songs.get(request.values.get('url', None), 1)
 	return str(ret)
 
+@app.route("/check_download_pct", methods = ["POST"])
+def check_download_pct():
+	ret = K.downloading_songs_pct.get(request.values.get('url', None), 1)
+	return str(ret)
+
 @app.route("/qrcode")
 def qrcode():
 	return send_file(K.qr_code_path, mimetype = "image/png")

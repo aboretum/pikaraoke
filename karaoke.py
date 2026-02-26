@@ -19,6 +19,7 @@ from unidecode import unidecode
 from lib import omxclient, vlcclient
 from lib.get_platform import *
 from app import getString
+from yt_dlp import YoutubeDL
 
 STD_VOL = 65536/8/np.sqrt(2)
 
@@ -127,6 +128,7 @@ class Karaoke:
 		self.screen = None
 		self.player_state = {}
 		self.downloading_songs = {}
+		self.downloading_songs_pct = {}
 		self.log_level = int(args.log_level)
 
 		logging.basicConfig(
@@ -313,6 +315,7 @@ class Karaoke:
 				return subprocess.call([self.youtubedl_path]+argv)
 		ret_code = 0
 
+
 		if get_stdout:
 			redirection_str = io.StringIO()
 			old_stdout = sys.stdout
@@ -379,19 +382,34 @@ class Karaoke:
 		filename = f"{info_json['title']}---{info_json['id']}.{info_json['ext']}"
 		return filename if os.path.isfile(self.download_path+'tmp/'+filename) else None
 
+	def progress_hook(song_url):
+		def my_hook(d):
+		    if d['status'] == 'finished':
+		        print('Done downloading, now post-processing ...')
+		        self.downloading_songs_pct[song_url] = 100
+		    if d['status'] == 'downloading':
+		    	self.downloading_songs_pct[song_url] = int(d["downloaded_bytes"] / d["total_bytes"] * 100)
+
+
 	def download_video(self, song_url = '', enqueue = False, song_added_by = "Pikaraoke", include_subtitles = False, high_quality = False):
 		logging.info("Downloading video: " + song_url)
 		self.downloading_songs[song_url] = 1
 		dl_path = "%(title)s---%(id)s.%(ext)s"
-		opt_quality = ['-f', 'bestvideo[height<=1080]+bestaudio[abr<=160]'] if high_quality else []
 		opt_sub = ['--sub-langs', 'all', '--embed-subs'] if include_subtitles else []
 		cmd = ['--fixup', 'force', '--remux-video', 'mp4'] + opt_quality +\
 		      ["-o", self.download_path+'tmp/'+dl_path] + opt_sub + [song_url]
-		rc = self.call_yt_dlp(cmd)
-		if rc != 0:
-			logging.error("Error code while downloading, retrying without format options ...")
-			cmd = ["-o", self.download_path + 'tmp/' + dl_path] + opt_sub + [song_url]
-			rc = self.call_yt_dlp(cmd)
+
+		ydl_opts = {
+			'outtmpl': self.download_path+'tmp/'+dl_path,
+		    'progress_hooks': [progress_hook(song_url)]
+		}
+
+		with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+		    rc = ydl.download([song_url])
+		# if rc != 0:
+		# 	logging.error("Error code while downloading, retrying without format options ...")
+		# 	cmd = ["-o", self.download_path + 'tmp/' + dl_path] + opt_sub + [song_url]
+		# 	rc = self.call_yt_dlp(cmd)
 		if rc == 0:
 			logging.info("Song successfully downloaded: " + song_url)
 			self.downloading_songs[song_url] = 0

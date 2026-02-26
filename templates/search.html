@@ -52,6 +52,16 @@
       showNotification(msg);
     });
   }
+  function check_download_pct(){
+    $.post('/check_download_pct', {"url": download_url}, function(val){
+      if (val != '100') {
+        $("#direct-download-button").button( "option", "label", val );
+        return
+      } else {
+        clearInterval(timer)
+      }
+    });
+  }
   $(function () {
   
     $("#search_result_selector").focus();
@@ -79,6 +89,9 @@
       $.post($(this).attr('action'), $(this).serialize(), function(msg) {
         showNotification(msg);
         timer = setInterval(check_download, 2000);
+      }, 'text');
+      $.post($(this).attr('action'), $(this).serialize(), function(msg) {
+        timer = setInterval(check_download_pct, 2000);
       }, 'text');
       return false;
     });

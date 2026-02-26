@@ -57,12 +57,14 @@
       num = parseInt(val, 10);
       if (num < 100) {
         $("#progressbar").removeClass("is-hidden")
+        $(".progress-label" ).text(num + "%")
         $("#progressbar").progressbar({
           value: num
         });
         console.log('Updated val to:' + num)
         return
       } else {
+        $(".progress-label" ).text("Complete")
         console.log('Val is 100')
         clearInterval(timer2)
         $("#progressbar").addClass("is-hidden")
@@ -341,6 +343,7 @@
             <button class="button is-small is-rounded" id="direct-download-button" type="submit">{{getString1(127)}}</button>
           </div>
           <div id="progressbar" class="is-hidden" style="margin-top: 5px">
+            <div class="progress-label">Loading...</div>
           </div>
         </form>
       </div>

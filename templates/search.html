@@ -58,7 +58,7 @@
         $("#direct-download-button").button( "option", "label", val );
         return
       } else {
-        clearInterval(timer)
+        clearInterval(timer2)
       }
     });
   }
@@ -89,9 +89,7 @@
       $.post($(this).attr('action'), $(this).serialize(), function(msg) {
         showNotification(msg);
         timer = setInterval(check_download, 2000);
-      }, 'text');
-      $.post($(this).attr('action'), $(this).serialize(), function(msg) {
-        timer = setInterval(check_download_pct, 2000);
+        timer2 = setInterval(check_download_pct, 2000);
       }, 'text');
       return false;
     });

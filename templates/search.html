@@ -54,12 +54,13 @@
   }
   function check_download_pct(){
     $.post('/check_download_pct', {"url": download_url}, function(val){
-      if (val < 100) {
+      num = parseInt(val, 10);
+      if (num < 100) {
         $("#progressbar").removeClass("is-hidden")
         $("#progressbar").progressbar({
-          value: val
+          value: num
         });
-        console.log('Updated val to:' + val)
+        console.log('Updated val to:' + num)
         return
       } else {
         console.log('Val is 100')

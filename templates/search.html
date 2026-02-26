@@ -54,14 +54,17 @@
   }
   function check_download_pct(){
     $.post('/check_download_pct', {"url": download_url}, function(val){
-      if (val != '100') {
-        $("#direct-download-button-pct").button()
-        $("#direct-download-button-pct").button( "option", "label", val );
+      if (val < 100) {
+        $("#progressbar").removeClass("is-hidden")
+        $("#progressbar").progressbar({
+          value: val
+        });
         console.log('Updated val to:' + val)
         return
       } else {
         console.log('Val is 100')
         clearInterval(timer2)
+        $("#progressbar").addClass("is-hidden")
       }
     });
   }
@@ -334,10 +337,9 @@
             <label class="checkbox" title="{{getString1(208)}}"><input type="checkbox" name="include_subtitles">{{getString1(126)}}</label>
           </div>
           <div class="has-text-right" style="margin-top: 5px">
-            <button class="button is-small is-rounded" id="direct-download-button-pct" type="submit">nothing</button>
-          </div>
-          <div class="has-text-right" style="margin-top: 5px">
             <button class="button is-small is-rounded" id="direct-download-button" type="submit">{{getString1(127)}}</button>
+          </div>
+          <div id="progressbar" class="is-hidden" style="margin-top: 5px">
           </div>
         </form>
       </div>

@@ -401,7 +401,8 @@ class Karaoke:
 
 		ydl_opts = {
 			'outtmpl': self.download_path+'tmp/'+dl_path,
-		    'progress_hooks': [progress_hook(song_url)]
+		    'progress_hooks': [progress_hook(song_url)],
+		    'cookiefile': os.path.join(self.base_path, 'cookies.txt')
 		}
 
 		with YoutubeDL(ydl_opts) as ydl:

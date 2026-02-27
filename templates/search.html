@@ -74,7 +74,15 @@
       strs = val.split('@-----@')
       num = parseInt(strs[1], 10);
       console.log('Val from server call:' + num)
-      if (num < 100) {
+      if (num == 0) {
+        $("#progressbar").removeClass("is-hidden")
+        $("#progresstext").removeClass("is-hidden")
+        $("#progresstext").text('Downloading starting ...')
+        $(".progress-label" ).text(num + "%")
+        $("#progressbar").progressbar({
+          value: num
+        });
+      } else if (num < 100) {
         $("#progressbar").removeClass("is-hidden")
         $("#progresstext").removeClass("is-hidden")
         $("#progresstext").text(strs[0])

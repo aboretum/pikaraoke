@@ -77,7 +77,7 @@
       if (num < 100) {
         $("#progressbar").removeClass("is-hidden")
         $("#progresstext").removeClass("is-hidden")
-        $("#progresstext").text("Downloading [" + strs[0] + "]")
+        $("#progresstext").text(strs[0])
         $(".progress-label" ).text(num + "%")
         $("#progressbar").progressbar({
           value: num

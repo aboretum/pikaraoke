@@ -122,7 +122,7 @@
             <a class='add-song-link has-text-weight-bold has-text-success'
                 title="{{getString1(97)%filename_from_path(song)}}"
                 href="{{url_for('enqueue')}}?song={{url_escape(song.encode('utf-8'))}}&user="><i
-                    class="icon icon-list-add"></i> </a>
+                    class="icon icon-list-add" style="font-size: 25px"></i> </a>
         </td>
         <td>
             {{filename_from_path(song)}}

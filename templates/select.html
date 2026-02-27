@@ -91,9 +91,12 @@
     }
 
     .add-to-queue-icon {
-        background-image: url("/static/images/add-to-queue.svg");
-        background-repeat: no-repeat;
-        height: 25px;
+      &::after {
+        content: url("/static/images/add-to-queue.svg");
+        display: block;
+        height: 1.5em;
+        width: 1.5em;
+      }
     }
 </style>
 {% endblock %}

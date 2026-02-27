@@ -76,7 +76,9 @@
       console.log('Val from server call:' + num)
       if (num < 100) {
         $("#progressbar").removeClass("is-hidden")
-        $(".progress-label" ).text("Downloading " + strs[0] + ", " + num + "%")
+        $("#progresslabel").removeClass("is-hidden")
+        $("#progresslabel").text("Downloading " + strs[0])        
+        $(".progress-label" ).text(num + "%")
         $("#progressbar").progressbar({
           value: num
         });
@@ -85,6 +87,7 @@
       } else {
         $(".progress-label" ).text("Complete")
         $("#progressbar").addClass("is-hidden")
+        $("#progresslabel").addClass("is-hidden")
         console.log('Val is 100')
         clearInterval(timer2)
       }
@@ -361,6 +364,7 @@
           <div class="has-text-right" style="margin-top: 5px">
             <button class="button is-small is-rounded" id="direct-download-button" type="submit">{{getString1(127)}}</button>
           </div>
+          <div id="progresstext" class="label is-hidden" style="margin-top: 5px">Loading</div>
           <div id="progressbar" class="is-hidden" style="margin-top: 5px">
             <div class="progress-label">Loading...</div>
           </div>

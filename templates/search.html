@@ -119,8 +119,8 @@
       download_url = $(this).find('[name=song_url]').val()
       $.post($(this).attr('action'), $(this).serialize(), function(msg) {
         showNotification(msg);
-        timer = setInterval(check_download, 2000);
-        timer2 = setInterval(check_download_pct, 500);
+        timer = setInterval(check_download, 1000);
+        timer2 = setInterval(check_download_pct, 200);
       }, 'text');
       return false;
     });

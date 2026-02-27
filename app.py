@@ -565,7 +565,7 @@ def check_download():
 @app.route("/check_download_pct", methods = ["POST"])
 def check_download_pct():
 	pct = K.downloading_songs_pct.get(request.values.get('url', None), 1)
-	print('pct: ' + pct)
+	print(f"pct: {pct}")
 	if not pct:
 		return '@-----@0'
 

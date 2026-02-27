@@ -91,12 +91,9 @@
     }
 
     .add-to-queue-icon {
-      &::after {
-        content: url("/static/images/add-to-queue.svg");
-        display: block;
-        height: 1.5em;
-        width: 1.5em;
-      }
+        background-image: url('/static/images/add-to-queue.svg');
+        background-repeat: no-repeat;
+        height: 25px;
     }
 </style>
 {% endblock %}
@@ -130,8 +127,8 @@
         <td id={{filename_from_path(song)[0].lower()}} width="20px" style="padding: 5px 0px">
             <a class='add-song-link has-text-weight-bold has-text-success'
                 title="{{getString1(97)%filename_from_path(song)}}"
-                href="{{url_for('enqueue')}}?song={{url_escape(song.encode('utf-8'))}}&user="><i
-                    class="add-to-queue-icon" style="font-size: 25px"></i></a>
+                href="{{url_for('enqueue')}}?song={{url_escape(song.encode('utf-8'))}}&user="><div
+                    class="add-to-queue-icon"></div></a>
         </td>
         <td>
             {{filename_from_path(song)}}

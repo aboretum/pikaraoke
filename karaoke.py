@@ -279,18 +279,15 @@ class Karaoke:
 
 	def upgrade_youtubedl(self):
 		logging.info("Uplifting yt-dlp version [%s]" % self.youtubedl_version)
-		if self.youtubedl_path:
-			self.call_yt_dlp(['-U'])
-		else:
-			try:
-				process = subprocess.Popen(['./.venv/bin/python3', '-m', 'pip', 'install', 'yt-dlp[default]', '-U'], shell = (self.platform == "windows"), stdin = subprocess.PIPE, stdout = sys.stdout, stderr = sys.stderr)
-				process.wait()
-				cleanse_modules('yt_dlp')
-				import yt_dlp
-				logging.info("Uplifting successful, yt-dlp version: %s" % self.get_youtubedl_version())
-			except Exception as e:
-				logging.error(f"Error upgrading yt-dlp: {e.str()}")
-				pass
+		try:
+			process = subprocess.Popen(['./.venv/bin/python3', '-m', 'pip', 'install', 'yt-dlp[default]', '-U'], shell = (self.platform == "windows"), stdin = subprocess.PIPE, stdout = sys.stdout, stderr = sys.stderr)
+			process.wait()
+			cleanse_modules('yt_dlp')
+			import yt_dlp
+			logging.info("Uplifting successful, yt-dlp version: %s" % self.get_youtubedl_version())
+		except Exception as e:
+			logging.error(f"Error upgrading yt-dlp: {e.str()}")
+			pass
 
 	def is_network_connected(self):
 		return not len(self.ip) < 7
@@ -359,8 +356,15 @@ class Karaoke:
 			raise e
 
 	def get_yt_dlp_json(self, url):
-		out_json = self.call_yt_dlp(['--get-id', url], True)
-		return json.loads(out_json)
+		ydl_opts = {
+		    'cookiefile': os.path.join(self.base_path, 'cookies.txt')
+		}
+
+		with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+			info = ydl.extract_info(url, download=False)
+			output_json = json.dumps(ydl.sanitize_info(info))
+
+		return output_json
 
 	def get_downloaded_file_basename(self, url):
 		if 'watch?v=' in url:

@@ -269,6 +269,10 @@ def queue_edit():
 		K.queue_clear()
 		flash(getString(6), "is-warning")
 		return redirect(url_for("queue"))
+	elif action == "clearAll":
+		K.queue_clear_and_skip()
+		flash(getString(6), "is-warning")
+		return redirect(url_for("queue"))
 	elif action == "move":
 		try:
 			id_from = request.args['from']

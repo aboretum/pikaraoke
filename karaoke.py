@@ -723,9 +723,17 @@ class Karaoke:
 		self.queue_hash = hashlib.md5(json.dumps(self.queue).encode('utf-8')).hexdigest()
 
 	def queue_clear(self):
-		logging.info("Clearing queue!")
+		logging.info("Clearing queue.")
+		_queue_clear()
+
+	def _queue_clear(self):
 		self.queue = []
 		self.update_queue_hash()
+
+	def queue_clear_and_skip(self):
+		logging.info("Clearing queue and skip current.")
+		_queue_clear()
+		self.skip()
 
 	def queue_edit(self, song_name, action, **kwargs):
 		if action == "move":

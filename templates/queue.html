@@ -92,6 +92,13 @@
     }
   });
 
+  $(document).on('click', '.confirm-clear-all', function (e) {
+    e.preventDefault();
+    if (window.confirm("{{getString1(228)}}")) {
+      location.href = this.href;
+    }
+  });
+
   //on page load
   $(function () {
     getQueue();
@@ -124,7 +131,7 @@
 
 {% if admin %}
 <a class="confirm-clear has-text-danger is-pulled-right" href="/queue/edit?action=clear">
-  <i class="icon icon-trash-empty"></i>{{getString1(110)}}
+  <i class="icon icon-trash-empty"></i>{{getString1(227)}}
 </a><br /><br />
 {% endif %}
 
@@ -138,6 +145,12 @@
 
 <a class="add-random has-text-success" href="/queue/addall?query=3">
   <i class="icon icon-plus-circled"></i>{{getString1(226)}}
+</a>
+
+{% if admin %}
+<a class="confirm-clear-all has-text-danger is-pulled-right" href="/queue/edit?action=clearAll">
+  <i class="icon icon-trash-empty"></i>{{getString1(110)}}
 </a><br /><br />
+{% endif %}
 
 {% endblock %}

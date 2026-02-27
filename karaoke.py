@@ -393,7 +393,10 @@ class Karaoke:
 			        self.downloading_songs_pct[song_url] = '@-----@100'
 			    if d['status'] == 'downloading':
 			    	pct = int(d["downloaded_bytes"] / d["total_bytes"] * 100)
-			    	file_name = d['filename'].split('tmp/')[1]
+			    	full_name = d['filename'].split('tmp/')[1]
+			    	ext = full_name.rsplit('.', 1)[1]
+			    	true_name = full_name.split('---')[0]
+			    	file_name = f"{true_name}.{ext}"
 			    	logging.debug(f'Downloading {file_name}, now {pct}%')
 			    	self.downloading_songs_pct[song_url] = file_name + '@-----@' + str(pct)
 			return my_hook

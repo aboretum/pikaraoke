@@ -23,22 +23,6 @@
       if (!data) return;
       [queue, queue_hash] =  JSON.parse(data);
       $("#auto-refresh").html(generateQueueHTML());
-      $('#auto-refresh').sortable({
-        disabled: isMobile,
-        tolerance: "pointer",
-        revert: true,
-        start: function( event, ui ){ dragging = ui.item.index() },
-        stop: function( event, ui ){ dragging = null },
-        update: function(event, ui){
-          var end_posi = ui.item.index();
-          $.get("/queue/edit?action=move&from=" + dragging + "&to=" + end_posi + "&size=" + queue.length)
-        }
-      });
-      if(isMobile){
-        $(".drag-starter").on("touchstart",  function(ev){ $('#auto-refresh').sortable("option", "disabled", false) });
-        $(".drag-starter").on("touchend",    function(ev){ $('#auto-refresh').sortable("option", "disabled", true) });
-        $(".drag-starter").on("touchcancel", function(ev){ $('#auto-refresh').sortable("option", "disabled", true)});
-      }
     })
   }
 
@@ -55,7 +39,7 @@
                   class="up-button"
                   href="/queue/edit?action=up&song=${encodeURIComponent(e.file)}"
                   title="{{getString1(105)}}"
-                  ><i class="icon icon-up-big ${index == 0 && "is-hidden"}"></i>move to top
+                  ><i class="icon icon-up-big ${index == 0 && "is-hidden"}"></i>
                 </a>
               </td>
             {% endif %}

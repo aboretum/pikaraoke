@@ -8,6 +8,22 @@
     font-weight: bold;
   }
 
+  .ui-progressbar {
+    position: relative;
+  }
+
+  .ui-progressbar-value {
+    background: #00EA81;
+  }
+
+  .progress-label {
+    position: absolute;
+    left: 50%;
+    top: 4px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #fff;
+  }
+
   .row {
     display: flex;
     /* equal height of the children */
@@ -52,6 +68,31 @@
       showNotification(msg);
     });
   }
+  function check_download_pct(){
+    $.post('/check_download_pct', {"url": download_url}, function(val){
+      console.log('Val from server call:' + val)
+      strs = val.split('@-----@')
+      num = parseInt(strs[1], 10);
+      console.log('Val from server call:' + num)
+      if (num < 100) {
+        $("#progressbar").removeClass("is-hidden")
+        $("#progresstext").removeClass("is-hidden")
+        $("#progresstext").text(strs[0])
+        $(".progress-label" ).text(num + "%")
+        $("#progressbar").progressbar({
+          value: num
+        });
+        console.log('Updated val to:' + num)
+        return
+      } else {
+        $(".progress-label" ).text("Complete")
+        $("#progressbar").addClass("is-hidden")
+        $("#progresstext").addClass("is-hidden")
+        console.log('Val is 100')
+        clearInterval(timer2)
+      }
+    });
+  }
   $(function () {
   
     $("#search_result_selector").focus();
@@ -78,7 +119,8 @@
       download_url = $(this).find('[name=song_url]').val()
       $.post($(this).attr('action'), $(this).serialize(), function(msg) {
         showNotification(msg);
-        timer = setInterval(check_download, 2000);
+        timer = setInterval(check_download, 1000);
+        timer2 = setInterval(check_download_pct, 200);
       }, 'text');
       return false;
     });
@@ -321,6 +363,10 @@
           </div>
           <div class="has-text-right" style="margin-top: 5px">
             <button class="button is-small is-rounded" id="direct-download-button" type="submit">{{getString1(127)}}</button>
+          </div>
+          <div id="progresstext" class="label is-hidden" style="margin-top: 5px">Loading</div>
+          <div id="progressbar" class="is-hidden" style="margin-top: 5px">
+            <div class="progress-label">Loading...</div>
           </div>
         </form>
       </div>

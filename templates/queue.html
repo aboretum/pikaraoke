@@ -50,20 +50,12 @@
           <tr value=${e.title}>
             <td width="20px" style="padding: 5px 0px">${index + 1}</td>
             {% if admin %}
-              <td width="20px" style="padding: 5px 0px" class="drag-starter">
+              <td width="20px" style="padding: 5px 0px">
                 <a
                   class="up-button"
                   href="/queue/edit?action=up&song=${encodeURIComponent(e.file)}"
                   title="{{getString1(105)}}"
                   ><i class="icon icon-up-circled ${index == 0 && "is-hidden"}"></i>
-                </a>
-              </td>
-              <td width="20px" style="padding: 5px 0px" class="drag-starter">
-                <a
-                  class="down-button"
-                  href="/queue/edit?action=down&song=${encodeURIComponent(e.file)}"
-                  title="{{getString1(106)}}"
-                  ><i class="icon icon-down-circled ${index + 1 == queue.length && "is-hidden"}"></i>
                 </a>
               </td>
             {% endif %}

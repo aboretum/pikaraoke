@@ -758,9 +758,9 @@ class Karaoke:
 					logging.warn("Song is up next, can't bump up in queue: " + song["file"])
 					return False
 				else:
-					logging.info("Bumping song up in queue: " + song["file"])
+					logging.info("Bumping song up to the front of queue: " + song["file"])
 					del self.queue[index]
-					self.queue.insert(index - 1, song)
+					self.queue.insert(0, song)
 			elif action == "down":
 				if index == len(self.queue) - 1:
 					logging.warn("Song is already last, can't bump down in queue: " + song["file"])

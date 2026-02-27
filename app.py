@@ -569,7 +569,7 @@ def check_download_pct():
 	if not pct:
 		return '@-----@0'
 
-	return return pct
+	return pct
 
 @app.route("/qrcode")
 def qrcode():

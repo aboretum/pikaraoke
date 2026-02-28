@@ -229,11 +229,6 @@ class Karaoke:
 			self.omxclient = omxclient.OMXClient(path = self.omxplayer_path, adev = self.omxplayer_adev,
 			                                     dual_screen = self.dual_screen, volume_offset = self.volume_offset)
 
-
-		im = Image.open(self.qr_code_path)
-		im_resized = im.resize((360,360))
-		im_resized.show()
-
 	# Other ip-getting methods are unreliable and sometimes return 127.0.0.1
 	# https://stackoverflow.com/a/28950776
 	def get_ip(self):
@@ -294,10 +289,10 @@ class Karaoke:
 
 	def generate_qr_code(self):
 		logging.debug("Generating URL QR code")
-		qr = qrcode.QRCode(version = 1, box_size = 3, border = 4, error_correction = qrcode.constants.ERROR_CORRECT_H)
-		qr.add_data(self.url)
-		qr.make()
-		img = qr.make_image()
+		self.qr = qrcode.QRCode(version = 1, box_size = 3, border = 4, error_correction = qrcode.constants.ERROR_CORRECT_H)
+		self.qr.add_data(self.url)
+		self.qr.make()
+		img = self.qr.make_image()
 		self.qr_code_path = os.path.join(self.base_path, "qrcode.png")
 		img.save(self.qr_code_path)
 
@@ -1248,7 +1243,9 @@ class Karaoke:
 		return sorted_songs
 	
 	def run(self):
-		logging.info("Starting PiKaraoke!")
+		self.qr.print_ascii()
+		logging.info("Server URL: " + self.url)
+
 		self.running = True
 
 		# Windows does not have tmux, vocal splitter can only be invoked from the main program

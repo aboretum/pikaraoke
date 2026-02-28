@@ -23,22 +23,6 @@
       if (!data) return;
       [queue, queue_hash] =  JSON.parse(data);
       $("#auto-refresh").html(generateQueueHTML());
-      $('#auto-refresh').sortable({
-        disabled: isMobile,
-        tolerance: "pointer",
-        revert: true,
-        start: function( event, ui ){ dragging = ui.item.index() },
-        stop: function( event, ui ){ dragging = null },
-        update: function(event, ui){
-          var end_posi = ui.item.index();
-          $.get("/queue/edit?action=move&from=" + dragging + "&to=" + end_posi + "&size=" + queue.length)
-        }
-      });
-      if(isMobile){
-        $(".drag-starter").on("touchstart",  function(ev){ $('#auto-refresh').sortable("option", "disabled", false) });
-        $(".drag-starter").on("touchend",    function(ev){ $('#auto-refresh').sortable("option", "disabled", true) });
-        $(".drag-starter").on("touchcancel", function(ev){ $('#auto-refresh').sortable("option", "disabled", true)});
-      }
     })
   }
 
@@ -50,20 +34,12 @@
           <tr value=${e.title}>
             <td width="20px" style="padding: 5px 0px">${index + 1}</td>
             {% if admin %}
-              <td width="20px" style="padding: 5px 0px" class="drag-starter">
+              <td width="20px" style="padding: 5px 0px">
                 <a
                   class="up-button"
                   href="/queue/edit?action=up&song=${encodeURIComponent(e.file)}"
                   title="{{getString1(105)}}"
-                  ><i class="icon icon-up-circled ${index == 0 && "is-hidden"}"></i>
-                </a>
-              </td>
-              <td width="20px" style="padding: 5px 0px" class="drag-starter">
-                <a
-                  class="down-button"
-                  href="/queue/edit?action=down&song=${encodeURIComponent(e.file)}"
-                  title="{{getString1(106)}}"
-                  ><i class="icon icon-down-circled ${index + 1 == queue.length && "is-hidden"}"></i>
+                  ><i class="fa-solid fa-arrows-up-to-line ${index == 0 && "is-hidden"}" style="font-size: 25px"></i>
                 </a>
               </td>
             {% endif %}
@@ -116,6 +92,13 @@
     }
   });
 
+  $(document).on('click', '.confirm-clear-all', function (e) {
+    e.preventDefault();
+    if (window.confirm("{{getString1(228)}}")) {
+      location.href = this.href;
+    }
+  });
+
   //on page load
   $(function () {
     getQueue();
@@ -148,7 +131,7 @@
 
 {% if admin %}
 <a class="confirm-clear has-text-danger is-pulled-right" href="/queue/edit?action=clear">
-  <i class="icon icon-trash-empty"></i>{{getString1(110)}}
+  <i class="icon icon-trash-empty"></i>{{getString1(227)}}
 </a><br /><br />
 {% endif %}
 
@@ -162,6 +145,12 @@
 
 <a class="add-random has-text-success" href="/queue/addall?query=3">
   <i class="icon icon-plus-circled"></i>{{getString1(226)}}
+</a>
+
+{% if admin %}
+<a class="confirm-clear-all has-text-danger is-pulled-right" href="/queue/edit?action=clearAll">
+  <i class="icon icon-trash-empty"></i>{{getString1(110)}}
 </a><br /><br />
+{% endif %}
 
 {% endblock %}

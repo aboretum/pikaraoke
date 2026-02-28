@@ -722,10 +722,18 @@ class Karaoke:
 	def update_queue_hash(self):
 		self.queue_hash = hashlib.md5(json.dumps(self.queue).encode('utf-8')).hexdigest()
 
-	def queue_clear(self):
-		logging.info("Clearing queue!")
+	def _queue_clear(self):
 		self.queue = []
 		self.update_queue_hash()
+
+	def queue_clear(self):
+		logging.info("Clearing queue.")
+		self._queue_clear()
+
+	def queue_clear_and_skip(self):
+		logging.info("Clearing queue and skip current.")
+		self._queue_clear()
+		self.skip()
 
 	def queue_edit(self, song_name, action, **kwargs):
 		if action == "move":
@@ -758,9 +766,9 @@ class Karaoke:
 					logging.warn("Song is up next, can't bump up in queue: " + song["file"])
 					return False
 				else:
-					logging.info("Bumping song up in queue: " + song["file"])
+					logging.info("Bumping song up to the front of queue: " + song["file"])
 					del self.queue[index]
-					self.queue.insert(index - 1, song)
+					self.queue.insert(0, song)
 			elif action == "down":
 				if index == len(self.queue) - 1:
 					logging.warn("Song is already last, can't bump down in queue: " + song["file"])

@@ -323,7 +323,7 @@ class Karaoke:
 		if get_stdout:
 			ret_stdout = sys.stdout
 			sys.stdout = old_stdout
-			if get_stderr
+			if get_stderr:
 				sys.stderr = old_stderr
 			output = ret_stdout.getvalue()
 			logging.debug(f"Captured yt-dlp command {argv} output: {output}")
@@ -332,7 +332,7 @@ class Karaoke:
 
 	def get_search_results(self, textToSearch):
 		logging.info("Searching YouTube for: " + textToSearch)
-		num_results = 10
+		num_results = 20
 		yt_search = 'ytsearch%d:%s' % (num_results, textToSearch)
 		cmd = ["-j", "--no-playlist", "--flat-playlist", yt_search]
 		logging.debug("Youtube-dl search command: " + " ".join(cmd))

@@ -295,7 +295,7 @@ class Karaoke:
 		self.qr_code_path = os.path.join(self.base_path, "qrcode.png")
 		img.save(self.qr_code_path)
 
-	def call_yt_dlp(self, argv, get_stdout = False):
+	def call_yt_dlp(self, argv, get_stdout = False, get_stderr = False):
 		argv += ['--cookies', os.path.join(self.base_path, 'cookies.txt')]
 		logging.debug(f"yt-dlp cmd opts: {argv}")
 		if self.youtubedl_path:
@@ -311,8 +311,9 @@ class Karaoke:
 			redirection_str = io.StringIO()
 			old_stdout = sys.stdout
 			sys.stdout = redirection_str
-			old_stderr = sys.stderr
-			sys.stderr = redirection_str
+			if get_stderr:				
+				old_stderr = sys.stderr
+				sys.stderr = redirection_str
 		try:
 			import yt_dlp
 			yt_dlp.main(argv)
@@ -322,7 +323,8 @@ class Karaoke:
 		if get_stdout:
 			ret_stdout = sys.stdout
 			sys.stdout = old_stdout
-			sys.stderr = old_stderr
+			if get_stderr
+				sys.stderr = old_stderr
 			output = ret_stdout.getvalue()
 			logging.debug(f"Captured yt-dlp command {argv} output: {output}")
 			return output

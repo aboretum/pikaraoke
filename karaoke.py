@@ -2,7 +2,6 @@ import os, sys, io, random, time, json, hashlib, datetime
 import logging, socket, subprocess
 import multiprocessing as mp
 import shutil, psutil
-from PIL import Image
 from subprocess import check_output
 from collections import *
 from tempfile import NamedTemporaryFile
@@ -1243,8 +1242,8 @@ class Karaoke:
 		return sorted_songs
 	
 	def run(self):
+		logging.info("Server started, URL: " + self.url)
 		self.qr.print_ascii()
-		logging.info("Server URL: " + self.url)
 
 		self.running = True
 

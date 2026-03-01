@@ -1,14 +1,14 @@
 #!/bin/bash
 SESSION_NAME="myproject"
-APP1_CMD="./start_pi.sh"
-APP2_CMD="./.venv/bin/python3 run_qr_code.py"
+APP2_CMD="./start_pi.sh"
+APP1_CMD="./.venv/bin/python3 run_qr_code.py"
 
 # Start a new detached tmux session named "myproject"
 tmux new-session -d -s $SESSION_NAME
 
 # Split the initial window horizontally (or use -v for vertical)
 # The -t flag targets the specific session/window (0) and pane (0)
-tmux split-window -h -t ${SESSION_NAME}:0.0 -l 15
+tmux split-window -h -t ${SESSION_NAME}:0.0 -l 85
 
 # Send the command to the first pane (pane 0) and press Enter
 tmux send-keys -t ${SESSION_NAME}:0.0 "$APP1_CMD" ENTER

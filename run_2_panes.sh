@@ -1,7 +1,7 @@
 #!/bin/bash
 SESSION_NAME="myproject"
 APP1_CMD="./start_pi.sh"
-APP2_CMD="./.venv/bin/python3 run-qr_code.py"
+APP2_CMD="./.venv/bin/python3 run_qr_code.py"
 
 # Start a new detached tmux session named "myproject"
 tmux new-session -d -s $SESSION_NAME

@@ -1243,7 +1243,6 @@ class Karaoke:
 	
 	def run(self):
 		logging.info("Server started, URL: " + self.url)
-		self.qr.print_ascii()
 
 		self.running = True
 

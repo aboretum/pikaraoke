@@ -335,10 +335,8 @@ class Karaoke:
 		import yt_dlp
 		logging.info("Searching YouTube for: " + textToSearch)
 		num_results = 15
-		# yt_search = 'ytsearch%d:%s' % (num_results, textToSearch)
+		yt_search = 'ytsearch%d:%s' % (num_results, textToSearch)
 		# cmd = ["-j", "--no-playlist", "--flat-playlist", yt_search]
-
-
 		# logging.debug("Youtube-dl search command: " + " ".join(cmd))
 
 		ydl_opts = {
@@ -353,7 +351,7 @@ class Karaoke:
 
 		try:
 			with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-				info = ydl.extract_info(url, download=False)
+				info = ydl.extract_info(yt_search, download=False)
 				result = ydl.sanitize_info(info)
 			results = []
 			for entry in result['entries']:

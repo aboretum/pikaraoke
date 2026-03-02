@@ -206,8 +206,6 @@ class Karaoke:
 		else:
 			self.get_available_songs()
 
-		self.get_youtubedl_version()
-
 		# get favorite songs
 		self.get_song_stat()
 		
@@ -268,19 +266,13 @@ class Karaoke:
 
 		return (server_port, ssid_prefix, ssl_enabled)
 
-	def get_youtubedl_version(self):
-		import yt_dlp
-		self.youtubedl_version = yt_dlp.__version__
-		return self.youtubedl_version
-
 	def upgrade_youtubedl(self):
-		logging.info("Uplifting yt-dlp version [%s]" % self.youtubedl_version)
+		logging.info("Uplifting yt-dlp to latest version")
 		try:
 			process = subprocess.Popen(['./.venv/bin/python3', '-m', 'pip', 'install', 'yt-dlp[default]', '-U'], shell = (self.platform == "windows"), stdin = subprocess.PIPE, stdout = sys.stdout, stderr = sys.stderr)
 			process.wait()
 			cleanse_modules('yt_dlp')
-			import yt_dlp
-			logging.info("Uplifting successful, yt-dlp version: %s" % self.get_youtubedl_version())
+			logging.info("yt-dlp Uplifting successful")
 		except Exception as e:
 			logging.error(f"Error upgrading yt-dlp: {e.str()}")
 			pass

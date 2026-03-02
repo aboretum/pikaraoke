@@ -206,8 +206,6 @@ class Karaoke:
 		else:
 			self.get_available_songs()
 
-		self.get_youtubedl_version()
-
 		# get favorite songs
 		self.get_song_stat()
 		
@@ -218,7 +216,8 @@ class Karaoke:
 		# clean up old sessions
 		self.kill_player()
 
-		self.generate_qr_code()
+		if self.show_overlay:
+			self.generate_qr_code()
 
 		if self.use_vlc:
 			self.vlcclient = vlcclient.VLCClient(port = self.vlc_port, path = self.vlc_path,
@@ -267,18 +266,13 @@ class Karaoke:
 
 		return (server_port, ssid_prefix, ssl_enabled)
 
-	def get_youtubedl_version(self):
-		self.youtubedl_version = self.call_yt_dlp(['--version'], True).strip()
-		return self.youtubedl_version
-
 	def upgrade_youtubedl(self):
-		logging.info("Uplifting yt-dlp version [%s]" % self.youtubedl_version)
+		logging.info("Uplifting yt-dlp to latest version")
 		try:
 			process = subprocess.Popen(['./.venv/bin/python3', '-m', 'pip', 'install', 'yt-dlp[default]', '-U'], shell = (self.platform == "windows"), stdin = subprocess.PIPE, stdout = sys.stdout, stderr = sys.stderr)
 			process.wait()
 			cleanse_modules('yt_dlp')
-			import yt_dlp
-			logging.info("Uplifting successful, yt-dlp version: %s" % self.get_youtubedl_version())
+			logging.info("yt-dlp Uplifting successful")
 		except Exception as e:
 			logging.error(f"Error upgrading yt-dlp: {e.str()}")
 			pass
@@ -295,72 +289,44 @@ class Karaoke:
 		self.qr_code_path = os.path.join(self.base_path, "qrcode.png")
 		img.save(self.qr_code_path)
 
-	def call_yt_dlp(self, argv, get_stdout = False, get_stderr = False):
-		argv += ['--cookies', os.path.join(self.base_path, 'cookies.txt')]
-		logging.debug(f"yt-dlp cmd opts: {argv}")
-		if self.youtubedl_path:
-			if get_stdout:
-				output = subprocess.check_output([self.youtubedl_path]+argv).decode("utf-8")
-				return output
-			else:
-				return subprocess.call([self.youtubedl_path]+argv)
-		ret_code = 0
-
-
-		if get_stdout:
-			redirection_str = io.StringIO()
-			old_stdout = sys.stdout
-			sys.stdout = redirection_str
-			if get_stderr:				
-				old_stderr = sys.stderr
-				sys.stderr = redirection_str
-		try:
-			import yt_dlp
-			yt_dlp.main(argv)
-		except SystemExit as e:
-			ret_code = e.code
-
-		if get_stdout:
-			ret_stdout = sys.stdout
-			sys.stdout = old_stdout
-			if get_stderr:
-				sys.stderr = old_stderr
-			output = ret_stdout.getvalue()
-			logging.debug(f"Captured yt-dlp command {argv} output: {output}")
-			return output
-		return ret_code
-
 	def get_search_results(self, textToSearch):
+		import yt_dlp
 		logging.info("Searching YouTube for: " + textToSearch)
-		num_results = 20
+		num_results = 15
 		yt_search = 'ytsearch%d:%s' % (num_results, textToSearch)
-		cmd = ["-j", "--no-playlist", "--flat-playlist", yt_search]
-		logging.debug("Youtube-dl search command: " + " ".join(cmd))
+		# cmd = ["-j", "--no-playlist", "--flat-playlist", yt_search]
+		# logging.debug("Youtube-dl search command: " + " ".join(cmd))
+
+		ydl_opts = {
+			'forcejson': True,
+			'noplaylist': True,
+			'simulate': True,
+			'extract_flat': 'in_playlist',
+			'no_progress': True,
+			'quiet': True,
+			'cookiefile': os.path.join(self.base_path, 'cookies.txt')
+		}
+
 		try:
-			output = self.call_yt_dlp(cmd, True)
-			logging.debug("Search results: " + output)
-			rc = []
-			for each in output.split("\n"):
-				if len(each) > 2:
-					j = json.loads(each)
-					if (not "title" in j) or (not "url" in j):
-						continue
-					rc.append([j["title"], j["url"], j["id"]])
-			return rc
+			with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+				info = ydl.extract_info(yt_search, download=False)
+				result = ydl.sanitize_info(info)
+			results = []
+			for entry in result['entries']:
+				results.append([entry["title"], entry["url"], entry["id"]])
+			return results
 		except Exception as e:
-			logging.debug("Error while executing search: " + str(e))
+			logging.error("Error while executing search: " + str(e))
 			raise e
 
-	def get_yt_dlp_json(self, url):
+	def get_url_info(self, url):
 		ydl_opts = {
 		    'cookiefile': os.path.join(self.base_path, 'cookies.txt')
 		}
 
 		with yt_dlp.YoutubeDL(ydl_opts) as ydl:
 			info = ydl.extract_info(url, download=False)
-			output_json = json.dumps(ydl.sanitize_info(info))
-
-		return output_json
+			return ydl.sanitize_info(info)
 
 	def get_downloaded_file_basename(self, url):
 		if 'watch?v=' in url:
@@ -369,8 +335,8 @@ class Karaoke:
 			youtube_id = url.split("youtu.be/")[1].split('?')[0]
 		else:
 			try:
-				info_json = self.get_yt_dlp_json(url)
-				youtube_id = info_json['id']
+				info = self.get_url_info(url)
+				youtube_id = info['id']
 			except Exception as e:
 				logging.error("Error parsing video id from url [" + url + "]: "+ str(e))
 				return None
@@ -379,7 +345,7 @@ class Karaoke:
 		except:
 			pass
 
-		filename = f"{info_json['title']}---{info_json['id']}.{info_json['ext']}"
+		filename = f"{info['title']}---{info['id']}.{info['ext']}"
 		return filename if os.path.isfile(self.download_path+'tmp/'+filename) else None
 
 

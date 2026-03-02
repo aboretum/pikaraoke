@@ -218,7 +218,8 @@ class Karaoke:
 		# clean up old sessions
 		self.kill_player()
 
-		self.generate_qr_code()
+		if self.show_overlay:
+			self.generate_qr_code()
 
 		if self.use_vlc:
 			self.vlcclient = vlcclient.VLCClient(port = self.vlc_port, path = self.vlc_path,
@@ -331,10 +332,13 @@ class Karaoke:
 		return ret_code
 
 	def get_search_results(self, textToSearch):
+		import yt_dlp
 		logging.info("Searching YouTube for: " + textToSearch)
-		num_results = 20
+		num_results = 15
 		yt_search = 'ytsearch%d:%s' % (num_results, textToSearch)
 		cmd = ["-j", "--no-playlist", "--flat-playlist", yt_search]
+
+
 		logging.debug("Youtube-dl search command: " + " ".join(cmd))
 		try:
 			output = self.call_yt_dlp(cmd, True)

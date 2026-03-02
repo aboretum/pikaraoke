@@ -269,7 +269,8 @@ class Karaoke:
 		return (server_port, ssid_prefix, ssl_enabled)
 
 	def get_youtubedl_version(self):
-		self.youtubedl_version = self.call_yt_dlp(['--version'], True).strip()
+		import yt_dlp
+		self.youtubedl_version = yt_dlp.__version__
 		return self.youtubedl_version
 
 	def upgrade_youtubedl(self):

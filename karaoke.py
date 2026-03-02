@@ -335,24 +335,32 @@ class Karaoke:
 		import yt_dlp
 		logging.info("Searching YouTube for: " + textToSearch)
 		num_results = 15
-		yt_search = 'ytsearch%d:%s' % (num_results, textToSearch)
-		cmd = ["-j", "--no-playlist", "--flat-playlist", yt_search]
+		# yt_search = 'ytsearch%d:%s' % (num_results, textToSearch)
+		# cmd = ["-j", "--no-playlist", "--flat-playlist", yt_search]
 
 
-		logging.debug("Youtube-dl search command: " + " ".join(cmd))
+		# logging.debug("Youtube-dl search command: " + " ".join(cmd))
+
+		ydl_opts = {
+			'forcejson': True,
+			'noplaylist': True,
+			'simulate': True,
+			'extract_flat': 'in_playlist',
+			'no_progress': True,
+			'quiet': True,
+			'cookiefile': os.path.join(self.base_path, 'cookies.txt')
+		}
+
 		try:
-			output = self.call_yt_dlp(cmd, True)
-			logging.debug("Search results: " + output)
-			rc = []
-			for each in output.split("\n"):
-				if len(each) > 2:
-					j = json.loads(each)
-					if (not "title" in j) or (not "url" in j):
-						continue
-					rc.append([j["title"], j["url"], j["id"]])
-			return rc
+			with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+				info = ydl.extract_info(url, download=False)
+				result = ydl.sanitize_info(info)
+			results = []
+			for entry in result['entries']:
+				results.append([entry["title"], entry["url"], entry["id"]])
+			return results
 		except Exception as e:
-			logging.debug("Error while executing search: " + str(e))
+			logging.error("Error while executing search: " + str(e))
 			raise e
 
 	def get_yt_dlp_json(self, url):

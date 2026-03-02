@@ -289,41 +289,6 @@ class Karaoke:
 		self.qr_code_path = os.path.join(self.base_path, "qrcode.png")
 		img.save(self.qr_code_path)
 
-	def call_yt_dlp(self, argv, get_stdout = False, get_stderr = False):
-		argv += ['--cookies', os.path.join(self.base_path, 'cookies.txt')]
-		logging.debug(f"yt-dlp cmd opts: {argv}")
-		if self.youtubedl_path:
-			if get_stdout:
-				output = subprocess.check_output([self.youtubedl_path]+argv).decode("utf-8")
-				return output
-			else:
-				return subprocess.call([self.youtubedl_path]+argv)
-		ret_code = 0
-
-
-		if get_stdout:
-			redirection_str = io.StringIO()
-			old_stdout = sys.stdout
-			sys.stdout = redirection_str
-			if get_stderr:				
-				old_stderr = sys.stderr
-				sys.stderr = redirection_str
-		try:
-			import yt_dlp
-			yt_dlp.main(argv)
-		except SystemExit as e:
-			ret_code = e.code
-
-		if get_stdout:
-			ret_stdout = sys.stdout
-			sys.stdout = old_stdout
-			if get_stderr:
-				sys.stderr = old_stderr
-			output = ret_stdout.getvalue()
-			logging.debug(f"Captured yt-dlp command {argv} output: {output}")
-			return output
-		return ret_code
-
 	def get_search_results(self, textToSearch):
 		import yt_dlp
 		logging.info("Searching YouTube for: " + textToSearch)
@@ -354,16 +319,14 @@ class Karaoke:
 			logging.error("Error while executing search: " + str(e))
 			raise e
 
-	def get_yt_dlp_json(self, url):
+	def get_url_info(self, url):
 		ydl_opts = {
 		    'cookiefile': os.path.join(self.base_path, 'cookies.txt')
 		}
 
 		with yt_dlp.YoutubeDL(ydl_opts) as ydl:
 			info = ydl.extract_info(url, download=False)
-			output_json = json.dumps(ydl.sanitize_info(info))
-
-		return output_json
+			return ydl.sanitize_info(info)
 
 	def get_downloaded_file_basename(self, url):
 		if 'watch?v=' in url:
@@ -372,8 +335,8 @@ class Karaoke:
 			youtube_id = url.split("youtu.be/")[1].split('?')[0]
 		else:
 			try:
-				info_json = self.get_yt_dlp_json(url)
-				youtube_id = info_json['id']
+				info = self.get_url_info(url)['id']
+				youtube_id = info['id']
 			except Exception as e:
 				logging.error("Error parsing video id from url [" + url + "]: "+ str(e))
 				return None
@@ -382,7 +345,7 @@ class Karaoke:
 		except:
 			pass
 
-		filename = f"{info_json['title']}---{info_json['id']}.{info_json['ext']}"
+		filename = f"{info['title']}---{info['id']}.{info['ext']}"
 		return filename if os.path.isfile(self.download_path+'tmp/'+filename) else None
 
 

@@ -335,7 +335,7 @@ class Karaoke:
 			youtube_id = url.split("youtu.be/")[1].split('?')[0]
 		else:
 			try:
-				info = self.get_url_info(url)['id']
+				info = self.get_url_info(url)
 				youtube_id = info['id']
 			except Exception as e:
 				logging.error("Error parsing video id from url [" + url + "]: "+ str(e))

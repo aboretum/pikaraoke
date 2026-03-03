@@ -935,11 +935,6 @@ if __name__ == "__main__":
 		help = "Hide RaspiWiFi setup instructions from the splash screen.",
 	)
 	parser.add_argument(
-		"--hide-splash-screen",
-		action = "store_true",
-		help = "Hide splash screen before/between songs.",
-	)
-	parser.add_argument(
 		"--adev",
 		help = f"Pass the audio output device argument to omxplayer. Possible values: hdmi/local/both/alsa[:device]."
 		       f" If you are using a rpi USB soundcard or Hifi audio hat, try: 'alsa:hw:0,0' Default: '{default_adev}'",
@@ -1008,15 +1003,6 @@ if __name__ == "__main__":
 		action = "store_true",
 	)
 	parser.add_argument(
-		"-S", "--searched-file-location", help = "provide a file location that stores the searched files", action="store_false", default=True
-	)
-	parser.add_argument(
-		"--saved-file-location", help="local mkv song file location", default="Z:\\others\\mkv歌库"
-	)
-	parser.add_argument(
-		"--json-path-to-saved-file-location", help="json file that contains all local mkv paths", default=".\\songs\\available_songs.json"
-	)
-	parser.add_argument(
 		"-H", "--song-stat-filepath", help="file location for song statistics", default=".\\songs\\song_stat.json"
 	)
 	args = parser.parse_args()
@@ -1081,10 +1067,6 @@ if __name__ == "__main__":
 		args.save_delays = args.dft_delays_file
 	elif args.save_delays == 'no':
 		args.save_delays = None
-
-	if args.developer_mode:
-		logging.warning("Splash screen is disabled in developer mode due to main thread conflicts")
-		args.hide_splash_screen = True
 
 	# Configure karaoke process
 	global K

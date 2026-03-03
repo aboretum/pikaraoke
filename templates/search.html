@@ -8,31 +8,15 @@
     font-weight: bold;
   }
 
-  #progressbar .ui-progressbar {
+  .ui-progressbar {
     position: relative;
   }
 
-  #progressbar .ui-progressbar-value {
+  .ui-progressbar-value {
     background: #00EA81;
   }
 
-  #progresslabel .progress-label {
-    position: absolute;
-    left: 50%;
-    top: 4px;
-    font-weight: bold;
-    text-shadow: 1px 1px 0 #fff;
-  }
-
-  #progressbar-2 .ui-progressbar {
-    position: relative;
-  }
-
-  #progressbar-2 .ui-progressbar-value {
-    background: #00EA81;
-  }
-
-  #progresslabel-2 .progress-label {
+  .progress-label {
     position: absolute;
     left: 50%;
     top: 4px;
@@ -92,26 +76,26 @@
       num = parseInt(strs[1], 10);
       console.log('Val from server call:' + num)
       if (num == 0) {
-        $("#progressbar").removeClass("is-hidden")
+        $("#pbar").removeClass("is-hidden")
         $("#progresstext").removeClass("is-hidden")
         $("#progresstext").text('Download starting ...')
-        $("#progresslabel" ).text(num + "%")
-        $("#progressbar").progressbar({
+        $("#plabel" ).text(num + "%")
+        $("#pbar").progressbar({
           value: num
         });
       } else if (num < 100) {
-        $("#progressbar").removeClass("is-hidden")
+        $("#pbar").removeClass("is-hidden")
         $("#progresstext").removeClass("is-hidden")
         $("#progresstext").text(strs[0])
-        $("#progresslabel" ).text(num + "%")
-        $("#progressbar").progressbar({
+        $("#plabel" ).text(num + "%")
+        $("#pbar").progressbar({
           value: num
         });
         console.log('Updated val to:' + num)
         return
       } else {
-        $("#progresslabel" ).text("Complete")
-        $("#progressbar").addClass("is-hidden")
+        $("#plabel" ).text("Complete")
+        $("#pbar").addClass("is-hidden")
         $("#progresstext").addClass("is-hidden")
         console.log('Val is 100')
         clearInterval(timer2)
@@ -125,26 +109,26 @@
       num = parseInt(strs[1], 10);
       console.log('Val from server call:' + num)
       if (num == 0) {
-        $("#progressbar-2").removeClass("is-hidden")
+        $("#pbar-2").removeClass("is-hidden")
         $("#progresstext-2").removeClass("is-hidden")
         $("#progresstext-2").text('Download starting ...')
-        $("#progresslabel-2" ).text(num + "%")
-        $("#progressbar-2").progressbar({
+        $("#plabel-2" ).text(num + "%")
+        $("#pbar-2").progressbar({
           value: num
         });
       } else if (num < 100) {
-        $("#progressbar-2").removeClass("is-hidden")
+        $("#pbar-2").removeClass("is-hidden")
         $("#progresstext-2").removeClass("is-hidden")
         $("#progresstext-2").text(strs[0])
-        $("#progresslabel-2" ).text(num + "%")
-        $("#progressbar-2").progressbar({
+        $("#plabel-2" ).text(num + "%")
+        $("#pbar-2").progressbar({
           value: num
         });
         console.log('Updated val to:' + num)
         return
       } else {
-        $("#progresslabel-2" ).text("Complete")
-        $("#progressbar-2").addClass("is-hidden")
+        $("#plabel-2" ).text("Complete")
+        $("#pbar-2").addClass("is-hidden")
         $("#progresstext-2").addClass("is-hidden")
         console.log('Val is 100')
         clearInterval(timer2)
@@ -433,8 +417,8 @@
             <button class="button is-small is-rounded" id="direct-download-button" type="submit">{{getString1(127)}}</button>
           </div>
           <div id="progresstext" class="label is-hidden" style="margin-top: 5px">Loading</div>
-          <div id="progressbar" class="is-hidden" style="margin-top: 5px">
-            <div id="progresslabel" class="progress-label">Loading...</div>
+          <div id="pbar" class="progressbar is-hidden" style="margin-top: 5px">
+            <div id="plabel" class="progress-label">Loading...</div>
           </div>
         </form>
       </div>
@@ -478,8 +462,8 @@
         <button class="button is-success is-rounded" id="download-button" type="submit">{{getString1(127)}}</button>
       </div>
       <div id="progresstext-2" class="label is-hidden" style="margin-top: 5px">Loading</div>
-      <div id="progressbar-2" class="is-hidden" style="margin-top: 5px">
-        <div id="progresslabel-2" class="progress-label">Loading...</div>
+      <div id="pbar-2" class="progressbar is-hidden" style="margin-top: 5px">
+        <div id="plabel-2" class="progress-label">Loading...</div>
       </div>
     </form>
   </div>

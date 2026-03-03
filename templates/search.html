@@ -102,6 +102,39 @@
       }
     });
   }
+  function check_download_pct_2(){
+    $.post('/check_download_pct', {"url": download_url}, function(val){
+      console.log('Val from server call:' + val)
+      strs = val.split('@-----@')
+      num = parseInt(strs[1], 10);
+      console.log('Val from server call:' + num)
+      if (num == 0) {
+        $("#progressbar-2").removeClass("is-hidden")
+        $("#progresstext-2").removeClass("is-hidden")
+        $("#progresstext-2").text('Download starting ...')
+        $(".progress-label-2" ).text(num + "%")
+        $("#progressbar-2").progressbar({
+          value: num
+        });
+      } else if (num < 100) {
+        $("#progressbar-2").removeClass("is-hidden")
+        $("#progresstext-2").removeClass("is-hidden")
+        $("#progresstext-2").text(strs[0])
+        $(".progress-label-2" ).text(num + "%")
+        $("#progressbar-2").progressbar({
+          value: num
+        });
+        console.log('Updated val to:' + num)
+        return
+      } else {
+        $(".progress-label-2" ).text("Complete")
+        $("#progressbar-2").addClass("is-hidden")
+        $("#progresstext-2").addClass("is-hidden")
+        console.log('Val is 100')
+        clearInterval(timer2)
+      }
+    });
+  }
   $(function () {
   
     $("#search_result_selector").focus();
@@ -130,6 +163,16 @@
         showNotification(msg);
         timer = setInterval(check_download, 1000);
         timer2 = setInterval(check_download_pct, 200);
+      }, 'text');
+      return false;
+    });
+
+    $('.download-direct-2').submit(function(){
+      download_url = $(this).find('[name=song_url]').val()
+      $.post($(this).attr('action'), $(this).serialize(), function(msg) {
+        showNotification(msg);
+        timer = setInterval(check_download, 1000);
+        timer2 = setInterval(check_download_pct_2, 200);
       }, 'text');
       return false;
     });
@@ -396,7 +439,7 @@
   {% if search_results %}
   <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
   <div class="field" id="container_search_result">
-    <form class="download-direct" action="{{ url_for('download') }}" method="post">
+    <form class="download-direct-2" action="{{ url_for('download') }}" method="post">
       <label class="label">{{getString1(129)}}<small><i>'{{search_string}}'</i></small></label>
       <div class="field select">
         <select id="search_result_selector" name='song_url'>
@@ -417,6 +460,10 @@
       </div>
       <div class="field">
         <button class="button is-success is-rounded" id="download-button" type="submit">{{getString1(127)}}</button>
+      </div>
+      <div id="progresstext-2" class="label is-hidden" style="margin-top: 5px">Loading</div>
+      <div id="progressbar-2" class="is-hidden" style="margin-top: 5px">
+        <div class="progress-label-2">Loading...</div>
       </div>
     </form>
   </div>

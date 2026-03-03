@@ -8,15 +8,31 @@
     font-weight: bold;
   }
 
-  .ui-progressbar {
+  #progressbar .ui-progressbar {
     position: relative;
   }
 
-  .ui-progressbar-value {
+  #progressbar .ui-progressbar-value {
     background: #00EA81;
   }
 
-  .progress-label {
+  #progresslabel .progress-label {
+    position: absolute;
+    left: 50%;
+    top: 4px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #fff;
+  }
+
+  #progressbar-2 .ui-progressbar {
+    position: relative;
+  }
+
+  #progressbar-2 .ui-progressbar-value {
+    background: #00EA81;
+  }
+
+  #progresslabel-2 .progress-label {
     position: absolute;
     left: 50%;
     top: 4px;
@@ -79,7 +95,7 @@
         $("#progressbar").removeClass("is-hidden")
         $("#progresstext").removeClass("is-hidden")
         $("#progresstext").text('Download starting ...')
-        $(".progress-label" ).text(num + "%")
+        $("#progresslabel" ).text(num + "%")
         $("#progressbar").progressbar({
           value: num
         });
@@ -87,14 +103,14 @@
         $("#progressbar").removeClass("is-hidden")
         $("#progresstext").removeClass("is-hidden")
         $("#progresstext").text(strs[0])
-        $(".progress-label" ).text(num + "%")
+        $("#progresslabel" ).text(num + "%")
         $("#progressbar").progressbar({
           value: num
         });
         console.log('Updated val to:' + num)
         return
       } else {
-        $(".progress-label" ).text("Complete")
+        $("#progresslabel" ).text("Complete")
         $("#progressbar").addClass("is-hidden")
         $("#progresstext").addClass("is-hidden")
         console.log('Val is 100')
@@ -112,7 +128,7 @@
         $("#progressbar-2").removeClass("is-hidden")
         $("#progresstext-2").removeClass("is-hidden")
         $("#progresstext-2").text('Download starting ...')
-        $(".progress-label-2" ).text(num + "%")
+        $("#progresslabel-2" ).text(num + "%")
         $("#progressbar-2").progressbar({
           value: num
         });
@@ -120,14 +136,14 @@
         $("#progressbar-2").removeClass("is-hidden")
         $("#progresstext-2").removeClass("is-hidden")
         $("#progresstext-2").text(strs[0])
-        $(".progress-label-2" ).text(num + "%")
+        $("#progresslabel-2" ).text(num + "%")
         $("#progressbar-2").progressbar({
           value: num
         });
         console.log('Updated val to:' + num)
         return
       } else {
-        $(".progress-label-2" ).text("Complete")
+        $("#progresslabel-2" ).text("Complete")
         $("#progressbar-2").addClass("is-hidden")
         $("#progresstext-2").addClass("is-hidden")
         console.log('Val is 100')
@@ -418,7 +434,7 @@
           </div>
           <div id="progresstext" class="label is-hidden" style="margin-top: 5px">Loading</div>
           <div id="progressbar" class="is-hidden" style="margin-top: 5px">
-            <div class="progress-label">Loading...</div>
+            <div id="progresslabel" class="progress-label">Loading...</div>
           </div>
         </form>
       </div>
@@ -463,7 +479,7 @@
       </div>
       <div id="progresstext-2" class="label is-hidden" style="margin-top: 5px">Loading</div>
       <div id="progressbar-2" class="is-hidden" style="margin-top: 5px">
-        <div class="progress-label-2">Loading...</div>
+        <div id="progresslabel-2" class="progress-label">Loading...</div>
       </div>
     </form>
   </div>

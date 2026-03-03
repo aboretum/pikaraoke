@@ -200,11 +200,11 @@ class Karaoke:
 
 		self.url = "http://%s:%s" % (self.ip, self.port)
 
-		# get songs from download_path
-		if not self.searched_file_location:
-			self.get_available_songs_in_saved()
-		else:
-			self.get_available_songs()
+		# # get songs from download_path
+		# if not self.searched_file_location:
+		# 	self.get_available_songs_in_saved()
+		# else:
+		self.get_available_songs()
 
 		# get favorite songs
 		self.get_song_stat()
@@ -421,20 +421,20 @@ class Karaoke:
 					self.songname_trans[fn] = trans
 
 		# self.available_songs = sorted(files_grabbed, key = lambda f: str.lower(os.path.basename(f)))
-		logging.info("Path to json file: " + self.json_path_to_saved_file_location)
-		if  os.path.exists(self.json_path_to_saved_file_location):
-			logging.info("Path to json file exists: " + self.json_path_to_saved_file_location)
-			try:
-				with open(self.json_path_to_saved_file_location, 'r') as f:
-					self.saved_songs = json.load(f)
-				self.saved_songs.update(self.songname_trans)
-				self.songname_trans = self.saved_songs
-			except Exception as e:
-				print(f"Error in loading exisitng songs {e}")
-		else:
-			os.makedirs(os.path.dirname(self.json_path_to_saved_file_location), exist_ok=True)
-			with open(self.json_path_to_saved_file_location, "w") as f:
-				json.dump(self.songname_trans, f)
+		# logging.info("Path to json file: " + self.json_path_to_saved_file_location)
+		# if  os.path.exists(self.json_path_to_saved_file_location):
+		# 	logging.info("Path to json file exists: " + self.json_path_to_saved_file_location)
+		# 	try:
+		# 		with open(self.json_path_to_saved_file_location, 'r') as f:
+		# 			self.saved_songs = json.load(f)
+		# 		self.saved_songs.update(self.songname_trans)
+		# 		self.songname_trans = self.saved_songs
+		# 	except Exception as e:
+		# 		print(f"Error in loading exisitng songs {e}")
+		# else:
+		# 	os.makedirs(os.path.dirname(self.json_path_to_saved_file_location), exist_ok=True)
+		# 	with open(self.json_path_to_saved_file_location, "w") as f:
+		# 		json.dump(self.songname_trans, f)
 		self.available_songs = sorted(self.songname_trans, key = self.songname_trans.get)
 
 

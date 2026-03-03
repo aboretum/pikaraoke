@@ -97,7 +97,6 @@ class Karaoke:
 		self.port = args.port
 		self.hide_ip = args.hide_ip
 		self.hide_raspiwifi_instructions = args.hide_raspiwifi_instructions
-		self.hide_splash_screen = args.hide_splash_screen
 		self.omxplayer_adev = 'both'
 		self.download_path = args.dl_path
 		self.dual_screen = args.dual_screen
@@ -115,9 +114,6 @@ class Karaoke:
 		self.run_vocal = args.run_vocal
 		self.normalize_vol = args.normalize_vol
 		self.cookies_opt = args.cookies_opt
-		self.searched_file_location = args.searched_file_location
-		self.saved_file_location=args.saved_file_location
-		self.json_path_to_saved_file_location = args.json_path_to_saved_file_location
 		self.stat_file_path = args.song_stat_filepath
 
 		# other initializations
@@ -141,7 +137,6 @@ class Karaoke:
 	http port: %s
 	hide IP: %s
 	hide RaspiWiFi instructions: %s,
-	hide splash: %s
 	splash_delay: %s
 	omx audio device: %s
 	dual screen: %s
@@ -161,7 +156,6 @@ class Karaoke:
 				self.port,
 				self.hide_ip,
 				self.hide_raspiwifi_instructions,
-				self.hide_splash_screen,
 				self.splash_delay,
 				self.omxplayer_adev,
 				self.dual_screen,
@@ -407,13 +401,11 @@ class Karaoke:
 
 	def get_available_songs(self):
 		logging.info("Fetching available songs in: " + self.download_path)
-		files_grabbed = []
 		self.songname_trans = {}
 		for bn in os.listdir(self.download_path):
 			fn = self.download_path + bn
 			if not bn.startswith('.') and os.path.isfile(fn):
 				if os.path.splitext(fn)[1].lower() in media_types:
-					files_grabbed.append(fn)
 					trans = unidecode(self.filename_from_path(fn)).lower()
 					# strip leading non-transliterable symbols
 					while trans and not trans[0].islower() and not trans[0].isdigit():
@@ -436,53 +428,6 @@ class Karaoke:
 		# 	with open(self.json_path_to_saved_file_location, "w") as f:
 		# 		json.dump(self.songname_trans, f)
 		self.available_songs = sorted(self.songname_trans, key = self.songname_trans.get)
-
-
-	def get_available_songs_in_saved(self):
-		logging.info("Fetching available songs in: " + self.saved_file_location)
-		files_grabbed = []
-		self.songname_trans = {}
-		for dirpath, dirnames, filenames in os.walk(self.saved_file_location):
-			for bn in filenames:
-				fn = os.path.join(dirpath, bn)
-				if not bn.startswith('.') and os.path.isfile(fn):
-					if os.path.splitext(fn)[1].lower() in media_types:
-						files_grabbed.append(fn)
-						trans = unidecode(self.filename_from_path(fn)).lower()
-						# strip leading non-transliterable symbols
-						while trans and not trans[0].islower() and not trans[0].isdigit():
-							trans = trans[1:]
-						self.songname_trans[fn] = trans
-
-		logging.info("Fetching available songs in: " + self.download_path)
-		files_grabbed = []
-		self.songname_trans_dl = {}
-		for bn in os.listdir(self.download_path):
-			fn = self.download_path + bn
-			if not bn.startswith('.') and os.path.isfile(fn):
-				if os.path.splitext(fn)[1].lower() in media_types:
-					files_grabbed.append(fn)
-					trans = unidecode(self.filename_from_path(fn)).lower()
-					# strip leading non-transliterable symbols
-					while trans and not trans[0].islower() and not trans[0].isdigit():
-						trans = trans[1:]
-					self.songname_trans_dl[fn] = trans
-
-		# self.available_songs = sorted(files_grabbed, key = lambda f: str.lower(os.path.basename(f)))
-		if  os.path.exists(self.json_path_to_saved_file_location):
-			with open(self.json_path_to_saved_file_location, 'r') as f:
-				saved_songs = json.load(f)
-		else:
-			saved_songs = {}
-			os.makedirs(os.path.dirname(self.json_path_to_saved_file_location), exist_ok=True)
-			with open(self.json_path_to_saved_file_location, "w") as f:
-				json.dump(saved_songs, f)
-		
-		self.songname_trans.update(saved_songs)
-		self.songname_trans.update(self.songname_trans_dl)
-		self.available_songs = sorted(self.songname_trans, key = self.songname_trans.get)
-		with open(self.json_path_to_saved_file_location, 'w') as f:
-			json.dump(self.songname_trans, f)
 
 	def get_all_assoc_files(self, song_path):
 		basename = os.path.basename(song_path)
@@ -1063,8 +1008,7 @@ class Karaoke:
 		self.running = False
 
 	def handle_run_loop(self):
-		if self.hide_splash_screen:
-			time.sleep(self.loop_interval / 1000)
+		time.sleep(self.loop_interval / 1000)
 
 	def reset_now_playing(self):
 		self.now_playing = None

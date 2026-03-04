@@ -115,6 +115,7 @@ class Karaoke:
 		self.normalize_vol = args.normalize_vol
 		self.cookies_opt = args.cookies_opt
 		self.stat_file_path = args.song_stat_filepath
+		self.save_delays = args.save_delays
 
 		# other initializations
 		self.platform = get_platform()
@@ -173,6 +174,9 @@ class Karaoke:
 				self.show_overlay
 			)
 		)
+
+		if self.save_delays:
+			self.init_save_delays()
 
 		# Generate connection URL and QR code, retry in case pi is still starting up
 		# and doesn't have an IP yet (occurs when launched from /etc/rc.local)
@@ -506,6 +510,11 @@ class Karaoke:
 	def play_file(self, file_path, extra_params = [], audio_track=1):
 		self.switchingSong = True
 		if self.use_vlc:
+			if self.save_delays:
+				saved_delays = self.delays.get(os.path.basename(file_path), {})
+				self.audio_delay = self.audio_delay if self.audio_delay else saved_delays.get('audio_delay', 0)
+				self.subtitle_delay = self.subtitle_delay if self.subtitle_delay else saved_delays.get('subtitle_delay', 0)
+				self.show_subtitle = False if self.show_subtitle==False else saved_delays.get('show_subtitle', True)
 			extra_params1 = []
 			logging.info("Playing video in VLC: " + file_path)
 			self.now_playing_slave = self.create_temp_file_if_needed(self.try_set_vocal_mode(self.vocal_mode, file_path))
@@ -721,6 +730,19 @@ class Karaoke:
 		logging.warning("Tried to seek, but no file is playing!")
 		return False
 
+	def set_delays_dict(self, filename, key, val, dft_val=0):
+		basename = os.path.basename(filename)
+		delays = self.delays.get(basename, {})
+		if val == dft_val:
+			delays.pop(key, None)
+		else:
+			delays[key] = val
+		if delays:
+			self.delays[basename] = delays
+		else:
+			self.delays.pop(basename, {})
+		self.delays_dirty = True
+
 	def set_audio_delay(self, delay):
 		if delay == '+':
 			self.audio_delay += 0.1
@@ -734,6 +756,9 @@ class Karaoke:
 			except:
 				logging.warning(f"Tried to set audio delay to an invalid value {delay}, ignored!")
 				return False
+
+		if self.save_delays:
+			self.set_delays_dict(self.now_playing_filename, 'audio_delay', self.audio_delay)
 
 		if self.is_file_playing():
 			if self.use_vlc:
@@ -758,6 +783,9 @@ class Karaoke:
 				logging.warning(f"Tried to set subtitle delay to an invalid value {delay}, ignored!")
 				return False
 
+		if self.save_delays:
+			self.set_delays_dict(self.now_playing_filename, 'subtitle_delay', self.subtitle_delay)
+
 		if self.is_file_playing():
 			if self.use_vlc:
 				self.vlcclient.command(f"subdelay&val={self.subtitle_delay}")
@@ -766,6 +794,12 @@ class Karaoke:
 			return self.subtitle_delay
 		logging.warning("Tried to set subtitle delay, but no file is playing!")
 		return False
+
+	def toggle_subtitle(self):
+		self.show_subtitle = not self.show_subtitle
+		if self.save_delays:
+			self.set_delays_dict(self.now_playing_filename, 'show_subtitle', self.show_subtitle, True)
+		self.play_vocal(force=True)
 
 	def pause(self):
 		if self.is_file_playing():
@@ -1011,6 +1045,7 @@ class Karaoke:
 		time.sleep(self.loop_interval / 1000)
 
 	def reset_now_playing(self):
+		self.auto_save_delays()
 		self.now_playing = None
 		self.now_playing_filename = None
 		self.now_playing_user = None
@@ -1152,6 +1187,30 @@ class Karaoke:
 	def get_favorite_song_list(self):
 		sorted_songs = sorted(self.song_stat.values(), key=lambda x: x['play_count'], reverse=True)
 		return sorted_songs
+
+	def init_save_delays(self):
+		self.delays_dirty = False
+		try:
+			self.delays = eval(open(self.save_delays).read())
+		except:
+			self.delays = {}
+			with open(self.save_delays, 'w') as fp:
+				fp.write(str(self.delays))
+
+	def set_save_delays(self, state):
+		if state != bool(self.save_delays):
+			if state:
+				self.save_delays = self.dft_delays_file
+				self.init_save_delays()
+			else:
+				self.save_delays = None
+				self.delete_if_exist(self.dft_delays_file)
+
+	def auto_save_delays(self):
+		if self.save_delays and self.delays_dirty:
+			self.delays_dirty = False
+			with open(self.save_delays, 'w') as fp:
+				fp.write(str(self.delays))
 	
 	def run(self):
 		logging.info("Server started, URL: " + self.url)
@@ -1194,6 +1253,7 @@ class Karaoke:
 		self.streamer_stop()
 		self.vocal_stop()
 		(self.vlcclient if self.use_vlc else self.omxclient).stop()
+		self.auto_save_delays()
 		time.sleep(1)
 		(self.vlcclient if self.use_vlc else self.omxclient).kill()
 

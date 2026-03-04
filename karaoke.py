@@ -1184,6 +1184,19 @@ class Karaoke:
 		self.song_stat[song_name] = current_song_stat
 		self.save_song_stat()
 
+	def update_song_musician(self, song_path, musician):
+		song_name = self.filename_from_path(song_path)
+		current_song_stat = self.song_stat.setdefault(song_name, {
+			"name":song_name,
+			"song_path":song_path,
+			"play_count":0,
+			"user_list":[],
+			"last_play":datetime.datetime.now(),
+		})
+		current_song_stat["musician"] = musician
+		self.song_stat[song_name] = current_song_stat
+		self.save_song_stat()
+
 	def get_favorite_song_list(self):
 		sorted_songs = sorted(self.song_stat.values(), key=lambda x: x['play_count'], reverse=True)
 		return sorted_songs

@@ -601,14 +601,12 @@ def edit_file():
 			flash(queue_error_msg + song_path, "is-danger")
 			return redirect(url_for("browse"))
 		else:
-			tmp_attr = os.getxattr(song_path, "musician")
-			musician = tmp_attr if tmp_attr else "N/A"
-
+			musician = K.song_stat.get(K.filename_from_path(song_path), {}).get("musician", "N/A")
 			return render_template("edit.html", getString1 = lambda ii: getString1(request.client_lang, ii), site_title = site_name, title = getString(23), song = song_path.encode("utf-8"), musician = musician.encode("utf-8"))
 	else:
 		d = request.form.to_dict()
 		if "musician" in d and "old_file_name" in d:
-			os.setxattr(d["old_file_name"], "musician", d["musician"])
+			K.update_song_musician(d["old_file_name"], d["musician"])
 
 		if "new_file_name" in d and "old_file_name" in d:
 			new_name = d["new_file_name"]

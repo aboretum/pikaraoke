@@ -1193,7 +1193,7 @@ class Karaoke:
 		try:
 			self.delays = eval(open(self.save_delays).read())
 		except Exception as e:
-			logging.error(f"Error parsing delays file [{self.saved_delays}]: {e}")
+			logging.error(f"Error parsing delays file [{self.save_delays}]: {e}")
 			self.delays = {}
 			with open(self.save_delays, 'w') as fp:
 				fp.write(str(self.delays))

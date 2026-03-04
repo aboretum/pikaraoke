@@ -1045,7 +1045,7 @@ class Karaoke:
 		time.sleep(self.loop_interval / 1000)
 
 	def reset_now_playing(self):
-		self.auto_save_delays()
+		self.preserve_delay_info()
 		self.now_playing = None
 		self.now_playing_filename = None
 		self.now_playing_user = None
@@ -1192,7 +1192,8 @@ class Karaoke:
 		self.delays_dirty = False
 		try:
 			self.delays = eval(open(self.save_delays).read())
-		except:
+		except Exception as e:
+			logging.error(f"Error parsing delays file [{self.saved_delays}]: {e}")
 			self.delays = {}
 			with open(self.save_delays, 'w') as fp:
 				fp.write(str(self.delays))
@@ -1206,7 +1207,7 @@ class Karaoke:
 				self.save_delays = None
 				self.delete_if_exist(self.dft_delays_file)
 
-	def auto_save_delays(self):
+	def preserve_delay_info(self):
 		if self.save_delays and self.delays_dirty:
 			self.delays_dirty = False
 			with open(self.save_delays, 'w') as fp:
@@ -1253,7 +1254,7 @@ class Karaoke:
 		self.streamer_stop()
 		self.vocal_stop()
 		(self.vlcclient if self.use_vlc else self.omxclient).stop()
-		self.auto_save_delays()
+		self.preserve_delay_info()
 		time.sleep(1)
 		(self.vlcclient if self.use_vlc else self.omxclient).kill()
 

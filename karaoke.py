@@ -1165,8 +1165,8 @@ class Karaoke:
 			with open(self.stat_file_path, 'w') as f:
 				json.dump(self.song_stat, f)
 			logging.info(f"Current favorite songs has been saved to {self.stat_file_path}")
-		except:
-			logging.error(f"Favorite songs can't be saved to target location {self.stat_file_path}")
+		except Exception as e:
+			logging.error(f"Favorite songs can't be saved to target location {self.stat_file_path}: {e}")
 
 	def update_song_stat(self, user, song_path):
 		song_name = self.filename_from_path(song_path)
@@ -1200,6 +1200,17 @@ class Karaoke:
 	def get_favorite_song_list(self):
 		sorted_songs = sorted(self.song_stat.values(), key=lambda x: x['play_count'], reverse=True)
 		return sorted_songs
+
+	def get_song_list_by_musician(self):
+		result = {}
+		for song, song_stat in song_stat.items():
+			if "musician" in song_stat:
+				musician = song_stat["musician"]
+				if musician not in result:
+					result[musician] = []
+				result[musician].append(song_stat)
+		sorted_result = dict(sorted(result.items()))
+		return sorted_result
 
 	def init_save_delays(self):
 		self.delays_dirty = False

@@ -659,9 +659,6 @@ def info():
 	if vocalsplitter:
 		vocal_extra = getString2(30) if K.vocal_device == 'cpu' else getString2(31)
 
-	# youtube-dl
-	youtubedl_version = K.youtubedl_version
-
 	is_pi = get_platform() == "raspberry_pi"
 
 	return render_template(
@@ -675,7 +672,6 @@ def info():
 		memory = memory,
 		cpu = cpu,
 		disk = disk,
-		youtubedl_version = youtubedl_version,
 		is_pi = is_pi,
 		use_DNN = K.use_DNN_vocal,
 		norm_vol = K.normalize_vol,

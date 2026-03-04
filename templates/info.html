@@ -453,7 +453,6 @@ select:-moz-focusring {
   <li>{{getString1(146)}}: {{ memory }}</li>
   {% if platform == 'linux' %} <li>{{getString1(147)}}: {{ screencapture }}</li> {% endif %}
   <li>{{getString1(148)}}: {{ vocalsplitter }}</li>
-  <li>{{getString1(149)}}: {{ youtubedl_version }}</li>
   <li>{{getString1(150)}}: {{ pikaraoke_version }}</li>
 </ul>
 
@@ -520,13 +519,6 @@ select:-moz-focusring {
   <li><a href="/refresh"><i class="icon icon-arrows-cw"></i>{{getString1(164)}}</a></li>
 </ul>
 <p class="help-normal">{{getString1(165)}}</p>
-
-<h2>{{getString1(166)}}</h2>
-<p>{{getString1(167)}} "{{ youtubedl_version }}"</p>
-<ul style="list-style-type:none;">
-  <li><a id="update-ytdl-link" href="{{ url_for('update_ytdl') }}"><i class="icon icon-arrows-cw"></i>{{getString1(168)}}</a></li>
-</ul>
-<p class="help-help-normal">{{getString1(169)}}</p>
 
 <h2>{{getString1(170)}}</h2>
 <p>{{getString1(171)}}</p>

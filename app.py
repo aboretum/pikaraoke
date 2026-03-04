@@ -604,6 +604,9 @@ def edit_file():
 			return render_template("edit.html", getString1 = lambda ii: getString1(request.client_lang, ii), site_title = site_name, title = getString(23), song = song_path.encode("utf-8"))
 	else:
 		d = request.form.to_dict()
+		if "musician" in d and "old_file_name" in d:
+			os.setxattr(d["old_file_name"], "musician", d["musician"])
+
 		if "new_file_name" in d and "old_file_name" in d:
 			new_name = d["new_file_name"]
 			old_name = d["old_file_name"]
@@ -619,6 +622,7 @@ def edit_file():
 					flash(getString(25) % (old_name, new_name), "is-warning")
 		else:
 			flash(getString(26), "is-danger")
+
 		return redirect(url_for("browse"))
 
 @app.route("/splash")

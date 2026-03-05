@@ -505,7 +505,6 @@ def browse_by_musician():
 		sort_order = sort_order,
 		sort_order_text = sort_order_text,
 		site_title = site_name,
-		letter = letter,
 		title = getString2(98),
 		musicians = musicians[start_index:start_index + results_per_page],
 		admin = is_admin()

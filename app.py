@@ -568,7 +568,9 @@ def favorite():
 @app.route('/get_songs_data')
 def get_songs_data():
     songs_data = K.get_favorite_song_list()  # 确保这个函数能返回你需要的歌曲数据
-    return jsonify(songs_data)
+    json_str = jsonify(songs_data)
+    print(json_str)
+    return json_str
 
 
 def transform_boolean(dct, S):

@@ -1202,7 +1202,7 @@ class Karaoke:
 		self.save_song_stat()
 
 	def get_favorite_song_list(self):
-		print(self.song_stat.values())
+		# print(self.song_stat.values())
 		sorted_songs = sorted(self.song_stat.values(), key=lambda x: x['play_count'], reverse=True)
 		return sorted_songs
 

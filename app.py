@@ -486,6 +486,31 @@ def browse():
 		admin = is_admin()
 	)
 
+@app.route("/browse_by_musician", methods = ["GET"])
+def browse_by_musician():
+	page = request.args.get(get_page_parameter(), type = int, default = 1)
+	musicians = list(K.song_list_by_musician.keys())
+	getString2 = lambda ii: getString1(request.client_lang, ii)
+	sort_order = "Alphabetical"
+	sort_order_text = getString2(100)
+
+	results_per_page = 500
+	pagination = Pagination(css_framework = 'bulma', page = page, total = len(songs_by_musician), search = "", search_msg = "",
+	record_name = getString2(101), display_msg = getString2(102), per_page = results_per_page)
+	start_index = (page - 1) * (results_per_page - 1)
+	return render_template(
+		"browse_musicians.html",
+		getString1 = getString2,
+		pagination = pagination,
+		sort_order = sort_order,
+		sort_order_text = sort_order_text,
+		site_title = site_name,
+		letter = letter,
+		title = getString2(98),
+		musicians = musicians[start_index:start_index + results_per_page],
+		admin = is_admin()
+	)
+
 @app.route("/select", methods = ["GET"])
 def select():
     page = request.args.get(get_page_parameter(), type = int, default = 1)
@@ -535,6 +560,7 @@ def select():
         songs = songs[start_index:start_index + results_per_page],
         admin = is_admin()
     )
+
 @app.route('/favorite')
 def favorite():
     songs_data = K.get_favorite_song_list()  # 确保这个函数能返回你需要的歌曲数据
@@ -1004,7 +1030,7 @@ if __name__ == "__main__":
 		action = "store_true",
 	)
 	parser.add_argument(
-		"-H", "--song-stat-filepath", help="file location for song statistics", default=".\\songs\\song_stat.json"
+		"-H", "--song-stat-filepath", help="file location for song statistics", default=".song_stat.json"
 	)
 	args = parser.parse_args()
 

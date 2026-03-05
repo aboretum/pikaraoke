@@ -206,6 +206,7 @@ class Karaoke:
 
 		# get favorite songs
 		self.get_song_stat()
+		self.init_song_list_by_musician()
 		
 		# Automatically upgrade yt-dlp if using pip
 		if not args.youtubedl_path:
@@ -1175,7 +1176,7 @@ class Karaoke:
 			"song_path":song_path,
 			"play_count":0,
 			"user_list":[],
-			"last_play":datetime.datetime.now(),
+			"last_play": datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
 		})
 		current_song_stat["play_count"]+=1
 		if user not in current_song_stat["user_list"]:
@@ -1191,17 +1192,31 @@ class Karaoke:
 			"song_path":song_path,
 			"play_count":0,
 			"user_list":[],
-			"last_play":datetime.datetime.now(),
+			"last_play":datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
 		})
 		current_song_stat["musician"] = musician
 		self.song_stat[song_name] = current_song_stat
+		if musician not in self.song_list_by_musician:
+			self.song_list_by_musician[musician] = []
+		self.song_list_by_musician[musician].append(dict(current_song_stat))
 		self.save_song_stat()
 
 	def get_favorite_song_list(self):
 		sorted_songs = sorted(self.song_stat.values(), key=lambda x: x['play_count'], reverse=True)
 		return sorted_songs
 
-	def get_song_list_by_musician(self):
+	# def get_song_list_by_musician(self):
+	# 	result = {}
+	# 	for song, song_stat in song_stat.items():
+	# 		if "musician" in song_stat:
+	# 			musician = song_stat["musician"]
+	# 			if musician not in result:
+	# 				result[musician] = []
+	# 			result[musician].append(song_stat)
+	# 	sorted_result = dict(sorted(result.items()))
+	# 	return sorted_result
+
+	def init_song_list_by_musician(self):
 		result = {}
 		for song, song_stat in song_stat.items():
 			if "musician" in song_stat:
@@ -1209,8 +1224,7 @@ class Karaoke:
 				if musician not in result:
 					result[musician] = []
 				result[musician].append(song_stat)
-		sorted_result = dict(sorted(result.items()))
-		return sorted_result
+		self.song_list_by_musician = dict(sorted(result.items()))
 
 	def init_save_delays(self):
 		self.delays_dirty = False

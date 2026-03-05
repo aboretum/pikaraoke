@@ -495,7 +495,7 @@ def browse_by_musician():
 	sort_order_text = getString2(100)
 
 	results_per_page = 500
-	pagination = Pagination(css_framework = 'bulma', page = page, total = len(songs_by_musician), search = "", search_msg = "",
+	pagination = Pagination(css_framework = 'bulma', page = page, total = len(musicians), search = "", search_msg = "",
 	record_name = getString2(101), display_msg = getString2(102), per_page = results_per_page)
 	start_index = (page - 1) * (results_per_page - 1)
 	return render_template(

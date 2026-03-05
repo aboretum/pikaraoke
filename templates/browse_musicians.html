@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block scripts %}
+<script>
+
+    $(function () {
+
+        if ($(window).width() <= 500) {
+            $(document).scroll(function () {
+                var y = $(this).scrollTop();
+                if (y > 100) {
+                    $('#alpha-bar').removeClass("mobile-hide");
+                    $('#alpha-bar').fadeIn();
+                } else {
+                    $('#alpha-bar').fadeOut();
+                }
+            });
+        }
+    });
+
+
+</script>
+
+{% endblock %}
+
+{% block header %}
+
+<h1>{% block title %}
+    {% if letter %}
+    {{title}}: "{{ letter.upper() }}"
+    {% else %}
+    {{title}}
+    {% endif %}
+    {% endblock %}
+</h1>
+<style>
+    #alpha-bar {
+        padding: 5px 10px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        position: sticky;
+        display: flex;
+        justify-content: space-between;
+        top: 3px;
+        z-index: 20;
+    }
+
+    @media screen and (max-width: 500px) {
+        #alpha-bar {
+            font-size: 13px;
+            position: fixed;
+            display: flex;
+            align-items: center;
+            right: 8px;
+            top: 15px;
+            flex-direction: column;
+            max-width: 22px;
+            height: 95vh;
+        }
+
+        .mobile-hide {
+            visibility: hidden;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{{ pagination.links }}
+{{ pagination.info }}
+<table>
+    {% for musician in musicians %}
+    <tr value='{{ musician }}'>
+        <td width="20px" style="padding: 5px 0px">{{loop.index + pagination.skip}}</td>
+        <td>
+            {{musician}}
+        </td>
+        {% endfor %}
+</table>
+{{ pagination.links }}
+
+
+{% endblock %}

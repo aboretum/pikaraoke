@@ -1218,12 +1218,12 @@ class Karaoke:
 
 	def init_song_list_by_musician(self):
 		result = {}
-		for song, song_stat in song_stat.items():
+		for song, song_stat in self.song_stat.items():
 			if "musician" in song_stat:
 				musician = song_stat["musician"]
 				if musician not in result:
 					result[musician] = []
-				result[musician].append(song_stat)
+				result[musician].append(dict(song_stat))
 		self.song_list_by_musician = dict(sorted(result.items()))
 
 	def init_save_delays(self):

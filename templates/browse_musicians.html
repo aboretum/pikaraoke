@@ -75,7 +75,6 @@
         <td width="20px" style="padding: 5px 0px">{{loop.index + pagination.skip}}</td>
         <td>
             <a class='add-song-link has-text-weight-bold has-text-success'
-                title="{{getString1(97)%filename_from_path(song)}}"
                 href="{{url_for('browse_by_musician')}}?musician={{url_escape(musician.encode('utf-8'))}}">{{musician}}</a>
         </td>
         {% endfor %}

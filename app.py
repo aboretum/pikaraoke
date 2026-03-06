@@ -65,7 +65,7 @@ def filename_from_path(file_path, remove_youtube_id = True):
 		rc = os.path.basename(file_path)
 	except Exception as e:
 		logging.error(f"File {file_path} not found, {e}")
-		return rc = "N/A"
+		return "N/A"
 	rc = os.path.splitext(rc)[0]
 	if remove_youtube_id:
 		try:

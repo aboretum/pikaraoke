@@ -1219,7 +1219,7 @@ class Karaoke:
 
 	def init_song_list_by_musician(self):
 		result = {}
-		print(f"available songs: {self.available_songs.keys()}")
+		print(f"available songs: {self.available_songs}")
 		for song, song_stat in self.song_stat.items():
 			print(f"Init song by musician song: {song}")
 			if "musician" in song_stat:

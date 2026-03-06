@@ -1222,6 +1222,10 @@ class Karaoke:
 		for song, song_stat in self.song_stat.items():
 			if "musician" in song_stat:
 				musician = song_stat["musician"]
+				if musician == 'N/A':
+					continue
+				if song_stat["song_path"] not in self.available_songs:
+					continue
 				if musician not in result:
 					result[musician] = []
 				result[musician].append(dict(song_stat))

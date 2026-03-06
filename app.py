@@ -514,7 +514,7 @@ def musicians():
 		admin = is_admin()
 	)
 
-@app.route("/browse_songs_by_musician", methods = ["GET"])
+@app.route("/browse_by_musician", methods = ["GET"])
 def browse_by_musician():
 	page = request.args.get(get_page_parameter(), type = int, default = 1)
 	musician = request.args.get('musician').decode('utf-8')

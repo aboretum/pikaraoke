@@ -372,7 +372,7 @@ class Karaoke:
 		self.downloading_songs_pct.pop(song_url, None)
 		dl_path = "%(title)s---%(id)s.%(ext)s"
 
-		info = self.get_url_info(url)
+		info = self.get_url_info(song_url)
 		youtube_title = info['title']
 
 		if len(youtube_title) > 50:

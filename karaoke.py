@@ -1219,7 +1219,6 @@ class Karaoke:
 
 	def init_song_list_by_musician(self):
 		result = {}
-		print(f"available songs: {self.available_songs}")
 		for song, song_stat in self.song_stat.items():
 			print(f"Init song by musician song: {song}")
 			if "musician" in song_stat:
@@ -1228,12 +1227,6 @@ class Karaoke:
 				if musician == 'N/A':
 					continue
 				if song_stat["song_path"] not in self.available_songs:
-					if '在这座城市遗失了你' in song_stat["song_path"]:
-						print(song_stat["song_path"])
-					for s in self.available_songs:
-						if '在这座城市遗失了你' in s:
-							print(s)
-					print(f"Song path {song_stat["song_path"]} not found in available songs")
 					continue
 				if musician not in result:
 					result[musician] = []

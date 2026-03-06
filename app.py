@@ -486,8 +486,8 @@ def browse():
 		admin = is_admin()
 	)
 
-@app.route("/browse_by_musician", methods = ["GET"])
-def browse_by_musician():
+@app.route("/musicians", methods = ["GET"])
+def musicians():
 	page = request.args.get(get_page_parameter(), type = int, default = 1)
 	musicians = list(K.song_list_by_musician.keys())
 	getString2 = lambda ii: getString1(request.client_lang, ii)
@@ -507,6 +507,33 @@ def browse_by_musician():
 		site_title = site_name,
 		title = getString2(98),
 		musicians = musicians[start_index:start_index + results_per_page],
+		admin = is_admin()
+	)
+
+@app.route("/browse_songs_by_musician", methods = ["GET"])
+def browse_by_musician():
+	page = request.args.get(get_page_parameter(), type = int, default = 1)
+	musician = request.args.get('musician').decode('utf-8')
+	songs = []
+	for s in K.song_list_by_musician.get(musician, []):
+		songs.append(s['song_path'])
+	getString2 = lambda ii: getString1(request.client_lang, ii)
+	sort_order = "Alphabetical"
+	sort_order_text = getString2(100)
+
+	results_per_page = 500
+	pagination = Pagination(css_framework = 'bulma', page = page, total = len(musicians), search = "", search_msg = "",
+	record_name = getString2(101), display_msg = getString2(102), per_page = results_per_page)
+	start_index = (page - 1) * (results_per_page - 1)
+	return render_template(
+		"select.html",
+		getString1 = getString2,
+		pagination = pagination,
+		sort_order = sort_order,
+		sort_order_text = sort_order_text,
+		site_title = site_name,
+		title = getString2(98),
+		songs = songs[start_index:start_index + results_per_page],
 		admin = is_admin()
 	)
 

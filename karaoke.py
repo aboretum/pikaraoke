@@ -319,6 +319,7 @@ class Karaoke:
 			raise e
 
 	def get_url_info(self, url):
+		import yt_dlp
 		ydl_opts = {
 		    'cookiefile': os.path.join(self.base_path, 'cookies.txt')
 		}

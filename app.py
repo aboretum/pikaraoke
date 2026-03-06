@@ -672,12 +672,13 @@ def edit_file():
 			else:
 				# check if new_name already exist
 				file_extension = os.path.splitext(old_name)[1]
-				if os.path.isfile(os.path.join(K.download_path, new_name + file_extension)):
+				new_file_path = os.path.join(K.download_path, new_name + file_extension)
+				if os.path.isfile(new_file_path):
 					flash(getString(24) % (old_name, new_name + file_extension), "is-danger")
 				else:
 					K.rename(old_name, new_name)
 					flash(getString(25) % (old_name, new_name), "is-warning")
-				K.update_song_musician(new_name, d["musician"])
+				K.update_song_musician(new_file_path, d["musician"])
 		else:
 			flash(getString(26), "is-danger")
 

@@ -366,10 +366,17 @@ class Karaoke:
 			    	self.downloading_songs_pct[song_url] = file_name + '@-----@' + str(pct)
 			return my_hook
 
+
 		logging.info("Downloading video: " + song_url)
 		self.downloading_songs[song_url] = 1
 		self.downloading_songs_pct.pop(song_url, None)
 		dl_path = "%(title)s---%(id)s.%(ext)s"
+
+		info = self.get_url_info(url)
+		youtube_title = info['title']
+
+		if len(youtube_title) > 50:
+			dl_path = youtube_title[:50] + "---%(id)s.%(ext)s"
 		# opt_sub = ['--sub-langs', 'all', '--embed-subs'] if include_subtitles else []
 		# cmd = ['--fixup', 'force', '--remux-video', 'mp4'] + opt_quality +\
 		#       ["-o", self.download_path+'tmp/'+dl_path] + opt_sub + [song_url]

@@ -208,37 +208,15 @@ class Karaoke:
 		self.get_song_stat()
 		self.init_song_list_by_musician()
 
-		artists = []
-		artists.append("艾怡良")
-		artists.append("八三夭")
-		artists.append("脆樂團")
-		artists.append("范瑋琪")
-		artists.append("告五人")
-		artists.append("Green Day")
-		artists.append("康士坦的變化球")
-		artists.append("美秀集團")
-		artists.append("周深")
-		artists.append("万能青年旅店")
-		artists.append("Muse")
-		artists.append("南西肯恩")
-		artists.append("Numberblocks")
-		artists.append("朴树")
-		artists.append("任素汐")
-		artists.append("Snow Patrol")
-		artists.append("Taylor Swift")
-		artists.append("The Killers")
-		artists.append("王菲")
-		artists.append("王靖雯")
-		artists.append("伍佰")
-		artists.append("謝霆鋒")
-		artists.append("薛之謙")
-		artists.append("周杰倫")
-		artists.append("周傳雄")
+		# file_path = 'artists'
+		# with open(file_path, 'r') as f:
+		# 	# Read lines and strip the newline character from each line
+		# 	artists = [line.rstrip('\n') for line in f]
 
-		for artist in artists:
-			for song in self.available_songs:
-				if artist in song:
-					self.update_song_musician(song, artist)
+		# for artist in artists:
+		# 	for song in self.available_songs:
+		# 		if artist in song:
+		# 			self.update_song_musician(song, artist)
 
 		# Automatically upgrade yt-dlp if using pip
 		if not args.youtubedl_path:

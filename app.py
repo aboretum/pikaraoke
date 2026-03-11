@@ -493,7 +493,7 @@ def browse():
 @app.route("/musicians", methods = ["GET"])
 def musicians():
 	page = request.args.get(get_page_parameter(), type = int, default = 1)
-	musicians = list(K.song_list_by_musician.keys())
+	musicians = sorted(list(K.song_list_by_musician.keys()))
 	getString2 = lambda ii: getString1(request.client_lang, ii)
 	sort_order = "Alphabetical"
 	sort_order_text = getString2(100)

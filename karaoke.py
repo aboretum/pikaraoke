@@ -629,6 +629,10 @@ class Karaoke:
 	def queue_add_all(self, prefix):
 
 		logging.info("Adding songs that starts with %s to queue." % prefix)
+
+		if prefix == '':
+			logging.warn("Can't add songs start with empty string.")
+			return 0
 		songs = list(self.available_songs)  # make a copy
 
 		if len(songs) == 0:

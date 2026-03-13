@@ -115,8 +115,10 @@
   function updateAndNavigate() {
     var inputValue = document.getElementById('song-prefix').value;
     var linkElement = document.getElementById('add-prefix-link');
-
-    linkElement.href = '/queue/addall?prefix=' + inputValue;
+    var link = '/queue/addall?prefix=' + inputValue;
+    $.get(link, function(data) {
+        // handle response if necessary
+    });
   }
 </script>
 

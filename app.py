@@ -258,8 +258,8 @@ def add_random():
 
 @app.route("/queue/addall", methods = ["GET"])
 def add_all():
-	who = int(request.args["query"])
-	rc = K.queue_add_all(who)
+	prefix = request.args["prefix"]
+	rc = K.queue_add_all(prefix)
 	if rc > 0:
 		flash(getString(4) % rc, "is-success")
 	else:

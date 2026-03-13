@@ -626,18 +626,9 @@ class Karaoke:
 		self.update_queue_hash()
 		return True
 
-	def queue_add_all(self, who):
-		who_string = ''
-		if who == 1:
-			who_string = '咪'
-		elif who == 2:
-			who_string = '绵'
-		elif who == 3:
-			who_string = '告五人'
-		else:
-			who_string = 'placeholder'
+	def queue_add_all(self, prefix):
 
-		logging.info("Adding songs that starts with %s to queue." % who_string)
+		logging.info("Adding songs that starts with %s to queue." % prefix)
 		songs = list(self.available_songs)  # make a copy
 
 		if len(songs) == 0:
@@ -647,7 +638,7 @@ class Karaoke:
 		count = 0
 		for song_path in songs:
 			filename = self.filename_from_path(song_path)
-			if filename.startswith(who_string):
+			if filename.startswith(prefix):
 				logging.info("Adding song %s to queue." % filename)
 				self.queue.append({"user": "Randomizer", "file": song_path, "title": filename})
 				count+=1

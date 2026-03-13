@@ -111,6 +111,13 @@
         // handle response if necessary
     });
   }
+
+  function updateAndNavigate() {
+    var inputValue = document.getElementById('song-prefix').value;
+    var linkElement = document.getElementById('add-prefix-link');
+
+    linkElement.href = '/queue/addall?prefix=' + inputValue;
+  }
 </script>
 
 {% endblock %} 
@@ -135,17 +142,12 @@
 </a><br /><br />
 {% endif %}
 
-<a class="add-random has-text-success" href="/queue/addall?query=1">
+<a class="add-random has-text-success" id="add-prefix-link" href="#">
   <i class="icon icon-plus-circled"></i>{{getString1(224)}}
-</a><br /><br />
-
-<a class="add-random has-text-success" href="/queue/addall?query=2">
-  <i class="icon icon-plus-circled"></i>{{getString1(225)}}
-</a><br /><br />
-
-<a class="add-random has-text-success" href="/queue/addall?query=3">
-  <i class="icon icon-plus-circled"></i>{{getString1(226)}}
 </a>
+<input type="text" id="song-prefix">
+
+<br /><br />
 
 {% if admin %}
 <a class="confirm-clear-all has-text-danger is-pulled-right" href="/queue/edit?action=clearAll">

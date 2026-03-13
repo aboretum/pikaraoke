@@ -8,6 +8,9 @@
   <title>{{site_title}}</title>
   {% endif %}
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script src="/static/jquery-3.3.1.min.js"></script>
   <script src="/static/jquery-ui.min.js"></script>
   <script src="/static/js.cookie-2.2.1.min.js"></script>
@@ -20,6 +23,7 @@
   <link rel="stylesheet" href="/static/fontawesome/css/all.css">
   <link rel="icon" type="image/x-icon" href="/static/images/logo-32by32.ico">
   <link rel="apple-touch-icon" href="/static/images/logo.ico">
+  <link rel="manifest" href="/static/manifest.json">
 
   <script>
 
@@ -172,7 +176,6 @@
         <i class="icon icon-home-2" title="{{getString1(183)}}"></i>
         <span>{{getString1(183)}}</span>
       </a>
-
       <a id="queue" class="navbar-item" href="{{ url_for('queue') }}">
         <i class="icon icon-list-numbered" title="{{getString1(112)}}"></i>
         <span>{{getString1(112)}}</span>
@@ -189,10 +192,15 @@
         <i class="icon icon-search-2" title="{{getString1(212)}}"></i>
         <span>{{getString1(212)}}</span>
       </a> -->
-      <a id="favorite" class="navbar-item" href="{{ url_for('favorite') }}">
+<!--       <a id="favorite" class="navbar-item" href="{{ url_for('favorite') }}">
         <i class="icon icon-pencil" title="{{getString1(218)}}"></i>
         <span>{{getString1(218)}}</span>
+      </a> -->
+      <a id="musicians" class="navbar-item" href="{{ url_for('musicians') }}">
+        <i class="fa-solid fa-user" title="{{getString1(229)}}"></i>
+        <span>{{getString1(229)}}</span>
       </a>
+
       <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>

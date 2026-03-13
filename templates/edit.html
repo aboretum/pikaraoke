@@ -116,6 +116,11 @@
       <input autocomplete="off" id="new_file_name" class="input" type="text" name="new_file_name"
         value="{{ filename_from_path(song.decode('utf-8')) }}"></input>
     </div>
+    <label class="label">Edit Artist</label>
+    <div class="field">
+      <input autocomplete="off" id="musician" class="input" type="text" name="musician"
+        value="{{ musician.decode('utf-8') }}"></input>
+    </div>
     <ul>
       <li><a id='remove-karaoke'>Auto-format</a></li>
       <li><a id='swap-order'>Swap artist/song order</a></li>
@@ -124,8 +129,9 @@
         <span id="suggest_results"></span>
       </li>
     </ul>
-    <div class="field">
-      <button class="button is-primary" id="search-button" type="submit">Save</button>
+    <div class="buttons">
+      <button class="button is-white" id="cancel-button" onclick="window.history.go(-1); return false;"type="submit">Cancel</button>
+      <button class="button is-primary" id="save-button" type="submit">Save</button>
     </div>
   </form>
 </div>

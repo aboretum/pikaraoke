@@ -61,7 +61,11 @@ def preprocessor():
 
 
 def filename_from_path(file_path, remove_youtube_id = True):
-	rc = os.path.basename(file_path)
+	try:
+		rc = os.path.basename(file_path)
+	except Exception as e:
+		logging.error(f"File {file_path} not found, {e}")
+		return "N/A"
 	rc = os.path.splitext(rc)[0]
 	if remove_youtube_id:
 		try:
@@ -486,6 +490,57 @@ def browse():
 		admin = is_admin()
 	)
 
+@app.route("/musicians", methods = ["GET"])
+def musicians():
+	page = request.args.get(get_page_parameter(), type = int, default = 1)
+	musicians = list(K.song_list_by_musician.keys())
+	getString2 = lambda ii: getString1(request.client_lang, ii)
+	sort_order = "Alphabetical"
+	sort_order_text = getString2(100)
+
+	results_per_page = 50
+	pagination = Pagination(css_framework = 'bulma', page = page, total = len(musicians), search = "", search_msg = "",
+	record_name = getString2(101), display_msg = getString2(102), per_page = results_per_page)
+	start_index = (page - 1) * (results_per_page - 1)
+	return render_template(
+		"browse_musicians.html",
+		getString1 = getString2,
+		pagination = pagination,
+		sort_order = sort_order,
+		sort_order_text = sort_order_text,
+		site_title = site_name,
+		title = getString2(98),
+		musicians = musicians[start_index:start_index + results_per_page],
+		admin = is_admin()
+	)
+
+@app.route("/browse_by_musician", methods = ["GET"])
+def browse_by_musician():
+	page = request.args.get(get_page_parameter(), type = int, default = 1)
+	musician = request.args.get('musician')
+	songs = []
+	for s in K.song_list_by_musician.get(musician, []):
+		songs.append(s['song_path'])
+	getString2 = lambda ii: getString1(request.client_lang, ii)
+	sort_order = "Alphabetical"
+	sort_order_text = getString2(100)
+
+	results_per_page = 50
+	pagination = Pagination(css_framework = 'bulma', page = page, total = len(songs), search = "", search_msg = "",
+	record_name = getString2(101), display_msg = getString2(102), per_page = results_per_page)
+	start_index = (page - 1) * (results_per_page - 1)
+	return render_template(
+		"select.html",
+		getString1 = getString2,
+		pagination = pagination,
+		sort_order = sort_order,
+		sort_order_text = sort_order_text,
+		site_title = site_name,
+		title = getString2(98),
+		songs = songs[start_index:start_index + results_per_page],
+		admin = is_admin()
+	)
+
 @app.route("/select", methods = ["GET"])
 def select():
     page = request.args.get(get_page_parameter(), type = int, default = 1)
@@ -535,6 +590,7 @@ def select():
         songs = songs[start_index:start_index + results_per_page],
         admin = is_admin()
     )
+
 @app.route('/favorite')
 def favorite():
     songs_data = K.get_favorite_song_list()  # 确保这个函数能返回你需要的歌曲数据
@@ -543,7 +599,9 @@ def favorite():
 @app.route('/get_songs_data')
 def get_songs_data():
     songs_data = K.get_favorite_song_list()  # 确保这个函数能返回你需要的歌曲数据
-    return jsonify(songs_data)
+    json_str = jsonify(songs_data)
+    print(json_str)
+    return json_str
 
 
 def transform_boolean(dct, S):
@@ -601,9 +659,11 @@ def edit_file():
 			flash(queue_error_msg + song_path, "is-danger")
 			return redirect(url_for("browse"))
 		else:
-			return render_template("edit.html", getString1 = lambda ii: getString1(request.client_lang, ii), site_title = site_name, title = getString(23), song = song_path.encode("utf-8"))
+			musician = K.song_stat.get(K.filename_from_path(song_path), {}).get("musician", "N/A")
+			return render_template("edit.html", getString1 = lambda ii: getString1(request.client_lang, ii), site_title = site_name, title = getString(23), song = song_path.encode("utf-8"), musician = musician.encode("utf-8"))
 	else:
 		d = request.form.to_dict()
+
 		if "new_file_name" in d and "old_file_name" in d:
 			new_name = d["new_file_name"]
 			old_name = d["old_file_name"]
@@ -612,13 +672,16 @@ def edit_file():
 			else:
 				# check if new_name already exist
 				file_extension = os.path.splitext(old_name)[1]
-				if os.path.isfile(os.path.join(K.download_path, new_name + file_extension)):
+				new_file_path = os.path.join(K.download_path, new_name + file_extension)
+				if os.path.isfile(new_file_path):
 					flash(getString(24) % (old_name, new_name + file_extension), "is-danger")
 				else:
 					K.rename(old_name, new_name)
 					flash(getString(25) % (old_name, new_name), "is-warning")
+				K.update_song_musician(new_file_path, d["musician"])
 		else:
 			flash(getString(26), "is-danger")
+
 		return redirect(url_for("browse"))
 
 @app.route("/splash")
@@ -999,7 +1062,7 @@ if __name__ == "__main__":
 		action = "store_true",
 	)
 	parser.add_argument(
-		"-H", "--song-stat-filepath", help="file location for song statistics", default=".\\songs\\song_stat.json"
+		"-H", "--song-stat-filepath", help="file location for song statistics", default=".song_stat.json"
 	)
 	args = parser.parse_args()
 

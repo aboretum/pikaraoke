@@ -206,7 +206,18 @@ class Karaoke:
 
 		# get favorite songs
 		self.get_song_stat()
-		
+		self.init_song_list_by_musician()
+
+		# file_path = 'artists'
+		# with open(file_path, 'r') as f:
+		# 	# Read lines and strip the newline character from each line
+		# 	artists = [line.rstrip('\n') for line in f]
+
+		# for artist in artists:
+		# 	for song in self.available_songs:
+		# 		if artist in song:
+		# 			self.update_song_musician(song, artist)
+
 		# Automatically upgrade yt-dlp if using pip
 		if not args.youtubedl_path:
 			self.upgrade_youtubedl()
@@ -318,6 +329,7 @@ class Karaoke:
 			raise e
 
 	def get_url_info(self, url):
+		import yt_dlp
 		ydl_opts = {
 		    'cookiefile': os.path.join(self.base_path, 'cookies.txt')
 		}
@@ -365,10 +377,17 @@ class Karaoke:
 			    	self.downloading_songs_pct[song_url] = file_name + '@-----@' + str(pct)
 			return my_hook
 
+
 		logging.info("Downloading video: " + song_url)
 		self.downloading_songs[song_url] = 1
 		self.downloading_songs_pct.pop(song_url, None)
 		dl_path = "%(title)s---%(id)s.%(ext)s"
+
+		info = self.get_url_info(song_url)
+		youtube_title = info['title']
+
+		if len(youtube_title) > 50:
+			dl_path = youtube_title[:50] + "---%(id)s.%(ext)s"
 		# opt_sub = ['--sub-langs', 'all', '--embed-subs'] if include_subtitles else []
 		# cmd = ['--fixup', 'force', '--remux-video', 'mp4'] + opt_quality +\
 		#       ["-o", self.download_path+'tmp/'+dl_path] + opt_sub + [song_url]
@@ -1165,8 +1184,8 @@ class Karaoke:
 			with open(self.stat_file_path, 'w') as f:
 				json.dump(self.song_stat, f)
 			logging.info(f"Current favorite songs has been saved to {self.stat_file_path}")
-		except:
-			logging.error(f"Favorite songs can't be saved to target location {self.stat_file_path}")
+		except Exception as e:
+			logging.error(f"Favorite songs can't be saved to target location {self.stat_file_path}: {e}")
 
 	def update_song_stat(self, user, song_path):
 		song_name = self.filename_from_path(song_path)
@@ -1175,7 +1194,7 @@ class Karaoke:
 			"song_path":song_path,
 			"play_count":0,
 			"user_list":[],
-			"last_play":datetime.datetime.now(),
+			"last_play": datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
 		})
 		current_song_stat["play_count"]+=1
 		if user not in current_song_stat["user_list"]:
@@ -1184,9 +1203,51 @@ class Karaoke:
 		self.song_stat[song_name] = current_song_stat
 		self.save_song_stat()
 
+	def update_song_musician(self, song_path, musician):
+		song_name = self.filename_from_path(song_path)
+		current_song_stat = self.song_stat.setdefault(song_name, {
+			"name":song_name,
+			"song_path":song_path,
+			"play_count":0,
+			"user_list":[],
+			"last_play":datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+		})
+		current_song_stat["musician"] = musician
+		self.song_stat[song_name] = current_song_stat
+		if musician not in self.song_list_by_musician:
+			self.song_list_by_musician[musician] = []
+		self.song_list_by_musician[musician].append(dict(current_song_stat))
+		self.save_song_stat()
+
 	def get_favorite_song_list(self):
+		# print(self.song_stat.values())
 		sorted_songs = sorted(self.song_stat.values(), key=lambda x: x['play_count'], reverse=True)
 		return sorted_songs
+
+	# def get_song_list_by_musician(self):
+	# 	result = {}
+	# 	for song, song_stat in song_stat.items():
+	# 		if "musician" in song_stat:
+	# 			musician = song_stat["musician"]
+	# 			if musician not in result:
+	# 				result[musician] = []
+	# 			result[musician].append(song_stat)
+	# 	sorted_result = dict(sorted(result.items()))
+	# 	return sorted_result
+
+	def init_song_list_by_musician(self):
+		result = {}
+		for song, song_stat in self.song_stat.items():
+			if "musician" in song_stat:
+				musician = song_stat["musician"]
+				if musician == 'N/A':
+					continue
+				if song_stat["song_path"] not in self.available_songs:
+					continue
+				if musician not in result:
+					result[musician] = []
+				result[musician].append(dict(song_stat))
+		self.song_list_by_musician = dict(sorted(result.items()))
 
 	def init_save_delays(self):
 		self.delays_dirty = False

@@ -116,6 +116,7 @@
     var inputValue = document.getElementById('song-prefix').value;
     var linkElement = document.getElementById('add-prefix-link');
     var link = '/queue/addall?prefix=' + inputValue;
+    console.log('function called')
     $.get(link, function(data) {
         // handle response if necessary
     });

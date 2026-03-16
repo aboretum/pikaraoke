@@ -138,13 +138,7 @@
 <a class="add-random has-text-success" href="/queue/addrandom?amount=3">
   <i class="icon icon-plus-circled"></i>{{getString1(109)}}
 </a>
-
-{% if admin %}
-<a class="confirm-clear has-text-danger is-pulled-right" href="/queue/edit?action=clear">
-  <i class="icon icon-trash-empty"></i>{{getString1(227)}}
-</a>
 <br /><br />
-{% endif %}
 
 <a class="add-random has-text-success" id="add-prefix-link" href="#" onclick="updateAndNavigate()">
   <i class="icon icon-plus-circled"></i>{{getString1(224)}}
@@ -155,6 +149,9 @@
 {% if admin %}
 <a class="confirm-clear-all has-text-danger" href="/queue/edit?action=clearAll">
   <i class="icon icon-trash-empty"></i>{{getString1(110)}}
+</a>
+<a class="confirm-clear has-text-danger is-pulled-right" href="/queue/edit?action=clear">
+  <i class="icon icon-trash-empty"></i>{{getString1(227)}}
 </a>
 {% endif %}
 

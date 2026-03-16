@@ -142,20 +142,20 @@
 {% if admin %}
 <a class="confirm-clear has-text-danger is-pulled-right" href="/queue/edit?action=clear">
   <i class="icon icon-trash-empty"></i>{{getString1(227)}}
-</a><br /><br /><br />
+</a>
+<br /><br />
 {% endif %}
 
 <a class="add-random has-text-success" id="add-prefix-link" href="#" onclick="updateAndNavigate()">
   <i class="icon icon-plus-circled"></i>{{getString1(224)}}
 </a>
 <input type="text" id="song-prefix">
+<br /><br />
 
 {% if admin %}
-<a class="confirm-clear-all has-text-danger is-pulled-right" href="/queue/edit?action=clearAll">
+<a class="confirm-clear-all has-text-danger" href="/queue/edit?action=clearAll">
   <i class="icon icon-trash-empty"></i>{{getString1(110)}}
 </a>
 {% endif %}
-
-<br /><br />
 
 {% endblock %}

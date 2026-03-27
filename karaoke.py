@@ -206,20 +206,6 @@ class Karaoke:
 		# else:
 		self.get_available_songs()
 
-		for song_path in self.available_songs:
-
-			# Path to the best model produced by training
-			output_dir = Path("output/model-best")
-
-			print(f"Loading model for {song_path}")
-			nlp = spacy.load(output_dir)
-
-			song_title = self.filename_from_path(song_path)
-
-			doc = nlp(song_title)
-			print(f"Song: {song_title}" )
-			print("Entities found:", [(ent.text, ent.label_) for ent in doc.ents])
-
 		# get favorite songs
 		self.get_song_stat()
 		self.init_song_list_by_musician()
@@ -533,6 +519,21 @@ class Karaoke:
 		rc = os.path.splitext(rc)[0]
 		rc = rc.split("---")[0]  # removes youtube id if present
 		return rc
+
+	def get_artist_from_song_name(self, file_path):
+		# Path to the best model produced by training
+		output_dir = Path("output/model-best")
+
+		print(f"Loading model for {song_path}")
+		nlp = spacy.load(output_dir)
+
+		song_title = self.filename_from_path(song_path)
+
+		doc = nlp(song_title)
+		print(f"Song: {song_title}" )
+		print("Entities found:", [(ent.text, ent.label_) for ent in doc.ents])
+
+		return doc.ents[0].text
 
 	def kill_player(self):
 		if self.use_vlc:

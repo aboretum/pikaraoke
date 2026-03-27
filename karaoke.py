@@ -19,6 +19,8 @@ from lib import omxclient, vlcclient
 from lib.get_platform import *
 from app import getString
 import yt_dlp
+import spacy
+from pathlib import Path
 
 STD_VOL = 65536/8/np.sqrt(2)
 
@@ -203,6 +205,20 @@ class Karaoke:
 		# 	self.get_available_songs_in_saved()
 		# else:
 		self.get_available_songs()
+
+		for song_path in self.available_songs:
+
+			# Path to the best model produced by training
+			output_dir = Path("output/model-best")
+
+			print(f"Loading model for {song_path}")
+			nlp = spacy.load(output_dir)
+
+			song_title = filename_from_path(song_path)
+
+			doc = nlp(song_title)
+			print(f"Song: {song_title}" )
+			print("Entities found:", [(ent.text, ent.label_) for ent in doc.ents])
 
 		# get favorite songs
 		self.get_song_stat()

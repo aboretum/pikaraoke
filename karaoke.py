@@ -214,7 +214,7 @@ class Karaoke:
 			print(f"Loading model for {song_path}")
 			nlp = spacy.load(output_dir)
 
-			song_title = filename_from_path(song_path)
+			song_title = self.filename_from_path(song_path)
 
 			doc = nlp(song_title)
 			print(f"Song: {song_title}" )

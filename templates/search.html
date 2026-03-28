@@ -58,7 +58,6 @@
         showNotification('Artist successfully updated.');
       } else {
         showNotification('Artist failed to update.');
-
       }
       $("#artistguess").addClass('is-hidden')
     });
@@ -84,7 +83,7 @@
       if (val == '0' || val == '00') {
         if (artist != '') {
           console.log('Artist: ' + artist)
-          $("#artisttext").text('Identified artist: ' + artist + ' , accept recommendation?')
+          $("#artisttext").text('Identified artist: ' + artist)
           $("#artistguess").removeClass('is-hidden')
         }
       }
@@ -452,10 +451,11 @@
             <div id="plabel" class="progress-label">Loading...</div>
           </div>
           <div id="artistguess" class="field is-hidden" style="margin-top: 5px">
-            <div id="artisttext" class="label" style="margin-top: 5px"></div>
+            <div id="artisttext" class="label"></div>
+            <div id="artisttext2" class="label">Accept recommendation?</div>
             <div class="buttons">
-              <button id="cancel-artist-button" class="button is-white" type="button">No</button>
-              <button id="update-artist-button" class="button is-primary" type="button">Yes</button>
+              <button id="cancel-artist-button" class="button is-white" type="button">Skip</button>
+              <button id="update-artist-button" class="button is-primary" type="button">Accept</button>
             </div>
           </div>
         </form>

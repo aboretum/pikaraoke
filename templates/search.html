@@ -203,6 +203,11 @@
       return false;
     });
 
+    $('#cancel-artist-button').click(function(){
+      $("#artistguess").addClass('is-hidden')
+      return false;
+    });
+
     $("#add-queue-link").click(function () {
  
     });
@@ -449,7 +454,7 @@
           <div id="artistguess" class="field is-hidden" style="margin-top: 5px">
             <div id="artisttext" class="label" style="margin-top: 5px"></div>
             <div class="buttons">
-              <button id="cancel-artist-button" class="button is-white" onclick="window.history.go(-1); return false;" type="submit">No</button>
+              <button id="cancel-artist-button" class="button is-white" type="button">No</button>
               <button id="update-artist-button" class="button is-primary" type="button">Yes</button>
             </div>
           </div>

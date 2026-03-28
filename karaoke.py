@@ -1225,6 +1225,9 @@ class Karaoke:
 
 	def update_song_musician(self, song_path, musician):
 		song_name = self.filename_from_path(song_path)
+		self.update_song_musician_from_song_name(song_name, musician)
+
+	def update_song_musician_from_song_name(self, song_name, musician):
 		current_song_stat = self.song_stat.setdefault(song_name, {
 			"name":song_name,
 			"song_path":song_path,

@@ -628,6 +628,13 @@ def check_download():
 
 	return result
 
+@app.route("/update_artist", methods = ["POST"])
+def update_song_artist():
+	url = request.values.get('url', None)
+	# K.update_song_musician_from_song_name(song_name, artist)
+
+	return '0'
+
 @app.route("/check_download_pct", methods = ["POST"])
 def check_download_pct():
 	return K.downloading_songs_pct.get(request.values.get('url', None), '@-----@0')

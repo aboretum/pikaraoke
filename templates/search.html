@@ -52,6 +52,16 @@
 <script>
   var download_url = "";
   var timer;
+  function update_artist(){
+    $.post('/update_artist', {"url": download_url}, function(data){
+      msg = "";
+      if (data == '0') {
+        console.log('Update artist called')
+        showNotification('Artist successfully updated.');
+        $("#artistguess").addClass('is-hidden')
+      }
+    });
+  }
   function check_download(){
     $.post('/check_download', {"url": download_url}, function(data){
       msg = "";
@@ -73,8 +83,8 @@
       if (val == '0' || val == '00') {
         if (artist != '') {
           console.log('Artist: ' + artist)
-          $("#artisttext").text('Identified artist: [' + artist + ']')
-          $("#artisttext").removeClass('is-hidden')
+          $("#artisttext").text('Identified artist: ' + artist + ' , accept recommendation?')
+          $("#artistguess").removeClass('is-hidden')
         }
       }
     });
@@ -177,6 +187,16 @@
       return false;
     });
 
+    $('.download-direct').submit(function(){
+      download_url = $(this).find('[name=song_url]').val()
+      $.post($(this).attr('action'), $(this).serialize(), function(msg) {
+        showNotification(msg);
+        timer = setInterval(check_download, 1000);
+        timer2 = setInterval(check_download_pct, 200);
+      }, 'text');
+      return false;
+    })
+
     $('.download-direct-2').submit(function(){
       download_url = $(this).find('[name=song_url]').val()
       $.post($(this).attr('action'), $(this).serialize(), function(msg) {
@@ -184,6 +204,11 @@
         timer = setInterval(check_download, 1000);
         timer2 = setInterval(check_download_pct_2, 200);
       }, 'text');
+      return false;
+    });
+
+    $('#update-artist-button').submit(function(){
+      update_artist();
       return false;
     });
 
@@ -430,7 +455,13 @@
           <div id="pbar" class="progressbar is-hidden" style="margin-top: 5px">
             <div id="plabel" class="progress-label">Loading...</div>
           </div>
-          <div id="artisttext" class="label is-hidden" style="margin-top: 5px">Nothing</div>
+          <div id="artistguess" class="field is-hidden" style="margin-top: 5px">
+            <div id="artisttext" class="label" style="margin-top: 5px"></div>
+            <div class="buttons">
+              <button id="cancel-artist-button" class="button is-white" onclick="window.history.go(-1); return false;" type="submit">No</button>
+              <button id="update-artist-button" class="button is-primary" type="submit">Yes</button>
+            </div>
+          </div>
         </form>
       </div>
     </div>

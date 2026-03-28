@@ -127,6 +127,7 @@ class Karaoke:
 		self.player_state = {}
 		self.downloading_songs = {}
 		self.downloading_songs_pct = {}
+		self.downloading_songs_artists = {}
 		self.log_level = int(args.log_level)
 
 		logging.basicConfig(
@@ -411,8 +412,12 @@ class Karaoke:
 			self.downloading_songs[song_url] = 0
 			bn = self.get_downloaded_file_basename(song_url)
 			if bn:
-				shutil.move(self.download_path+'tmp/'+bn, self.download_path+bn)
+				shutil.move(self.download_path+'tmp/'+bn, self.download_path+bn)				
 				self.get_available_songs()
+				song_name = self.filename_from_path(self.download_path+bn)
+				artist = self.get_artist_from_song_name(song_name)
+				self.downloading_songs_artists[song_url] = artist
+
 				if enqueue:
 					self.enqueue(self.download_path+bn, song_added_by)
 					self.downloading_songs[song_url] = '00'
@@ -532,8 +537,11 @@ class Karaoke:
 		doc = nlp(song_title)
 		print(f"Song: {song_title}" )
 		print("Entities found:", [(ent.text, ent.label_) for ent in doc.ents])
+		ents = doc.ents
+		if len(ents) > 0:
+			return ents[0].text
 
-		return doc.ents[0].text
+		return None
 
 	def kill_player(self):
 		if self.use_vlc:

@@ -622,7 +622,11 @@ def download():
 @app.route("/check_download", methods = ["POST"])
 def check_download():
 	ret = K.downloading_songs.get(request.values.get('url', None), 1)
-	return str(ret)
+	artist = K.downloading_songs_artists.get(request.values.get('url', None), '')
+
+	result = f("{ret}@----------@{artist}")
+
+	return result
 
 @app.route("/check_download_pct", methods = ["POST"])
 def check_download_pct():

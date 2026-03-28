@@ -53,8 +53,11 @@
   var download_url = "";
   var timer;
   function check_download(){
-    $.post('/check_download', {"url": download_url}, function(val){
+    $.post('/check_download', {"url": download_url}, function(data){
       msg = "";
+      strs = data.split('@----------@')
+      val = strs[0]
+      artist = strs[1]
       switch(val){
         case '1': return;
         case '00': msg = "{{getString1(191)}}";
@@ -67,6 +70,12 @@
       $("#direct-download-button").removeClass("is-loading");
       $("#direct-download-url").val('')
       showNotification(msg);
+      if (val == '0' || val == '00') {
+        if (artist != '') {
+          $("#progresstext").text('Identified artist: [' + artist + ']')
+          $("#artisttext").removeClass('is-hidden')
+        }
+      }
     });
   }
   function check_download_pct(){
@@ -420,6 +429,7 @@
           <div id="pbar" class="progressbar is-hidden" style="margin-top: 5px">
             <div id="plabel" class="progress-label">Loading...</div>
           </div>
+          <div id="artisttext" class="label is-hidden" style="margin-top: 5px">Nothing</div>
         </form>
       </div>
     </div>

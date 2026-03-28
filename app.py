@@ -624,7 +624,7 @@ def check_download():
 	ret = K.downloading_songs.get(request.values.get('url', None), 1)
 	artist = K.downloading_songs_artists.get(request.values.get('url', None), '')
 
-	result = f("{ret}@----------@{artist}")
+	result = f"{ret}@----------@{artist}"
 
 	return result
 

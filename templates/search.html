@@ -180,7 +180,6 @@
     $('.download-direct').submit(function(){
       download_url = $(this).find('[name=song_url]').val()
       $.post($(this).attr('action'), $(this).serialize(), function(msg) {
-        showNotification(msg);
         timer = setInterval(check_download, 1000);
         timer2 = setInterval(check_download_pct, 200);
       }, 'text');
@@ -190,7 +189,6 @@
     $('.download-direct-2').submit(function(){
       download_url = $(this).find('[name=song_url]').val()
       $.post($(this).attr('action'), $(this).serialize(), function(msg) {
-        showNotification(msg);
         timer = setInterval(check_download, 1000);
         timer2 = setInterval(check_download_pct_2, 200);
       }, 'text');

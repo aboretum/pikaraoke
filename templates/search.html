@@ -72,7 +72,8 @@
       showNotification(msg);
       if (val == '0' || val == '00') {
         if (artist != '') {
-          $("#progresstext").text('Identified artist: [' + artist + ']')
+          console.log('Artist: ' + artist)
+          $("#artisttext").text('Identified artist: [' + artist + ']')
           $("#artisttext").removeClass('is-hidden')
         }
       }

@@ -128,6 +128,7 @@ class Karaoke:
 		self.downloading_songs = {}
 		self.downloading_songs_pct = {}
 		self.downloading_songs_artists = {}
+		self.downloading_songs_names = {}
 		self.log_level = int(args.log_level)
 
 		logging.basicConfig(
@@ -378,6 +379,7 @@ class Karaoke:
 			    	file_name = f"{true_name}.{ext}"
 			    	logging.debug(f'Downloading {file_name}, now {pct}%')
 			    	self.downloading_songs_pct[song_url] = file_name + '@-----@' + str(pct)
+			    	self.downloading_songs_names[song_url] = true_name
 			return my_hook
 
 

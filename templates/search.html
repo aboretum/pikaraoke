@@ -54,12 +54,13 @@
   var timer;
   function update_artist(){
     $.post('/update_artist', {"url": download_url}, function(data){
-      msg = "";
       if (data == '0') {
-        console.log('Update artist called')
         showNotification('Artist successfully updated.');
-        $("#artistguess").addClass('is-hidden')
+      } else {
+        showNotification('Artist failed to update.');
+
       }
+      $("#artistguess").addClass('is-hidden')
     });
   }
   function check_download(){

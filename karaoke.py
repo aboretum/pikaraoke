@@ -128,7 +128,7 @@ class Karaoke:
 		self.downloading_songs = {}
 		self.downloading_songs_pct = {}
 		self.downloading_songs_artists = {}
-		self.downloading_songs_names = {}
+		self.downloading_songs_paths = {}
 		self.log_level = int(args.log_level)
 
 		logging.basicConfig(
@@ -379,7 +379,6 @@ class Karaoke:
 			    	file_name = f"{true_name}.{ext}"
 			    	logging.debug(f'Downloading {file_name}, now {pct}%')
 			    	self.downloading_songs_pct[song_url] = file_name + '@-----@' + str(pct)
-			    	self.downloading_songs_names[song_url] = true_name
 			return my_hook
 
 
@@ -419,6 +418,7 @@ class Karaoke:
 				song_name = self.filename_from_path(self.download_path+bn)
 				artist = self.get_artist_from_song_name(song_name)
 				self.downloading_songs_artists[song_url] = artist
+				self.downloading_songs_paths[song_url] = self.download_path+bn
 
 				if enqueue:
 					self.enqueue(self.download_path+bn, song_added_by)
@@ -1227,9 +1227,6 @@ class Karaoke:
 
 	def update_song_musician(self, song_path, musician):
 		song_name = self.filename_from_path(song_path)
-		self.update_song_musician_from_song_name(song_name, musician)
-
-	def update_song_musician_from_song_name(self, song_name, musician):
 		current_song_stat = self.song_stat.setdefault(song_name, {
 			"name":song_name,
 			"song_path":song_path,

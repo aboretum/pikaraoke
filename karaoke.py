@@ -529,10 +529,10 @@ class Karaoke:
 		# Path to the best model produced by training
 		output_dir = Path("output/model-best")
 
-		print(f"Loading model for {song_path}")
+		print(f"Loading model for {file_path}")
 		nlp = spacy.load(output_dir)
 
-		song_title = self.filename_from_path(song_path)
+		song_title = self.filename_from_path(file_path)
 
 		doc = nlp(song_title)
 		print(f"Song: {song_title}" )

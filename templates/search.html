@@ -197,7 +197,7 @@
       return false;
     });
 
-    $('#update-artist-button').submit(function(){
+    $('#update-artist-button').click(function(){
       update_artist();
       return false;
     });
@@ -449,7 +449,7 @@
             <div id="artisttext" class="label" style="margin-top: 5px"></div>
             <div class="buttons">
               <button id="cancel-artist-button" class="button is-white" onclick="window.history.go(-1); return false;" type="submit">No</button>
-              <button id="update-artist-button" class="button is-primary" type="submit">Yes</button>
+              <button id="update-artist-button" class="button is-primary" type="button">Yes</button>
             </div>
           </div>
         </form>

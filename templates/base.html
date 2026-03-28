@@ -27,7 +27,7 @@
 
   <script>
 
-    function showNotification(message, categoryClass, timeout=3000) {
+    function showNotification(message, categoryClass, timeout=5000) {
       console.log("Showing notification")
       $("#notification-alt").addClass(categoryClass)
       $("#notification-alt div").text(message)
@@ -83,7 +83,7 @@
       }
 
       // handle auto-close flash notifications
-      setTimeout(function() { $("#notification").fadeOut()}, 3000);
+      setTimeout(function() { $("#notification").fadeOut()}, 5000);
 
       // handle current user display
       var currentUser = Cookies.get("user");
@@ -136,10 +136,11 @@
   .notification {
     position: fixed;
     width: 500px;
-    bottom: 5px;
+    bottom: 35%;
     left: 50%;
     margin-left: -250px;
     z-index: 20;
+    background-color: #2f4d6d
   }
   .current-user {
     position: fixed;

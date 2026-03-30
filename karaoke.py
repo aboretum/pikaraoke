@@ -1261,6 +1261,7 @@ class Karaoke:
 				if musician == 'N/A':
 					continue
 				if song_stat["song_path"] not in self.available_songs:
+					print(f"Skipping song {song}, not found in available_songs")
 					continue
 				if musician not in result:
 					result[musician] = []

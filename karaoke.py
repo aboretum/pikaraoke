@@ -1254,14 +1254,12 @@ class Karaoke:
 
 	def init_song_list_by_musician(self):
 		result = {}
-		print(self.song_stat)
 		for song, song_stat in self.song_stat.items():
 			if "musician" in song_stat:
 				musician = song_stat["musician"]
 				if musician == 'N/A':
 					continue
 				if song_stat["song_path"] not in self.available_songs:
-					print(f"Skipping song {song}, not found in available_songs")
 					continue
 				if musician not in result:
 					result[musician] = []

@@ -622,7 +622,25 @@ def download():
 @app.route("/check_download", methods = ["POST"])
 def check_download():
 	ret = K.downloading_songs.get(request.values.get('url', None), 1)
-	return str(ret)
+	artist = K.downloading_songs_artists.get(request.values.get('url', None), '')
+
+	result = f"{ret}@----------@{artist}"
+
+	return result
+
+@app.route("/update_artist", methods = ["POST"])
+def update_song_artist():
+	url = request.values.get('url', None)
+	song_path = K.downloading_songs_paths.get(url, '')
+	artist = K.downloading_songs_artists.get(url, '')
+
+	print(f"Updating artist {artist} for song {song_path}")
+
+	if song_path != '' and artist != '':
+		K.update_song_musician(song_path, artist)
+		return '0'
+
+	return '1'
 
 @app.route("/check_download_pct", methods = ["POST"])
 def check_download_pct():

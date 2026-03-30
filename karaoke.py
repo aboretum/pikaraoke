@@ -19,6 +19,8 @@ from lib import omxclient, vlcclient
 from lib.get_platform import *
 from app import getString
 import yt_dlp
+import spacy
+from pathlib import Path
 
 STD_VOL = 65536/8/np.sqrt(2)
 
@@ -125,6 +127,8 @@ class Karaoke:
 		self.player_state = {}
 		self.downloading_songs = {}
 		self.downloading_songs_pct = {}
+		self.downloading_songs_artists = {}
+		self.downloading_songs_paths = {}
 		self.log_level = int(args.log_level)
 
 		logging.basicConfig(
@@ -388,9 +392,6 @@ class Karaoke:
 
 		if len(youtube_title) > 50:
 			dl_path = youtube_title[:50] + "---%(id)s.%(ext)s"
-		# opt_sub = ['--sub-langs', 'all', '--embed-subs'] if include_subtitles else []
-		# cmd = ['--fixup', 'force', '--remux-video', 'mp4'] + opt_quality +\
-		#       ["-o", self.download_path+'tmp/'+dl_path] + opt_sub + [song_url]
 
 		ydl_opts = {
 			'outtmpl': self.download_path+'tmp/'+dl_path,
@@ -400,19 +401,22 @@ class Karaoke:
 
 		with yt_dlp.YoutubeDL(ydl_opts) as ydl:
 		    rc = ydl.download([song_url])
-		# if rc != 0:
-		# 	logging.error("Error code while downloading, retrying without format options ...")
-		# 	cmd = ["-o", self.download_path + 'tmp/' + dl_path] + opt_sub + [song_url]
-		# 	rc = self.call_yt_dlp(cmd)
 		if rc == 0:
 			logging.info("Song successfully downloaded: " + song_url)
 			self.downloading_songs[song_url] = 0
 			bn = self.get_downloaded_file_basename(song_url)
 			if bn:
-				shutil.move(self.download_path+'tmp/'+bn, self.download_path+bn)
+				file_ext = os.path.splitext(bn)[1]
+				song_name = self.filename_from_path(bn)
+				save_path = self.download_path + song_name + file_ext
+				shutil.move(self.download_path +'tmp/'+ bn, save_path)
 				self.get_available_songs()
+				artist = self.get_artist_from_song_name(song_name)
+				self.downloading_songs_artists[song_url] = artist
+				self.downloading_songs_paths[song_url] = save_path
+
 				if enqueue:
-					self.enqueue(self.download_path+bn, song_added_by)
+					self.enqueue(save_path, song_added_by)
 					self.downloading_songs[song_url] = '00'
 			else:
 				logging.error("Error queueing song: " + song_url)
@@ -517,6 +521,24 @@ class Karaoke:
 		rc = os.path.splitext(rc)[0]
 		rc = rc.split("---")[0]  # removes youtube id if present
 		return rc
+
+	def get_artist_from_song_name(self, file_path):
+		# Path to the best model produced by training
+		output_dir = Path("output/model-best")
+
+		print(f"Loading model for {file_path}")
+		nlp = spacy.load(output_dir)
+
+		song_title = self.filename_from_path(file_path)
+
+		doc = nlp(song_title)
+		print(f"Song: {song_title}" )
+		print("Entities found:", [(ent.text, ent.label_) for ent in doc.ents])
+		ents = doc.ents
+		if len(ents) > 0:
+			return ents[0].text
+
+		return None
 
 	def kill_player(self):
 		if self.use_vlc:

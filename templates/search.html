@@ -52,9 +52,22 @@
 <script>
   var download_url = "";
   var timer;
+  function update_artist(){
+    $.post('/update_artist', {"url": download_url}, function(data){
+      if (data == '0') {
+        showNotification('Artist successfully updated.');
+      } else {
+        showNotification('Artist failed to update.');
+      }
+      $("#artistguess").addClass('is-hidden')
+    });
+  }
   function check_download(){
-    $.post('/check_download', {"url": download_url}, function(val){
+    $.post('/check_download', {"url": download_url}, function(data){
       msg = "";
+      strs = data.split('@----------@')
+      val = strs[0]
+      artist = strs[1]
       switch(val){
         case '1': return;
         case '00': msg = "{{getString1(191)}}";
@@ -67,6 +80,13 @@
       $("#direct-download-button").removeClass("is-loading");
       $("#direct-download-url").val('')
       showNotification(msg);
+      if (val == '0' || val == '00') {
+        if (artist != '') {
+          console.log('Artist: ' + artist)
+          $("#artisttext").text('Identified artist: ' + artist)
+          $("#artistguess").removeClass('is-hidden')
+        }
+      }
     });
   }
   function check_download_pct(){
@@ -160,7 +180,6 @@
     $('.download-direct').submit(function(){
       download_url = $(this).find('[name=song_url]').val()
       $.post($(this).attr('action'), $(this).serialize(), function(msg) {
-        showNotification(msg);
         timer = setInterval(check_download, 1000);
         timer2 = setInterval(check_download_pct, 200);
       }, 'text');
@@ -170,10 +189,19 @@
     $('.download-direct-2').submit(function(){
       download_url = $(this).find('[name=song_url]').val()
       $.post($(this).attr('action'), $(this).serialize(), function(msg) {
-        showNotification(msg);
         timer = setInterval(check_download, 1000);
         timer2 = setInterval(check_download_pct_2, 200);
       }, 'text');
+      return false;
+    });
+
+    $('#update-artist-button').click(function(){
+      update_artist();
+      return false;
+    });
+
+    $('#cancel-artist-button').click(function(){
+      $("#artistguess").addClass('is-hidden')
       return false;
     });
 
@@ -419,6 +447,14 @@
           <div id="progresstext" class="label is-hidden" style="margin-top: 5px">Loading</div>
           <div id="pbar" class="progressbar is-hidden" style="margin-top: 5px">
             <div id="plabel" class="progress-label">Loading...</div>
+          </div>
+          <div id="artistguess" class="field is-hidden" style="margin-top: 5px">
+            <div id="artisttext" class="label"></div>
+            <div id="artisttext2" class="label">Accept recommendation?</div>
+            <div class="buttons">
+              <button id="cancel-artist-button" class="button is-white" type="button">Skip</button>
+              <button id="update-artist-button" class="button is-primary" type="button">Accept</button>
+            </div>
           </div>
         </form>
       </div>

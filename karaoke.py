@@ -406,12 +406,10 @@ class Karaoke:
 			self.downloading_songs[song_url] = 0
 			bn = self.get_downloaded_file_basename(song_url)
 			if bn:
-
 				file_ext = os.path.splitext(bn)[1]
 				song_name = self.filename_from_path(bn)
-				save_path = self.download_path + song_name + '.' + file_ext
-
-				shutil.move(self.download_path+'tmp/'+bn, save_path)
+				save_path = self.download_path + song_name + file_ext
+				shutil.move(self.download_path +'tmp/'+ bn, save_path)
 				self.get_available_songs()
 				artist = self.get_artist_from_song_name(song_name)
 				self.downloading_songs_artists[song_url] = artist

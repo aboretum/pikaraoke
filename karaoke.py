@@ -1254,6 +1254,7 @@ class Karaoke:
 
 	def init_song_list_by_musician(self):
 		result = {}
+		print(self.song_stat)
 		for song, song_stat in self.song_stat.items():
 			if "musician" in song_stat:
 				musician = song_stat["musician"]

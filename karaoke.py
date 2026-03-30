@@ -392,9 +392,6 @@ class Karaoke:
 
 		if len(youtube_title) > 50:
 			dl_path = youtube_title[:50] + "---%(id)s.%(ext)s"
-		# opt_sub = ['--sub-langs', 'all', '--embed-subs'] if include_subtitles else []
-		# cmd = ['--fixup', 'force', '--remux-video', 'mp4'] + opt_quality +\
-		#       ["-o", self.download_path+'tmp/'+dl_path] + opt_sub + [song_url]
 
 		ydl_opts = {
 			'outtmpl': self.download_path+'tmp/'+dl_path,
@@ -404,24 +401,24 @@ class Karaoke:
 
 		with yt_dlp.YoutubeDL(ydl_opts) as ydl:
 		    rc = ydl.download([song_url])
-		# if rc != 0:
-		# 	logging.error("Error code while downloading, retrying without format options ...")
-		# 	cmd = ["-o", self.download_path + 'tmp/' + dl_path] + opt_sub + [song_url]
-		# 	rc = self.call_yt_dlp(cmd)
 		if rc == 0:
 			logging.info("Song successfully downloaded: " + song_url)
 			self.downloading_songs[song_url] = 0
 			bn = self.get_downloaded_file_basename(song_url)
 			if bn:
-				shutil.move(self.download_path+'tmp/'+bn, self.download_path+bn)				
+
+				file_ext = os.path.splitext(bn)[1]
+				song_name = self.filename_from_path(bn)
+				save_path = self.download_path + song_name + '.' + file_ext
+
+				shutil.move(self.download_path+'tmp/'+bn, save_path)
 				self.get_available_songs()
-				song_name = self.filename_from_path(self.download_path+bn)
 				artist = self.get_artist_from_song_name(song_name)
 				self.downloading_songs_artists[song_url] = artist
-				self.downloading_songs_paths[song_url] = self.download_path+bn
+				self.downloading_songs_paths[song_url] = save_path
 
 				if enqueue:
-					self.enqueue(self.download_path+bn, song_added_by)
+					self.enqueue(save_path, song_added_by)
 					self.downloading_songs[song_url] = '00'
 			else:
 				logging.error("Error queueing song: " + song_url)

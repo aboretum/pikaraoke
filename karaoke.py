@@ -124,6 +124,7 @@ class Karaoke:
 		self.vlcclient = None
 		self.omxclient = None
 		self.screen = None
+		self.nlp = spacy.load(Path("output/model-best"))
 		self.player_state = {}
 		self.downloading_songs = {}
 		self.downloading_songs_pct = {}
@@ -523,15 +524,9 @@ class Karaoke:
 		return rc
 
 	def get_artist_from_song_name(self, file_path):
-		# Path to the best model produced by training
-		output_dir = Path("output/model-best")
-
-		print(f"Loading model for {file_path}")
-		nlp = spacy.load(output_dir)
-
 		song_title = self.filename_from_path(file_path)
 
-		doc = nlp(song_title)
+		doc = self.nlp(song_title)
 		print(f"Song: {song_title}" )
 		print("Entities found:", [(ent.text, ent.label_) for ent in doc.ents])
 		ents = doc.ents

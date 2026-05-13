@@ -1261,6 +1261,8 @@ class Karaoke:
 					continue
 				if song_stat["song_path"] not in self.available_songs:
 					continue
+				if musician is None:
+					continue
 				if musician not in result:
 					result[musician] = []
 				result[musician].append(dict(song_stat))
